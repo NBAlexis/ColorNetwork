@@ -1,2 +1,2 @@
 # ColorNetwork
-Tensor network for lattice gauge theory
+Maybe a TN for lattice gauge theory
