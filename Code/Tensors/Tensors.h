@@ -59,5 +59,8 @@
 #include "CudaFunctions/CNRandom.h"
 #include "CudaFunctions/CNFFT.h"
 
+#ifndef _CN_PRIVATE
+__USE_NAMESPACE
+#endif
 
 #endif

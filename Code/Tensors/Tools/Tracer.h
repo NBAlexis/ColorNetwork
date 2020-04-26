@@ -155,10 +155,21 @@ public:
 
             if (CRUCIAL == level && NULL != m_pStdStream)
             {
-                *m_pStdStream << _T("\033[32m");
+                //red bold
+                *m_pStdStream << _T("\033[31;1m");
             }
             else if (WARNING == level && NULL != m_pStdStream)
             {
+                *m_pStdStream << _T("\033[35m");
+            }
+            else if (DETAILED == level && NULL != m_pStdStream)
+            {
+                //green
+                *m_pStdStream << _T("\033[32m");
+            }
+            else if (PARANOIAC == level && NULL != m_pStdStream)
+            {
+                //dark yellow
                 *m_pStdStream << _T("\033[33m");
             }
 
@@ -193,7 +204,7 @@ public:
 #endif
             }
 
-            if ((CRUCIAL == level || WARNING == level) && NULL != m_pStdStream)
+            if ((CRUCIAL == level || WARNING == level || PARANOIAC == level || DETAILED == level) && NULL != m_pStdStream)
             {
                 *m_pStdStream << _T("\033[0m");
             }
@@ -229,9 +240,9 @@ extern CNAPI void appGeneral(const TCHAR *format, ...);
 extern CNAPI void appDetailed(const TCHAR *format, ...);
 extern CNAPI void appParanoiac(const TCHAR *format, ...);
 
-#ifdef _CLG_DEBUG
+#ifdef _CN_DEBUG
 #   define appCrucial(...) {char ___msg[1024];appSprintf(___msg, 1024, __VA_ARGS__);_appCrucial(_T("%s(%d): Error: %s\n"), _T(__FILE__), __LINE__, ___msg);}
-#   define appWarning(...) {char ___msg[1024];appSprintf(___msg, 1024, __VA_ARGS__);_appCrucial(_T("%s(%d): Warning: %s\n"), _T(__FILE__), __LINE__, ___msg);}
+#   define appWarning(...) {char ___msg[1024];appSprintf(___msg, 1024, __VA_ARGS__);_appWarning(_T("%s(%d): Warning: %s\n"), _T(__FILE__), __LINE__, ___msg);}
 #else
 #   define appCrucial(...) {_appCrucial(__VA_ARGS__);}
 #   define appWarning(...) {_appWarning(__VA_ARGS__);}
