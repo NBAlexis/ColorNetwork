@@ -1,5 +1,5 @@
 //=============================================================================
-// FILENAME : CLGTest.h
+// FILENAME : CNTest.h
 // 
 // DESCRIPTION:
 //
@@ -7,7 +7,7 @@
 //  [12/2/2018 nbale]
 //=============================================================================
 
-#include "Tensors.h"
+#include "CNTensors.h"
 
 #define __REGIST_TEST(functionname, catogary, paramName) \
 struct STestSuits##paramName : public TestList \

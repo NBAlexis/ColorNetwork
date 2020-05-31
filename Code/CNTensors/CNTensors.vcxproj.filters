@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Core\CNSetup.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CNFloat.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CNDefine.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\PlatformIncs.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\PlatformDefine.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="CudaFunctions\CudaHelperFunctions.h">
+      <Filter>CudaFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\EnumGather.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\CBitFlag.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\CCString.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\CLinkedList.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\MemStack.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\STDStringFunctions.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\TArray.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\TemplateFunctions.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Data\THashMap.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="CudaFunctions\CNFFT.h">
+      <Filter>CudaFunctions\Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="CudaFunctions\CNRandom.h">
+      <Filter>CudaFunctions\Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Tracer.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\CYAMLParser.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Timer.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="CNTensors.h" />
+    <ClInclude Include="CNTensorsPch.h" />
+    <ClInclude Include="Tensor\Device\TensorFunctions.h">
+      <Filter>Tensor\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="CudaFunctions\CudaComplexFunction.h">
+      <Filter>CudaFunctions\Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CudaIncludes.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{5b43a1c4-e97b-4fe3-becf-e2ae71643d70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{ae359234-2dd0-4e68-a236-fa4630e5cf23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{0bbf2893-6fdf-4f62-b655-01b1c1904be0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CudaFunctions">
+      <UniqueIdentifier>{12c64f12-1ee6-4cce-9215-66647e152ba2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CudaFunctions\Inc">
+      <UniqueIdentifier>{1a3e3b6d-a538-4e66-aafd-bd420c32f186}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CudaFunctions\Src">
+      <UniqueIdentifier>{a06b301d-6c64-429e-a1a4-45c3ec8914f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Data">
+      <UniqueIdentifier>{38551658-36ef-420b-8fbb-d851e7bda411}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor">
+      <UniqueIdentifier>{17a485eb-ac49-48df-8e37-1358b103fcc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor\Device">
+      <UniqueIdentifier>{37681332-6895-4185-b798-1098549cf8c8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Tools\Data\CCString.cpp">
+      <Filter>Tools\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\Tracer.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\CYAMLParser.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="CNTensorsPch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="CudaFunctions\CNFFT.cu">
+      <Filter>CudaFunctions\Src</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CudaFunctions\CNRandom.cu">
+      <Filter>CudaFunctions\Src</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\TensorFunctions_Common.cu">
+      <Filter>Tensor\Device</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\TensorFunctions_WorkingSpace.cu">
+      <Filter>Tensor\Device</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>
