@@ -5,7 +5,7 @@
 //  Use this string class instead of STL, to get rid of the warnings with dll-export
 //
 // REVISION:
-//  [3/13/2018 nbale]
+//  [31/05/2020 nbale]
 //=============================================================================
 #ifndef _CCSTRING_H_
 #define _CCSTRING_H_

@@ -16,9 +16,6 @@
     <ClInclude Include="Platform\PlatformDefine.h">
       <Filter>Platform</Filter>
     </ClInclude>
-    <ClInclude Include="CudaFunctions\CudaHelperFunctions.h">
-      <Filter>CudaFunctions</Filter>
-    </ClInclude>
     <ClInclude Include="Tools\EnumGather.h">
       <Filter>Tools</Filter>
     </ClInclude>
@@ -72,6 +69,15 @@
     <ClInclude Include="Core\CudaIncludes.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="CudaFunctions\CudaHelperFunctions.h">
+      <Filter>CudaFunctions\Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CNTensorLib.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CudaFunctions\CudaHelper.h">
+      <Filter>CudaFunctions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -113,6 +119,9 @@
       <Filter>Tools</Filter>
     </ClCompile>
     <ClCompile Include="CNTensorsPch.cpp" />
+    <ClCompile Include="Core\CNTensorLib.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="CudaFunctions\CNFFT.cu">
@@ -126,6 +135,9 @@
     </CudaCompile>
     <CudaCompile Include="Tensor\Device\TensorFunctions_WorkingSpace.cu">
       <Filter>Tensor\Device</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CudaFunctions\CudaHelper.cu">
+      <Filter>CudaFunctions</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

@@ -37,7 +37,7 @@ static inline void SimpleThreadDecompose(
     BYTE byIndexCount, 
     UINT& blocks, 
     UINT& threads,
-    UINT uiMaxThread = MAX_THREAD)
+    UINT uiMaxThread = BOUND_THREAD)
 {
     blocks = 1;
     threads = 1;
@@ -241,7 +241,7 @@ __device__ static __inline__ UINT WorkIndexToTensorIndex(
 
 #pragma region Working Space
 
-class CTensorOpWorkingSpace
+class CNAPI CTensorOpWorkingSpace
 {
 public:
     enum
@@ -294,7 +294,7 @@ template <class T> CNAPI void BlockCopyMasked(
  * dst[..., i0 + i, ..., j0 + j] = src[..., i0' + i, ..., j0' + j]
  * When dstIndexStart or srcIndexStart are 0, treat as start from 0
  */
-template <class T> CNAPI void BlockCopy(
+template <class T> inline void BlockCopy(
     T* dst,
     const UINT* __restrict__ dstStride,
     const UINT* __restrict__ dstIndexStart,
@@ -310,7 +310,7 @@ template <class T> CNAPI void BlockCopy(
  * dst[..., i, ..., j] = src[..., i, ..., j]
  * When dstIndexStart or srcIndexStart are 0, treat as start from 0
  */
-template <class T> CNAPI void BlockCopy(
+template <class T> inline void BlockCopy(
     T* dst,
     const UINT* __restrict__ dstStride,
     const T* __restrict__ src,
@@ -323,7 +323,7 @@ template <class T> CNAPI void BlockCopy(
 /**
  * if mask[...] != 0, then T[..., i0 + i, ..., j0 + j] = val
  */
-template <class T> CNAPI void FillMasked(T* src, const T& val,
+template <class T> __DLL_EXPORT void FillMasked(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcIndexStart,
     const BYTE* __restrict__ mask,
@@ -334,7 +334,7 @@ template <class T> CNAPI void FillMasked(T* src, const T& val,
 /**
  * T[..., i0 + i, ..., j0 + j] = val
  */
-template <class T> CNAPI void Fill(T* src, const T& val,
+template <class T> inline void Fill(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcStart,
     const UINT* __restrict__ lengths, BYTE byIndexCount)
@@ -345,20 +345,20 @@ template <class T> CNAPI void Fill(T* src, const T& val,
 /**
  * T[..., i, ..., j] = val
  */
-template <class T> CNAPI void Fill(T* src, const T& val,
+template <class T> inline void Fill(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ lengths, BYTE byIndexCount)
 {
     Fill(src, val, srcStride, NULL, lengths, byIndexCount);
 }
 
-template <class T> CNAPI void Random(T* src, const T& val,
+template <class T> __DLL_EXPORT void Random(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcStart,
     const UINT* __restrict__ lengths, BYTE byIndexCount);
 
 
-template <class T> CNAPI void RandomMasked(T* src, const T& val,
+template <class T> __DLL_EXPORT void RandomMasked(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcStart,
     const UINT* __restrict__ srcEnd,
@@ -372,7 +372,7 @@ template <class T> CNAPI void RandomMasked(T* src, const T& val,
  * order Stride and Dims as stride(dim) of x1, x2, x3, ..., y1, y2, y3.
  * Note: transpose must copy
  */
-template <class T> CNAPI void Transpose(T* dst,
+template <class T> __DLL_EXPORT void Transpose(T* dst,
     const T* __restrict__ src,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcDim,
@@ -390,7 +390,7 @@ template <class T> CNAPI void Transpose(T* dst,
  * TensorIdx = x1 * stride1 + x2 * stride2 + ...
  * so the next thing is to make sure the strides are ordered.
  */
-template <class T> CNAPI void ToMatrix(T* dst, 
+template <class T> inline void ToMatrix(T* dst,
     const T* __restrict__ src,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcDim,
@@ -402,14 +402,14 @@ template <class T> CNAPI void ToMatrix(T* dst,
 /**
  * Print as a vector
  */
-template <class T> CNAPI void DebugPrint(
+template <class T> __DLL_EXPORT void DebugPrint(
     const T* __restrict__ src,
     UINT uiSize);
 
 /**
  * Print as a matrix
  */
-template <class T> CNAPI void DebugPrint(
+template <class T> __DLL_EXPORT void DebugPrint(
     const T* __restrict__ src,
     UINT uiXDim,
     UINT uiYDim);

@@ -22,8 +22,10 @@
     <ClInclude Include="Core\CNDefine.h" />
     <ClInclude Include="Core\CNFloat.h" />
     <ClInclude Include="Core\CNSetup.h" />
+    <ClInclude Include="Core\CNTensorLib.h" />
     <ClInclude Include="Core\CudaIncludes.h" />
     <ClInclude Include="CudaFunctions\CudaComplexFunction.h" />
+    <ClInclude Include="CudaFunctions\CudaHelper.h" />
     <ClInclude Include="CudaFunctions\CudaHelperFunctions.h" />
     <ClInclude Include="CudaFunctions\CNFFT.h" />
     <ClInclude Include="CudaFunctions\CNRandom.h" />
@@ -47,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CNTensorsPch.cpp" />
+    <ClCompile Include="Core\CNTensorLib.cpp" />
     <ClCompile Include="Tools\CYAMLParser.cpp" />
     <ClCompile Include="Tools\Data\CCString.cpp" />
     <ClCompile Include="Tools\Tracer.cpp" />
@@ -54,6 +57,7 @@
   <ItemGroup>
     <CudaCompile Include="CudaFunctions\CNFFT.cu" />
     <CudaCompile Include="CudaFunctions\CNRandom.cu" />
+    <CudaCompile Include="CudaFunctions\CudaHelper.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_Common.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_WorkingSpace.cu" />
   </ItemGroup>
@@ -61,7 +65,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B4269890-49D2-4BE5-BA4F-B8635EA9795D}</ProjectGuid>
     <RootNamespace>CudaSln</RootNamespace>
-    <CudaToolkitCustomDir>F:\Cuda10</CudaToolkitCustomDir>
+    <CudaToolkitCustomDir>F:\Cuda11</CudaToolkitCustomDir>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>CNTensors</ProjectName>
   </PropertyGroup>
@@ -94,7 +98,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 10.1.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.0.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -261,6 +265,6 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 10.1.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.0.targets" />
   </ImportGroup>
 </Project>

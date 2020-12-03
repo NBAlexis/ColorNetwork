@@ -1,21 +1,44 @@
 //=============================================================================
-// FILENAME : CLGLib_Private.cpp
+// FILENAME : CNTensorLib.cpp
 // 
 // DESCRIPTION:
-// This is the file to build pre-compile header
+//
 //
 // REVISION:
-//  [01/06/2020 nbale]
+//  [31/05/2020 nbale]
 //=============================================================================
-
 #include "CNTensorsPch.h"
 
-//There are some global objects, decleared but not have a cpp file to implement
 __BEGIN_NAMESPACE
 
-//CLGAPI CClassGather GClassGather;
+CNAPI CNTensorLib GCNLib;
+
+CNTensorLib::CNTensorLib()
+    : m_pCuda(NULL)
+{
+    
+}
+
+CNTensorLib::~CNTensorLib()
+{
+    
+}
+
+void CNTensorLib::Initial(const class CCString& sConfigFile)
+{
+    m_pCuda = new CCudaHelper();
+}
+
+void CNTensorLib::Exit()
+{
+    appSafeDelete(m_pCuda);
+
+    appFlushLog();
+}
 
 __END_NAMESPACE
+
+
 
 //=============================================================================
 // END OF FILE

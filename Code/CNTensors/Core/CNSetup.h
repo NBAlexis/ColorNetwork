@@ -5,7 +5,7 @@
 // This is the file for building options
 //
 // REVISION:
-//  [24/4/2020 nbalexis]
+//  [24/04/2020 nbalexis]
 //=============================================================================
 #ifndef _CNSETUP_H_
 #define _CNSETUP_H_
@@ -47,10 +47,14 @@
 #define _CN_USE_LAUNCH_BOUND 1
 #endif
 
-#ifndef _CN_LAUNCH_MAX_THREAD
+#if _CN_USE_LAUNCH_BOUND
 constexpr unsigned int MAX_THREAD = 1024;
 constexpr unsigned int BOUND_THREAD = 256;
 constexpr unsigned int BOUND_BLOCK = 4;
+#else
+constexpr unsigned int MAX_THREAD = 1024;
+constexpr unsigned int BOUND_THREAD = 1024;
+constexpr unsigned int BOUND_BLOCK = 1;
 #endif
 
 

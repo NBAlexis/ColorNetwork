@@ -5,7 +5,7 @@
 // This is the file for some common definations
 //
 // REVISION:
-//  [24/4/2020 nbalexis]
+//  [24/04/2020 nbalexis]
 //=============================================================================
 #ifndef _CNDEFINE_H_
 #define _CNDEFINE_H_

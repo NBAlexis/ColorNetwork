@@ -6,7 +6,7 @@
 // Use C++11 std:: string functions instead of <windows.h>, prepare for the Ubuntu build
 //
 // REVISION:
-//  [03/02/2019 nbale]
+//  [31/05/2020 nbale]
 //=============================================================================
 
 #ifndef _STLSTRINGFUNCTIONS_H_

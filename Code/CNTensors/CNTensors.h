@@ -57,15 +57,19 @@
 #include "Tools/Tracer.h"
 #include "Tools/Timer.h"
 #include "Tools/CYAMLParser.h"
+#include "Core/CNTensorLib.h"
 
 #include "CudaFunctions/CudaHelperFunctions.h"
 #include "CudaFunctions/CudaComplexFunction.h"
 #include "CudaFunctions/CNRandom.h"
 #include "CudaFunctions/CNFFT.h"
+#include "CudaFunctions/CudaHelper.h"
 
 //====================== Tensor =======================
 #include "Tensor/Device/TensorFunctions.h"
 //#include "Tensor/CNIndex.h"
+
+
 
 #ifndef _CN_PRIVATE
 __USE_NAMESPACE

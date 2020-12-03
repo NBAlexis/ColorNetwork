@@ -77,13 +77,7 @@ int main(int argc, char * argv[])
 {
     appInitialTracer(PARANOIAC);
 
-    appParanoiac(_T("Hellow world\n"));
-    appDetailed(_T("Hellow world\n"));
-    appGeneral(_T("Hellow world\n"));
-    appWarning(_T("here is a warning!\n"));
-    appGeneral(_T("Hellow world2\n"));
-    appCrucial(_T("here is an Error!\n"));
-    appGeneral(_T("Hellow world3\n"));
+    appInitialCNLib(_T(""));
 
     return 0;
 }

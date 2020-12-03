@@ -4,7 +4,7 @@
 // DESCRIPTION:
 // CCMemStack improved hash map
 // REVISION:
-//  [3/13/2018 nbale]
+//  [01/06/2020 nbale]
 //=============================================================================
 #pragma once
 

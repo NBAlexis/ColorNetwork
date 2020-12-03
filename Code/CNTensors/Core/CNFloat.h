@@ -5,7 +5,7 @@
 // Add precsion for floats
 //
 // REVISION:
-//  [12/15/2018 nbale]
+//  [31/05/2020 nbale]
 //=============================================================================
 #ifndef _CNFLOAT_H_
 #define _CNFLOAT_H_

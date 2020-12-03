@@ -6,7 +6,7 @@
 // We assume this is only use for initialize, so we do not care the speed
 //
 // REVISION:
-//  [12/12/2018 nbale]
+//  [01/06/2020 nbale]
 //=============================================================================
 
 #ifndef _ENUMGATHER_H_

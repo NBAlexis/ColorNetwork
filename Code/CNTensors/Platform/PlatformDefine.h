@@ -5,7 +5,7 @@
 // This is the data-type, defination file for MS-VC platform
 //
 // REVISION:
-//  [24/4/2020 nbalexis]
+//  [24/04/2020 nbalexis]
 //=============================================================================
 #pragma once
 

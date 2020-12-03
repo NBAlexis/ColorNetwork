@@ -16,10 +16,12 @@
 #if _CN_USE_LAUNCH_BOUND
 #define _CN_LAUNCH_(n,m)  __launch_bounds__(n, m)
 #define _CN_LAUNCH_BOUND  __launch_bounds__(BOUND_THREAD, BOUND_BLOCK)
+#define _CN_LAUNCH_BOUND_MAXTHREAD  __launch_bounds__(MAX_THREAD, 1)
 #define _CN_LAUNCH_BOUND_SINGLE __launch_bounds__(1, 1)
 #else
 #define _CN_LAUNCH_(n,m)
 #define _CN_LAUNCH_BOUND
+#define _CN_LAUNCH_BOUND_MAXTHREAD
 #define _CN_LAUNCH_BOUND_SINGLE
 #endif
 
@@ -530,15 +532,19 @@ static const ANSICHAR* _cudaGetErrorEnum(NppStatus error)
 }
 #endif
 
-template <typename T> CNAPI void checkCuda(T result, TCHAR const* const func, const TCHAR* const file,
-    INT const line) {
+template <typename T> void checkCuda(
+    T result, 
+    TCHAR const* const func, 
+    const TCHAR* const file,
+    INT const line)
+{
     if (result) 
     {
         _appCrucial(_T("CUDA error at %s:%d code=%d(%s) \"%s\" \n"), 
             file, 
             line,
             static_cast<UINT>(result), 
-            _cudaGetErrorEnum(result), 
+            _cudaGetErrorEnum(result), //TODO Unicode support
             func);
         _FAIL_EXIT;
     }
@@ -553,10 +559,65 @@ __END_NAMESPACE
 #define _CN_SYNC checkCudaErrors(cudaDeviceSynchronize());
 #define _CN_CUERR checkCudaErrors(cudaGetLastError());
 #define _mallocd(ptr, size) checkCudaErrors(cudaMalloc((void**)ptr, size));
-#define _freed(ptr) if (NULL != ptr) { checkCudaErrors(cudaFree(ptr)); }
+#define _freed(ptr) if (NULL != ptr) { checkCudaErrors(cudaFree(ptr)); ptr = NULL; } 
 #define _memcpy_dd(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyDeviceToDevice));
 #define _memcpy_hd(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyHostToDevice));
 #define _memcpy_dh(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyDeviceToHost));
+
+#pragma region Device Info Support (from Cuda Samples)
+
+__BEGIN_NAMESPACE
+
+inline INT _ConvertSMVer2Cores(INT major, INT minor)
+{
+    // Defines for GPU Architecture types (using the SM version to determine
+    // the # of cores per SM
+    typedef struct {
+        INT SM;  // 0xMm (hexidecimal notation), M = SM Major version,
+                 // and m = SM minor version
+        INT Cores;
+    } sSMtoCores;
+
+    sSMtoCores nGpuArchCoresPerSM[] = {
+        { 0x30, 192 },
+        { 0x32, 192 },
+        { 0x35, 192 },
+        { 0x37, 192 },
+        { 0x50, 128 },
+        { 0x52, 128 },
+        { 0x53, 128 },
+        { 0x60,  64 },
+        { 0x61, 128 },
+        { 0x62, 128 },
+        { 0x70,  64 },
+        { 0x72,  64 },
+        { 0x75,  64 },
+        { -1, -1 } };
+
+    INT index = 0;
+
+    while (nGpuArchCoresPerSM[index].SM != -1) 
+    {
+        if (nGpuArchCoresPerSM[index].SM == ((major << 4) + minor)) 
+        {
+            return nGpuArchCoresPerSM[index].Cores;
+        }
+
+        index++;
+    }
+
+    // If we don't find the values, we default use the previous one
+    // to run properly
+    appWarning(
+        _T("MapSMtoCores for SM %d.%d is undefined.  Default to use %d Cores/SM\n"),
+        major, minor, nGpuArchCoresPerSM[index - 1].Cores);
+    return nGpuArchCoresPerSM[index - 1].Cores;
+}
+
+
+__END_NAMESPACE
+
+#pragma endregion
 
 #pragma endregion
 
@@ -1300,51 +1361,6 @@ inline int ftoi(float value) {
         : static_cast<int>(value - 0.5));
 }
 
-// Beginning of GPU Architecture definitions
-inline int _ConvertSMVer2Cores(int major, int minor) {
-    // Defines for GPU Architecture types (using the SM version to determine
-    // the # of cores per SM
-    typedef struct {
-        int SM;  // 0xMm (hexidecimal notation), M = SM Major version,
-                 // and m = SM minor version
-        int Cores;
-    } sSMtoCores;
-
-    sSMtoCores nGpuArchCoresPerSM[] = {
-        { 0x30, 192 },
-    { 0x32, 192 },
-    { 0x35, 192 },
-    { 0x37, 192 },
-    { 0x50, 128 },
-    { 0x52, 128 },
-    { 0x53, 128 },
-    { 0x60,  64 },
-    { 0x61, 128 },
-    { 0x62, 128 },
-    { 0x70,  64 },
-    { 0x72,  64 },
-    { 0x75,  64 },
-    { -1, -1 } };
-
-    int index = 0;
-
-    while (nGpuArchCoresPerSM[index].SM != -1) {
-        if (nGpuArchCoresPerSM[index].SM == ((major << 4) + minor)) {
-            return nGpuArchCoresPerSM[index].Cores;
-        }
-
-        index++;
-    }
-
-    // If we don't find the values, we default use the previous one
-    // to run properly
-    printf(
-        "MapSMtoCores for SM %d.%d is undefined."
-        "  Default to use %d Cores/SM\n",
-        major, minor, nGpuArchCoresPerSM[index - 1].Cores);
-    return nGpuArchCoresPerSM[index - 1].Cores;
-}
-// end of GPU Architecture definitions
 
 #ifdef __CUDA_RUNTIME_H__
 // General GPU Device CUDA Initialization

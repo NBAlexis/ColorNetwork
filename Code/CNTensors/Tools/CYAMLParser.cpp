@@ -5,7 +5,7 @@
 // This is the class read YAML paramters
 //
 // REVISION:
-//  [26/4/2020 nbale]
+//  [26/04/2020 nbale]
 //=============================================================================
 #include "CNTensorsPch.h"
 

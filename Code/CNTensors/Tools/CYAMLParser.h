@@ -5,7 +5,7 @@
 // This is the class read YAML paramters
 //
 // REVISION:
-//  [28/4/2018 nbale]
+//  [01/06/2020 nbale]
 //=============================================================================
 
 #ifndef _YAMLPARSER_H_

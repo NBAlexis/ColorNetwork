@@ -5,7 +5,7 @@
 // This is a pool, maybe use boost::pool instead?
 //
 // REVISION:
-//  [3/13/2018 nbale]
+//  [31/05/2020 nbale]
 //=============================================================================
 #ifndef _MEMSTACK_H_
 #define _MEMSTACK_H_

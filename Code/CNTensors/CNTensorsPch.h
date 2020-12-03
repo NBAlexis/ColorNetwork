@@ -5,7 +5,7 @@
 // This is the header file for pre-compile header
 //
 // REVISION:
-//  [24/4/2020 nbalexis]
+//  [24/04/2020 nbalexis]
 //=============================================================================
 #pragma once
 
