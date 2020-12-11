@@ -10,6 +10,7 @@
 #ifndef _CNFLOAT_H_
 #define _CNFLOAT_H_
 
+/*
 #if _CN_DOUBLEFLOAT
 
 #define _sqrt sqrt
@@ -92,6 +93,7 @@
 #endif
 
 #endif
+*/
 
 #if _CN_DOUBLEFLOAT
 
@@ -136,40 +138,49 @@
 
 #pragma region Constants
 
-#define _zeroc (_make_cuComplex(F(0.0), F(0.0)))
-#define _onec (_make_cuComplex(F(1.0), F(0.0)))
-#define _imgc (_make_cuComplex(F(0.0), F(1.0)))
+#define _zerocs (make_cuComplex(0.0f, 0.0f))
+#define _onecs (make_cuComplex(1.0f, 0.0f))
+#define _imgcs (make_cuComplex(0.0f, 1.0f))
+
+#define _zerocd (make_cuDoubleComplex(0.0f, 0.0f))
+#define _onecd (make_cuDoubleComplex(1.0f, 0.0f))
+#define _imgcd (make_cuDoubleComplex(0.0f, 1.0f))
+
 //Those are constants we are using
 
 //save some constant memory of cuda?
-#define PI (F(3.141592653589))
-#define PISQ (F(9.8696044010893586188344909998761511353137))
+#define PI (3.141592653589)
+#define PISQ (9.8696044010893586188344909998761511353137)
 
 // = 1/4294967296UL
-#define AM (F(0.00000000023283064365386963))
+#define AM (0.00000000023283064365386963)
 // = _sqrt(2)
-#define SQRT2 (F(1.4142135623730951))
+#define SQRT2 (1.4142135623730951)
 // = 1 / _sqrt(2), or _sqrt(2)/2
-#define InvSqrt2 (F(0.7071067811865475))
+#define InvSqrt2 (0.7071067811865475)
 // = 2.0f * PI
-#define PI2 (F(6.283185307179586))
+#define PI2 (6.283185307179586)
 
 // 1.0f / _sqrt(3)
-#define InvSqrt3 (F(0.5773502691896258))
+#define InvSqrt3 (0.5773502691896258)
 // 2.0f / _sqrt(3)
-#define InvSqrt3_2 (F(1.1547005383792517))
+#define InvSqrt3_2 (1.1547005383792517)
 
-#define OneOver6 (F(0.16666666666666666666666666666667))
-#define OneOver24 (F(0.04166666666666666666666666666667))
+#define OneOver6 (0.16666666666666666666666666666667)
+#define OneOver24 (0.04166666666666666666666666666667)
 
 //typically, 0.3-0.5 - arXiv:002.4232
-#define OmelyanLambda2 (F(0.38636665500756728))
+#define OmelyanLambda2 (0.38636665500756728)
 
 #pragma endregion
 
 __BEGIN_NAMESPACE
 
+typedef cuDoubleComplex _DComplex;
+typedef cuComplex _SComplex;
+
 //NOTE, _Complex is already a keyword in GCC
+/*
 #if _CN_DOUBLEFLOAT
 
 typedef double Real;
@@ -181,7 +192,7 @@ typedef float Real;
 typedef cuComplex CNComplex;
 
 #endif
-
+*/
 
 __END_NAMESPACE
 

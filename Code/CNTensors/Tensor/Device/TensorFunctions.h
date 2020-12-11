@@ -11,6 +11,26 @@
 #ifndef _TENSORFUNCTIONS_H_
 #define _TENSORFUNCTIONS_H_
 
+#define __KERNALCAL(funcName, ...) \
+    if (byIndexCount > _kSmallOrder) \
+    { \
+        funcName << <uiBlock, uiThread >> > (__VA_ARGS__); \
+    } \
+    else \
+    { \
+        funcName##_Small << <uiBlock, uiThread >> > (__VA_ARGS__); \
+    }
+
+
+#define __BuildMultiplyLength(ptr) \
+    UINT* mul_length = appGetTensorOpWorkingSpace()->GetMultiplyLengthBuffer(); \
+    mul_length[byIndexCount - 1] = 1; \
+    for (INT i = byIndexCount - 2; i >= 0; --i) /* do not use BYTE here*/ \
+    { \
+        mul_length[i] = mul_length[i + 1] * lengths[i + 1]; \
+    } \
+    _memcpy_hd(ptr, mul_length, dataSize);
+
 __BEGIN_NAMESPACE
 
 #pragma region Index mapping
@@ -413,6 +433,15 @@ template <class T> __DLL_EXPORT void DebugPrint(
     const T* __restrict__ src,
     UINT uiXDim,
     UINT uiYDim);
+
+#pragma endregion
+
+#pragma region Contract
+
+template <class Tresult, class TLeft, class TRight> __DLL_EXPORT
+void MM(Tresult* dest, const TLeft* __restrict__ left, const TRight* __restrict__ right,
+    BYTE leftOrder, BYTE leftOrderToContract, const UINT* __restrict__ leftDim,
+    BYTE rightOrder, BYTE rightOrderToContract, const UINT* __restrict__ rightDim);
 
 #pragma endregion
 

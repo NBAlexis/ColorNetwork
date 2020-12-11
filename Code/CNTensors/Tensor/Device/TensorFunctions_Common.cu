@@ -9,27 +9,6 @@
 //=============================================================================
 #include "CNTensorsPch.h"
 
-#define __KERNALCAL(funcName, ...) \
-    if (byIndexCount > _kSmallOrder) \
-    { \
-        funcName << <uiBlock, uiThread >> > (__VA_ARGS__); \
-    } \
-    else \
-    { \
-        funcName##_Small << <uiBlock, uiThread >> > (__VA_ARGS__); \
-    }
-
-
-#define __BuildMultiplyLength(ptr) \
-    UINT* mul_length = appGetTensorOpWorkingSpace()->GetMultiplyLengthBuffer(); \
-    mul_length[byIndexCount - 1] = 1; \
-    for (INT i = byIndexCount - 2; i >= 0; --i) /* do not use BYTE here*/ \
-    { \
-        mul_length[i] = mul_length[i + 1] * lengths[i + 1]; \
-    } \
-    _memcpy_hd(ptr, mul_length, dataSize);
-
-
 __BEGIN_NAMESPACE
 
 #pragma region kernels
@@ -151,7 +130,8 @@ __global__ void _CN_LAUNCH_BOUND _kernel_Transpose_Small(
 
 #pragma endregion
 
-template <class T> __DLL_EXPORT void BlockCopyMasked(
+template <class T> __DLL_EXPORT
+void BlockCopyMasked(
     T* dst,
     const UINT* __restrict__ dstStride,
     const UINT* __restrict__ dstIndexStart,
@@ -205,7 +185,8 @@ template <class T> __DLL_EXPORT void BlockCopyMasked(
         );
 }
 
-template <class T> __DLL_EXPORT void FillMasked(T* src, const T& val,
+template <class T> __DLL_EXPORT
+void FillMasked(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcIndexStart,
     const BYTE* __restrict__ mask,
@@ -247,7 +228,8 @@ template <class T> __DLL_EXPORT void FillMasked(T* src, const T& val,
         byIndexCount);
 }
 
-template <class T> __DLL_EXPORT void Random(T* src, const T& val,
+template <class T> __DLL_EXPORT
+void Random(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcStart,
     const UINT* __restrict__ lengths, BYTE byIndexCount)
@@ -256,7 +238,8 @@ template <class T> __DLL_EXPORT void Random(T* src, const T& val,
 }
 
 
-template <class T> __DLL_EXPORT void RandomMasked(T* src, const T& val,
+template <class T> __DLL_EXPORT
+void RandomMasked(T* src, const T& val,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ srcStart,
     const UINT* __restrict__ srcEnd,
@@ -268,7 +251,8 @@ template <class T> __DLL_EXPORT void RandomMasked(T* src, const T& val,
     
 }
 
-template <class T> __DLL_EXPORT void Transpose(T* dst,
+template <class T> __DLL_EXPORT
+void Transpose(T* dst,
     const T* __restrict__ src,
     const UINT* __restrict__ srcStride,
     const UINT* __restrict__ lengths,
@@ -292,7 +276,8 @@ template <class T> __DLL_EXPORT void Transpose(T* dst,
         byIndexCount);
 }
 
-template <class T> __DLL_EXPORT void DebugPrint(
+template <class T> __DLL_EXPORT
+void DebugPrint(
     const T* __restrict__ src,
     UINT uiSize)
 {
@@ -309,7 +294,8 @@ template <class T> __DLL_EXPORT void DebugPrint(
     appSafeFree(hostBuffer);
 }
 
-template <class T> __DLL_EXPORT void DebugPrint(
+template <class T> __DLL_EXPORT
+void DebugPrint(
     const T* __restrict__ src,
     UINT uiXDim,
     UINT uiYDim)

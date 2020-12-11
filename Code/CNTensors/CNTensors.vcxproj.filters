@@ -139,5 +139,8 @@
     <CudaCompile Include="CudaFunctions\CudaHelper.cu">
       <Filter>CudaFunctions</Filter>
     </CudaCompile>
+    <CudaCompile Include="Tensor\Device\TensorFunctions_Contract.cu">
+      <Filter>Tensor\Device</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>
