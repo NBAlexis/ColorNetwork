@@ -5,14 +5,14 @@
 //  Use this string class instead of STL, to get rid of the warnings with dll-export
 //
 // REVISION:
-//  [31/05/2020 nbale]
+//  [3/13/2018 nbale]
 //=============================================================================
 #ifndef _CCSTRING_H_
 #define _CCSTRING_H_
 
 __BEGIN_NAMESPACE
 
-inline void appStrTrimLeft(TCHAR* &InStr)
+inline void appStrTrimLeft(TCHAR*& InStr)
 {
     while (*InStr && (' ' == (*InStr) || '\t' == (*InStr)))
         ++InStr;
@@ -40,15 +40,6 @@ inline UINT appStrToUINT(const TCHAR* s)
     else
         base = 10;
     return appStoUI(p, base);
-}
-
-inline Real appStrToReal(const TCHAR* s)
-{
-#if _CLG_DOUBLEFLOAT
-    return static_cast<Real>(appStoD(s));
-#else
-    return static_cast<Real>(appStoD(s));
-#endif
 }
 
 inline FLOAT appStrToFLOAT(const TCHAR* s)
@@ -79,9 +70,9 @@ public:
     INT m_nAllocLength;       // length of allocation
 
     TCHAR* Data()           // TCHAR* to managed data
-    { 
+    {
         //skip myself
-        return (TCHAR*)(this +1);
+        return (TCHAR*)(this + 1);
     }
 };
 
@@ -102,9 +93,9 @@ public:
 
     CCStringData* GetData() const
     {
-        assert(m_pchData != NULL); 
+        assert(m_pchData != NULL);
         //skip myself
-        return (CCStringData*)(m_pchData) - 1;
+        return (CCStringData*)(m_pchData)-1;
     }
 
 protected:
@@ -115,7 +106,7 @@ protected:
     static void Release(CCStringData* pData);
     static void FreeData(CCStringData* pData)
     {
-        delete[] (BYTE*)(pData);
+        delete[](BYTE*)(pData);
     }
     /**
     * always allocate one extra character for '\0' termination
@@ -132,7 +123,7 @@ protected:
         else
         {
             CCStringData* pData;
-            pData = (CCStringData*)(new BYTE[sizeof(CCStringData) + (nLen + 1)*sizeof(TCHAR)]);
+            pData = (CCStringData*)(new BYTE[sizeof(CCStringData) + (nLen + 1) * sizeof(TCHAR)]);
             pData->m_nAllocLength = nLen;
             pData->m_nRefs = 1;
             pData->Data()[nLen] = _T('\0');
@@ -171,7 +162,7 @@ protected:
     void AssignCopy(INT nSrcLen, const TCHAR* lpszSrcData)
     {
         AllocBeforeWrite(nSrcLen);
-        memcpy(m_pchData, lpszSrcData, nSrcLen*sizeof(TCHAR));
+        memcpy(m_pchData, lpszSrcData, nSrcLen * sizeof(TCHAR));
         GetData()->m_nDataLength = nSrcLen;
         m_pchData[nSrcLen] = _T('\0');
     }
@@ -180,8 +171,8 @@ protected:
     * The buffer is going to change.
     * There might be multiple CCString instance pointing to a same string buffer
     * Therefor, copy it, so it will not affect other strings.
-    * For example, a="X", b=a; 
-    * when doing a.MakeLower(), 
+    * For example, a="X", b=a;
+    * when doing a.MakeLower(),
     * if not copy the buffer, a and b will become "x" at the same time
     */
     void CopyBeforeWrite()
@@ -206,8 +197,8 @@ protected:
         if (nNewLen != 0)
         {
             AllocBuffer(nNewLen);
-            memcpy(m_pchData, lpszSrc1Data, nSrc1Len*sizeof(TCHAR));
-            memcpy(m_pchData + nSrc1Len, lpszSrc2Data, nSrc2Len*sizeof(TCHAR));
+            memcpy(m_pchData, lpszSrc1Data, nSrc1Len * sizeof(TCHAR));
+            memcpy(m_pchData + nSrc1Len, lpszSrc2Data, nSrc2Len * sizeof(TCHAR));
         }
     }
     /**
@@ -232,7 +223,7 @@ protected:
         else
         {
             // fast concatenation when buffer big enough
-            memcpy(m_pchData+GetData()->m_nDataLength, lpszSrcData, nSrcLen*sizeof(TCHAR));
+            memcpy(m_pchData + GetData()->m_nDataLength, lpszSrcData, nSrcLen * sizeof(TCHAR));
             GetData()->m_nDataLength += nSrcLen;
             assert(GetData()->m_nDataLength <= GetData()->m_nAllocLength);
             m_pchData[GetData()->m_nDataLength] = _T('\0');
@@ -249,23 +240,23 @@ public:
 
     TCHAR GetAt(INT nIndex) const
     {
-        assert(nIndex >= 0); 
-        assert(nIndex < GetData()->m_nDataLength); 
-        return m_pchData[nIndex]; 
+        assert(nIndex >= 0);
+        assert(nIndex < GetData()->m_nDataLength);
+        return m_pchData[nIndex];
     }
 
     TCHAR operator[](INT nIndex) const { return GetAt(nIndex); }
-    operator const TCHAR*() const { return m_pchData; }
+    operator const TCHAR* () const { return m_pchData; }
 
     const TCHAR* c_str() const { return m_pchData; }
 
 #if _CLG_UNICODE
     //attention here!
     //need to free it yourself!
-    operator const ANSICHAR*() const 
-    { 
-        INT buf_len = GetLength() * 2+1;
-        ANSICHAR* new_data = (ANSICHAR*)(appMalloc(buf_len)); 
+    operator const ANSICHAR* () const
+    {
+        INT buf_len = GetLength() * 2 + 1;
+        ANSICHAR* new_data = (ANSICHAR*)(appMalloc(buf_len));
         INT ret_len = appUnicodeToAnsi(new_data, (UNICHAR*)m_pchData/*with terminator*/, buf_len/*out buffer bytes*/);
         assert(ret_len <= buf_len);
         return (const ANSICHAR*)new_data;
@@ -273,7 +264,7 @@ public:
 #endif
 
     void SetAt(INT nIndex, TCHAR ch)
-    { 
+    {
         assert(nIndex >= 0);
         assert(nIndex < GetData()->m_nDataLength);
         CopyBeforeWrite();
@@ -284,8 +275,8 @@ public:
     const CCString& operator=(const CCString& stringSrc); //outside
     const CCString& operator=(TCHAR ch)
     {
-        AssignCopy(1, &ch); 
-        return *this; 
+        AssignCopy(1, &ch);
+        return *this;
     }
     const CCString& operator=(const TCHAR* lpsz)
     {
@@ -317,8 +308,8 @@ public:
     CNAPI friend CCString operator+(const TCHAR* lpsz, const CCString& string);
 
     // string comparison
-    INT Compare(const TCHAR* lpsz) const { return appStrcmp(m_pchData, lpsz); } 
-    INT CompareNoCase(const TCHAR* lpsz) const { return appStricmp(m_pchData, lpsz); } 
+    INT Compare(const TCHAR* lpsz) const { return appStrcmp(m_pchData, lpsz); }
+    INT CompareNoCase(const TCHAR* lpsz) const { return appStricmp(m_pchData, lpsz); }
 
     // simple sub-string extraction
     CCString Mid(INT nFirst, INT nCount) const
@@ -604,41 +595,77 @@ protected:
 
 // Compare helpers
 inline UBOOL operator==(const CCString& s1, const CCString& s2)
-{ return 0 == s1.Compare(s2); }
+{
+    return 0 == s1.Compare(s2);
+}
 inline UBOOL operator==(const CCString& s1, const TCHAR* s2)
-{ return 0 == s1.Compare(s2); }
+{
+    return 0 == s1.Compare(s2);
+}
 inline UBOOL operator==(const TCHAR* s1, const CCString& s2)
-{ return 0 == s2.Compare(s1); }
+{
+    return 0 == s2.Compare(s1);
+}
 inline UBOOL operator!=(const CCString& s1, const CCString& s2)
-{ return s1.Compare(s2) != 0; }
+{
+    return s1.Compare(s2) != 0;
+}
 inline UBOOL operator!=(const CCString& s1, const TCHAR* s2)
-{ return s1.Compare(s2) != 0; }
+{
+    return s1.Compare(s2) != 0;
+}
 inline UBOOL operator!=(const TCHAR* s1, const CCString& s2)
-{ return s2.Compare(s1) != 0; }
+{
+    return s2.Compare(s1) != 0;
+}
 inline UBOOL operator<(const CCString& s1, const CCString& s2)
-{ return s1.Compare(s2) < 0; }
+{
+    return s1.Compare(s2) < 0;
+}
 inline UBOOL operator<(const CCString& s1, const TCHAR* s2)
-{ return s1.Compare(s2) < 0; }
+{
+    return s1.Compare(s2) < 0;
+}
 inline UBOOL operator<(const TCHAR* s1, const CCString& s2)
-{ return s2.Compare(s1) > 0; }
+{
+    return s2.Compare(s1) > 0;
+}
 inline UBOOL operator>(const CCString& s1, const CCString& s2)
-{ return s1.Compare(s2) > 0; }
+{
+    return s1.Compare(s2) > 0;
+}
 inline UBOOL operator>(const CCString& s1, const TCHAR* s2)
-{ return s1.Compare(s2) > 0; }
+{
+    return s1.Compare(s2) > 0;
+}
 inline UBOOL operator>(const TCHAR* s1, const CCString& s2)
-{ return s2.Compare(s1) < 0; }
+{
+    return s2.Compare(s1) < 0;
+}
 inline UBOOL operator<=(const CCString& s1, const CCString& s2)
-{ return s1.Compare(s2) <= 0; }
+{
+    return s1.Compare(s2) <= 0;
+}
 inline UBOOL operator<=(const CCString& s1, const TCHAR* s2)
-{ return s1.Compare(s2) <= 0; }
+{
+    return s1.Compare(s2) <= 0;
+}
 inline UBOOL operator<=(const TCHAR* s1, const CCString& s2)
-{ return s2.Compare(s1) >= 0; }
+{
+    return s2.Compare(s1) >= 0;
+}
 inline UBOOL operator>=(const CCString& s1, const CCString& s2)
-{ return s1.Compare(s2) >= 0; }
+{
+    return s1.Compare(s2) >= 0;
+}
 inline UBOOL operator>=(const CCString& s1, const TCHAR* s2)
-{ return s1.Compare(s2) >= 0; }
+{
+    return s1.Compare(s2) >= 0;
+}
 inline UBOOL operator>=(const TCHAR* s1, const CCString& s2)
-{ return s2.Compare(s1) <= 0; }
+{
+    return s2.Compare(s1) <= 0;
+}
 
 // Globals
 extern CNAPI const TCHAR* __GEmptyString;
@@ -648,8 +675,8 @@ inline const CCString& appGetEmptyString() { return __EmptyString; }
 inline CCString::CCString() { Init(); }
 
 inline void CCString::Init()
-{ 
-    m_pchData = __EmptyString.m_pchData; 
+{
+    m_pchData = __EmptyString.m_pchData;
 }
 
 /**
@@ -679,16 +706,23 @@ inline CCString appIntToString(QWORD inInta)
 /**
 *
 */
-inline CCString appFloatToString(Real inFloata)
+inline CCString appFloatToString(FLOAT inFloata)
 {
     return CCString(std::to_string(inFloata).c_str());
 }
+
+#if !_CLG_DOUBLEFLOAT
+inline CCString appFloatToString(DOUBLE inFloata)
+{
+    return CCString(std::to_string(inFloata).c_str());
+}
+#endif
 
 /**
 * The thing is, since we don't have custum types (like vector, rotation or so) to sprint
 * Just use the standard one
 */
-inline CCString appStringFormatV(const TCHAR * lpszFormat, va_list argList)
+inline CCString appStringFormatV(const TCHAR* lpszFormat, va_list argList)
 {
     CCString sRet;
     sRet.FormatV(lpszFormat, argList);
@@ -698,7 +732,7 @@ inline CCString appStringFormatV(const TCHAR * lpszFormat, va_list argList)
 /**
 *
 */
-inline CCString appStringFormat(const TCHAR * lpszFormat, ...)
+inline CCString appStringFormat(const TCHAR* lpszFormat, ...)
 {
     CCString outString;
     va_list argList;
@@ -732,11 +766,11 @@ enum EGetStringListFlag
 * appGetStringList( _T(".asdad.asdasda.   .    gag   aga ", '.', EGSLF_IgnorTabSpaceInSide);
 * there is "asdad"  "asdasda" ""  "gagaga" if not EGSLF_IgnorTabSpaceInSide, it's  "asdad"  "asdasda" "  "  "    gaga  ga"
 */
-inline TArray<CCString> appGetStringList(const CCString &orignString, TArray<INT> seperate, DWORD dwFlag = 0)
+inline TArray<CCString> appGetStringList(const CCString& orignString, TArray<INT> seperate, DWORD dwFlag = 0)
 {
     TArray<CCString> outList;
     const CCBitFlag flag(dwFlag);
-    const TCHAR * lpsz = (const TCHAR *)(orignString);
+    const TCHAR* lpsz = (const TCHAR*)(orignString);
     TCHAR lp[CCString::MAX_PATH];
     memset(lp, 0, CCString::MAX_PATH * sizeof(TCHAR));
     INT currentIndex = 0;
@@ -747,7 +781,7 @@ inline TArray<CCString> appGetStringList(const CCString &orignString, TArray<INT
         for (INT i = 0; i < seperate.Num(); ++i)
             bIsSeperate = bIsSeperate || (*lpsz == seperate[i]);
 
-        bIsSeperate = bIsSeperate || (*lpsz == 0) ||  (*lpsz == '\n') ||  (*lpsz == '\r');
+        bIsSeperate = bIsSeperate || (*lpsz == 0) || (*lpsz == '\n') || (*lpsz == '\r');
 
         const UBOOL bTail = (*lpsz == 0);
 
@@ -759,10 +793,10 @@ inline TArray<CCString> appGetStringList(const CCString &orignString, TArray<INT
                 if (flag.HasFlag(EGSLF_IgnorEmety) || flag.HasFlag(EGSLF_IgnorTabSpace))
                     bRecord = FALSE;
 
-                if (flag.HasFlag(EGSLF_CutHead) &&  0 == outList.Num() )
+                if (flag.HasFlag(EGSLF_CutHead) && 0 == outList.Num())
                     bRecord = FALSE;
 
-                if (flag.HasFlag(EGSLF_CutTail) &&  bTail )
+                if (flag.HasFlag(EGSLF_CutTail) && bTail)
                     bRecord = FALSE;
             }
             else
@@ -789,7 +823,7 @@ inline TArray<CCString> appGetStringList(const CCString &orignString, TArray<INT
         }
         else
         {
-            if ( !flag.HasFlag(EGSLF_IgnorTabSpaceInSide) || (!( ' ' == (*lpsz) || '\t' == (*lpsz)) ))
+            if (!flag.HasFlag(EGSLF_IgnorTabSpaceInSide) || (!(' ' == (*lpsz) || '\t' == (*lpsz))))
             {
                 lp[currentIndex] = *lpsz;
                 ++currentIndex;
@@ -804,7 +838,7 @@ inline TArray<CCString> appGetStringList(const CCString &orignString, TArray<INT
     return outList;
 }
 
-inline TArray<CCString> appGetStringList(const CCString &orignString, INT seperate, DWORD dwFlag = 0)
+inline TArray<CCString> appGetStringList(const CCString& orignString, INT seperate, DWORD dwFlag = 0)
 {
     TArray <INT> inSep;
     inSep.AddItem(seperate);
@@ -818,10 +852,10 @@ inline TArray<CCString> appGetStringList(const CCString &orignString, INT sepera
 * there is "data\"
 * when cut head, it's "\asdasda.bmp"
 */
-inline CCString appGetCutTail(const CCString &orignString, TArray<INT> seperate, UBOOL bCutSep = FALSE, UBOOL bCutHead = FALSE)
+inline CCString appGetCutTail(const CCString& orignString, TArray<INT> seperate, UBOOL bCutSep = FALSE, UBOOL bCutHead = FALSE)
 {
-    const TCHAR * lpsz = (const TCHAR *)(orignString);
-    TCHAR lp [CCString::MAX_PATH];
+    const TCHAR* lpsz = (const TCHAR*)(orignString);
+    TCHAR lp[CCString::MAX_PATH];
     memset(lp, 0, CCString::MAX_PATH * sizeof(TCHAR));
     appStrcpy(lp, CCString::MAX_PATH, lpsz);
     INT location = -1;
@@ -856,12 +890,12 @@ inline CCString appGetCutTail(const CCString &orignString, TArray<INT> seperate,
         else
             *(lp + location + 1) = 0;
     }
-    
+
     CCString outString(lp);
     return outString;
 }
 
-inline CCString appGetCutTail(const CCString &orignString, INT seperate, UBOOL bCutSep = FALSE, UBOOL bCutHead = FALSE)
+inline CCString appGetCutTail(const CCString& orignString, INT seperate, UBOOL bCutSep = FALSE, UBOOL bCutHead = FALSE)
 {
     TArray <INT> inSep;
     inSep.AddItem(seperate);

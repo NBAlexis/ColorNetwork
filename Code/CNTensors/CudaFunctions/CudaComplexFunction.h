@@ -38,36 +38,36 @@ template<class T> __inline__ __host__ __device__
 T _Abs(const T& a) { return abs(a); }
 
 template<> __inline__ __host__ __device__
-FLOAT _Abs(const _SComplex& a) { return cuCabsf(a); }
+_SComplex _Abs(const _SComplex& a) { return make_cuComplex(cuCabsf(a), 0.0f); }
 
 template<> __inline__ __host__ __device__
-DOUBLE _Abs(const _DComplex& a) { return cuCabs(a); }
+_DComplex _Abs(const _DComplex& a) { return make_cuDoubleComplex(cuCabs(a), 0.0); }
 
 template<class T> __inline__ __host__ __device__
 T _Re(const T& a) { return a; }
 
 template<> __inline__ __host__ __device__
-FLOAT _Re(const _SComplex& a) { return a.x; }
+_SComplex _Re(const _SComplex& a) { return make_cuComplex(a.x, 0.0f); }
 
 template<> __inline__ __host__ __device__
-DOUBLE _Re(const _DComplex& a) { return a.x; }
+_DComplex _Re(const _DComplex& a) { return make_cuDoubleComplex(a.x, 0.0); }
 
 template<class T> __inline__ __host__ __device__
 T _Im(const T& a) { return static_cast<T>(0); }
 
 template<> __inline__ __host__ __device__
-FLOAT _Im(const _SComplex& a) { return a.y; }
+_SComplex _Im(const _SComplex& a) { return make_cuComplex(a.y, 0.0f); }
 
 template<> __inline__ __host__ __device__
-DOUBLE _Im(const _DComplex& a) { return a.y; }
+_DComplex _Im(const _DComplex& a) { return make_cuDoubleComplex(a.y, 0.0); }
 
 template<class T> __inline__ __host__ __device__
 T _AbsSq(const T& a) { return a * a; }
 
-template<> __inline__ __host__ __device__
+__inline__ __host__ __device__
 FLOAT _AbsSq(const _SComplex& a) { return a.x * a.x + a.y * a.y; }
 
-template<> __inline__ __host__ __device__
+__inline__ __host__ __device__
 DOUBLE _AbsSq(const _DComplex& a) { return a.x * a.x + a.y * a.y; }
 
 template<class T> __inline__ __host__ __device__
@@ -82,9 +82,10 @@ _DComplex _Conj(const _DComplex& a) { return cuConj(a); }
 template<class T> __inline__ __host__ __device__
 constexpr T _Arg(const T& a) { return static_cast<T>(0); }
 
-template<> __inline__ __host__ __device__
+__inline__ __host__ __device__
 FLOAT _Arg(const _SComplex& a) { return atan2(cuCimagf(a), cuCrealf(a)); }
 
+__inline__ __host__ __device__
 DOUBLE _Arg(const _DComplex& a) { return atan2(cuCimag(a), cuCreal(a)); }
 
 template<class T1, class T2> __inline__ __host__ __device__
@@ -212,7 +213,7 @@ _SComplex _Cos(const _SComplex& a)
 template<> __inline__ __host__ __device__
 _DComplex _Cos(const _DComplex& a)
 {
-    const _SComplex numerator = cuCadd(
+    const _DComplex numerator = cuCadd(
         _Exp(make_cuDoubleComplex(-a.y, a.x)),
         _Exp(make_cuDoubleComplex(a.y, -a.x)));
 
@@ -271,10 +272,10 @@ _DComplex _Sub_L(const _DComplex& a, const _SComplex& b) { return make_cuDoubleC
 template<class T1, class T2> __inline__ __host__ __device__
 T2 _Sub_R(const T1& a, const T2& b) { return static_cast<T2>(a) - b; }
 
-template<class T2> __inline__ __host__ __device__
+template<class T1> __inline__ __host__ __device__
 _SComplex _Sub_R(const T1& a, const _SComplex& b) { return make_cuComplex(static_cast<FLOAT>(a) - b.x, -b.y); }
 
-template<class T2> __inline__ __host__ __device__
+template<class T1> __inline__ __host__ __device__
 _DComplex _Sub_R(const T1& a, const _DComplex& b) { return make_cuDoubleComplex(static_cast<DOUBLE>(a) - b.x, -b.y); }
 
 template<> __inline__ __host__ __device__
@@ -339,7 +340,7 @@ _SComplex _Div_L(const _SComplex& a, const _SComplex& b) { return cuCdivf(a, b);
 template<> __inline__ __host__ __device__
 _SComplex _Div_L(const _SComplex& a, const _DComplex& b)
 {
-    FLOAT s = abs(b.x) + abs(b.y);
+    FLOAT s = static_cast<FLOAT>(abs(b.x) + abs(b.y));
     FLOAT oos = 1.0f / s;
     const FLOAT ars = a.x * oos;
     const FLOAT ais = a.y * oos;
@@ -375,7 +376,7 @@ _DComplex _Div_L(const _DComplex& a, const _SComplex& b)
 template<class T1, class T2> __inline__ __host__ __device__
 T2 _Div_R(const T1& a, const T2& b) { return static_cast<T2>(a) / b; }
 
-template<class T2> __inline__ __host__ __device__
+template<class T1> __inline__ __host__ __device__
 _SComplex _Div_R(const T1& a, const _SComplex& b)
 {
     FLOAT s = abs(b.x) + abs(b.y);

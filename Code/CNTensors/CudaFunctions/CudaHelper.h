@@ -16,7 +16,7 @@ __BEGIN_NAMESPACE
 constexpr UINT kContentLength = 256;
 
 extern __constant__ INT _constIntegers[kContentLength];
-extern __constant__ Real _constFloats[kContentLength];
+//extern __constant__ Real _constFloats[kContentLength];
 
 /**
 * Note that, the pointers are copyied here. So the virtual functions should not be used!
@@ -40,15 +40,15 @@ class CNAPI CCudaHelper
 public:
 
     CCudaHelper()
-        : m_pComplexBufferThreadCount(NULL)
+        /*: m_pComplexBufferThreadCount(NULL)
         , m_pRealBufferThreadCount(NULL)
         , m_pIntBufferThreadCount(NULL)
 
         , m_pTensorWorkingSpace(NULL)
-
+        */
     {
-        memset(m_ConstIntegers, 0, sizeof(INT) * kContentLength);
-        memset(m_ConstFloats, 0, sizeof(Real) * kContentLength);
+        //memset(m_ConstIntegers, 0, sizeof(INT) * kContentLength);
+        //memset(m_ConstFloats, 0, sizeof(Real) * kContentLength);
 
         AllocateTemeraryBuffers();
         InitialHelpers();
@@ -90,27 +90,8 @@ public:
     template<class T> static T ReduceProd(T* deviceBuffer, UINT uiLength = MAX_THREAD);
     template<class T> static void ThreadBufferInitial(T* deviceBuffer, const T& val, UINT uiLength = MAX_THREAD);
 
-    CNComplex ThreadBufferSumComplex() const { return ReduceSum(m_pComplexBufferThreadCount); }
-    Real ThreadBufferSumReal() const { return ReduceSum(m_pRealBufferThreadCount); }
-    INT ThreadBufferSumINT() const { return ReduceSum(m_pIntBufferThreadCount); }
-
-    CNComplex ThreadBufferProdComplex() const { return ReduceProd(m_pComplexBufferThreadCount); }
-    Real ThreadBufferProdReal() const { return ReduceProd(m_pRealBufferThreadCount); }
-    INT ThreadBufferProdINT() const { return ReduceProd(m_pIntBufferThreadCount); }
-
-    void ThreadBufferZeroComplex(CNComplex cInitial = _zeroc) const { ThreadBufferInitial(m_pComplexBufferThreadCount, cInitial); }
-    void ThreadBufferZeroReal(Real fInitial = F(0.0)) const { ThreadBufferInitial(m_pRealBufferThreadCount, fInitial); }
-    void ThreadBufferZeroINT(INT iInitial = 0) const { ThreadBufferInitial(m_pIntBufferThreadCount, iInitial); }
-
-    CNComplex* GetThreadBufferComplex() const { return m_pComplexBufferThreadCount; }
-    Real* GetThreadBufferReal() const { return m_pRealBufferThreadCount; }
-    INT* GetThreadBufferINT() const { return m_pIntBufferThreadCount; }
 
 protected:
-
-    CNComplex* m_pComplexBufferThreadCount;
-    Real* m_pRealBufferThreadCount;
-    INT* m_pIntBufferThreadCount;
 
     /**
     * Call to malloc buffers with same size as thread count
@@ -131,7 +112,7 @@ public:
 protected:
 
     INT m_ConstIntegers[kContentLength];
-    Real m_ConstFloats[kContentLength];
+    //Real m_ConstFloats[kContentLength];
 
     #pragma endregion
 

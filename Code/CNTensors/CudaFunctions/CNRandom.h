@@ -48,7 +48,7 @@ __DEFINE_ENUM (ERandomSeedType,
     ERST_ForceDWORD = 0x7fffffff,
     )
 
-class CLGAPI CRandom
+class CNAPI CRandom
 {
 public:
 
@@ -291,13 +291,13 @@ __DefineRandomFuncion(CNComplex, GaussC)
 
 __DefineRandomFuncion(CNComplex, Z4)
 
-extern CLGAPI Real GetRandomReal();
+extern CNAPI Real GetRandomReal();
 
 //==========================
 //functions for test
-extern Real CLGAPI CalculatePi(const TArray<UINT> & decompose);
+extern Real CNAPI CalculatePi(const TArray<UINT> & decompose);
 
-extern Real CLGAPI CalculateE(const TArray<UINT> & decompose);
+extern Real CNAPI CalculateE(const TArray<UINT> & decompose);
 
 __END_NAMESPACE
 

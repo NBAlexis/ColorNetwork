@@ -12,7 +12,7 @@
 __BEGIN_NAMESPACE
 
 __constant__ INT _constIntegers[kContentLength];
-__constant__ Real _constFloats[kContentLength];
+//__constant__ Real _constFloats[kContentLength];
 //__constant__ CRandom* __r;
 
 
@@ -384,16 +384,16 @@ TArray<UINT> CCudaHelper::GetMaxThreadCountAndThreadPerblock()
 
 void CCudaHelper::AllocateTemeraryBuffers()
 {
-    checkCudaErrors(cudaMalloc((void**)&m_pRealBufferThreadCount, sizeof(Real)* MAX_THREAD));
-    checkCudaErrors(cudaMalloc((void**)&m_pComplexBufferThreadCount, sizeof(CNComplex)* MAX_THREAD));
-    checkCudaErrors(cudaMalloc((void**)&m_pIntBufferThreadCount, sizeof(INT) * MAX_THREAD));
+    //checkCudaErrors(cudaMalloc((void**)&m_pRealBufferThreadCount, sizeof(Real)* MAX_THREAD));
+    //checkCudaErrors(cudaMalloc((void**)&m_pComplexBufferThreadCount, sizeof(CNComplex)* MAX_THREAD));
+    //checkCudaErrors(cudaMalloc((void**)&m_pIntBufferThreadCount, sizeof(INT) * MAX_THREAD));
 }
 
 void CCudaHelper::ReleaseTemeraryBuffers()
 {
-    _freed(m_pRealBufferThreadCount);
-    _freed(m_pComplexBufferThreadCount);
-    _freed(m_pIntBufferThreadCount);
+    //_freed(m_pRealBufferThreadCount);
+    //_freed(m_pComplexBufferThreadCount);
+    //_freed(m_pIntBufferThreadCount);
 }
 
 template<class T> T CCudaHelper::ReduceSum(T* deviceBuffer, UINT uiLength)
@@ -440,7 +440,7 @@ template<class T> void CCudaHelper::ThreadBufferInitial(T* deviceBuffer, const T
 void CCudaHelper::CopyConstants() const
 {
     checkCudaErrors(cudaMemcpyToSymbol(_constIntegers, m_ConstIntegers, sizeof(INT) * kContentLength));
-    checkCudaErrors(cudaMemcpyToSymbol(_constFloats, m_ConstFloats, sizeof(Real) * kContentLength));
+    //checkCudaErrors(cudaMemcpyToSymbol(_constFloats, m_ConstFloats, sizeof(Real) * kContentLength));
 }
 
 void CCudaHelper::CopyRandomPointer(const class CRandom* r) const

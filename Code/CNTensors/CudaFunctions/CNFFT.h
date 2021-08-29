@@ -26,7 +26,7 @@ enum EFFT_Scale
     ES_1OverSqrtNBoth,
 };
 
-class CLGAPI CCLGFFTHelper
+class CNAPI CCLGFFTHelper
 {
 public:
 

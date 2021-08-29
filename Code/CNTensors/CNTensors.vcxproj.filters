@@ -78,6 +78,21 @@
     <ClInclude Include="CudaFunctions\CudaHelper.h">
       <Filter>CudaFunctions</Filter>
     </ClInclude>
+    <ClInclude Include="Tools\Data\CNMD5.h">
+      <Filter>Tools\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\CNDeviceTensor.h">
+      <Filter>Tensor\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\CNDeviceTensorCommon.h">
+      <Filter>Tensor\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.h">
+      <Filter>Tensor\Device\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\CNDeviceTensorElementOperator.h">
+      <Filter>Tensor\Device</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -106,6 +121,18 @@
     </Filter>
     <Filter Include="Tensor\Device">
       <UniqueIdentifier>{37681332-6895-4185-b798-1098549cf8c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor\Host">
+      <UniqueIdentifier>{a710f141-673c-41ea-8b2d-8593b155c5b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor\Device\Contraction">
+      <UniqueIdentifier>{8c675008-a43e-4297-b38a-ba8c86690be2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor\Device\SVD">
+      <UniqueIdentifier>{94e1ed00-fb68-4782-aef4-8ee18d7f807e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor\Device\Common">
+      <UniqueIdentifier>{210e1e1e-9e38-42b2-9853-a4ccb03fc628}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +167,12 @@
       <Filter>CudaFunctions</Filter>
     </CudaCompile>
     <CudaCompile Include="Tensor\Device\TensorFunctions_Contract.cu">
+      <Filter>Tensor\Device</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.cu">
+      <Filter>Tensor\Device\Common</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\CNDeviceTensorElementOperator.cu">
       <Filter>Tensor\Device</Filter>
     </CudaCompile>
   </ItemGroup>

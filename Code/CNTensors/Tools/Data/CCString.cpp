@@ -4,7 +4,7 @@
 // DESCRIPTION:
 //
 // REVISION:
-//  [31/05/2020 nbale]
+//  [3/13/2018 nbale]
 //=============================================================================
 #include "CNTensorsPch.h"
 
@@ -14,9 +14,9 @@ __BEGIN_NAMESPACE
 //    String
 //============================================================
 static TCHAR _NullChar = _T('\0');
-static INT _NullString[] = {-1,0,0,0};
+static INT _NullString[] = { -1,0,0,0 };
 static CCStringData* _EmptyStringData = (CCStringData*)&_NullString;
-CNAPI const TCHAR* __GEmptyString = (const TCHAR*)((BYTE*)&_NullString+sizeof(CCStringData));
+CNAPI const TCHAR* __GEmptyString = (const TCHAR*)((BYTE*)&_NullString + sizeof(CCStringData));
 
 /**
 *
@@ -30,7 +30,7 @@ CCString::CCString(const CCString& stringSrc)
         assert(stringSrc.GetData() != _EmptyStringData);
         m_pchData = stringSrc.m_pchData;
         //appInterlockedIncrement(&GetData()->m_nRefs);
-        ++(GetData()->m_nRefs);
+        GetData()->m_nRefs++;
     }
     else
     {
@@ -50,7 +50,7 @@ CCString::CCString(const TCHAR* lpsz)
     if (nLen != 0)
     {
         AllocBuffer((INT)(nLen));
-        memcpy(m_pchData, lpsz, nLen*sizeof(TCHAR));
+        memcpy(m_pchData, lpsz, nLen * sizeof(TCHAR));
     }
 }
 
@@ -79,7 +79,7 @@ CCString::CCString(const TCHAR* lpch, INT nLength)
     if (nLength != 0)
     {
         AllocBuffer(nLength);
-        memcpy(m_pchData, lpch, nLength*sizeof(TCHAR));
+        memcpy(m_pchData, lpch, nLength * sizeof(TCHAR));
     }
 }
 
@@ -257,7 +257,7 @@ TCHAR* CCString::GetBuffer(INT nMinBufLength)
 #ifdef _DEBUG
         // give a warning in case locked string becomes unlocked
         if (GetData() != _EmptyStringData && GetData()->m_nRefs < 0)
-            appGeneral(_T("Warning: GetBuffer on locked CCString creates unlocked CCString!\n"));
+            appGeneral(_T("Warning: GetBuffer on locked FString creates unlocked FString!\n"));
 #endif
         // we have to grow the buffer
         CCStringData* pOldData = GetData();
@@ -362,10 +362,24 @@ void CCString::TrimLeft()
 */
 void __cdecl CCString::Format(const TCHAR* lpszFormat, ...)
 {
+#if 0
     va_list argList;
     va_start(argList, lpszFormat);
     FormatV(lpszFormat, argList);
     va_end(argList);
+#else
+    va_list argList;
+    va_start(argList, lpszFormat);
+
+    static TCHAR tmpBuffer[4096];
+    appVsnprintf(tmpBuffer, 4095, lpszFormat, argList);
+    const INT nLen = static_cast<INT>(appStrlen(tmpBuffer) + 1);
+    GetBuffer(nLen);
+    appStrcpy(m_pchData, GetAllocLength(), tmpBuffer);
+    ReleaseBuffer();
+
+    va_end(argList);
+#endif
 }
 
 CCString CCString::FormatS(const TCHAR* lpszFormat, ...)
@@ -478,17 +492,17 @@ void CCString::FormatV(const TCHAR* lpszFormat, va_list argList)
             // strings
         case _T('s'):
         case _T('S'):
+        {
+            const TCHAR* pstrNextArg = va_arg(argList, const TCHAR*);
+            if (pstrNextArg == NULL)
+                nItemLen = 6;  // "(null)"
+            else
             {
-                const TCHAR* pstrNextArg = va_arg(argList, const TCHAR*);
-                if (pstrNextArg == NULL)
-                    nItemLen = 6;  // "(null)"
-                else
-                {
-                    nItemLen = (INT)appStrlen(pstrNextArg);
-                    nItemLen = appMax(1, nItemLen);
-                }
+                nItemLen = (INT)appStrlen(pstrNextArg);
+                nItemLen = appMax(1, nItemLen);
             }
-            break;
+        }
+        break;
         }
 
         // adjust nItemLen for strings
@@ -511,7 +525,7 @@ void CCString::FormatV(const TCHAR* lpszFormat, va_list argList)
             case _T('o'):
                 va_arg(argList, INT);
                 nItemLen = 32;
-                nItemLen = appMax(nItemLen, nWidth+nPrecision);
+                nItemLen = appMax(nItemLen, nWidth + nPrecision);
                 break;
 
             case _T('e'):
@@ -520,31 +534,31 @@ void CCString::FormatV(const TCHAR* lpszFormat, va_list argList)
 
                 va_arg(argList, DOUBLE_ARG);
                 nItemLen = 128;
-                nItemLen = appMax(nItemLen, nWidth+nPrecision);
+                nItemLen = appMax(nItemLen, nWidth + nPrecision);
                 break;
 
             case _T('f'):
-                {
-                    DOUBLE f;
-                    TCHAR* pszTemp;
+            {
+                DOUBLE f;
+                TCHAR* pszTemp;
 
-                    // 312 == strlen("-1+(309 zeroes).")
-                    // 309 zeroes == max precision of a double
-                    // 6 == adjustment in case precision is not specified,
-                    //   which means that the precision defaults to 6
-                    const DWORD nLength = appMax(nWidth, 312 + nPrecision + 6);
-                    pszTemp = (TCHAR*)appAlloca(nLength);
+                // 312 == strlen("-1+(309 zeroes).")
+                // 309 zeroes == max precision of a double
+                // 6 == adjustment in case precision is not specified,
+                //   which means that the precision defaults to 6
+                const DWORD nLength = appMax(nWidth, 312 + nPrecision + 6);
+                pszTemp = (TCHAR*)appAlloca(nLength);
 
-                    f = va_arg(argList, DOUBLE);
-                    appSprintf( pszTemp, nLength, _T( "%*.*f" ), nWidth, nPrecision+6, f );
-                    nItemLen = (INT)appStrlen(pszTemp);
-                }
-                break;
+                f = va_arg(argList, DOUBLE);
+                appSprintf(pszTemp, nLength, _T("%*.*f"), nWidth, nPrecision + 6, f);
+                nItemLen = (INT)appStrlen(pszTemp);
+            }
+            break;
 
             case _T('p'):
                 va_arg(argList, void*);
                 nItemLen = 32;
-                nItemLen = appMax(nItemLen, nWidth+nPrecision);
+                nItemLen = appMax(nItemLen, nWidth + nPrecision);
                 break;
 
                 // no output

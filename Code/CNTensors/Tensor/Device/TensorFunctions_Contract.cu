@@ -19,8 +19,8 @@ __BEGIN_NAMESPACE
 /**
  * (block * thread).x is index of left tensor, (block * thread).y is index of right tensor.
  */
-template <class Tresult, class TLeft, class TRight> __DLL_EXPORT
-__global__ void _CN_LAUNCH_BOUND _kernel_MM(Tresult* dest, const TLeft* __restrict__ left, const TRight* __restrict__ right,
+template <class Tresult, class TLeft, class TRight> 
+__global__ void _kernel_MM(Tresult* dest, const TLeft* __restrict__ left, const TRight* __restrict__ right,
     UINT contractDim,
     BYTE leftOrder, BYTE leftOrderToContract, const UINT* __restrict__ leftDim,
     BYTE rightOrder, BYTE rightOrderToContract, const UINT* __restrict__ rightDim,

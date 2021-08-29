@@ -316,7 +316,7 @@ _kernelMCE(Real* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithread
     }
 }
 
-Real CLGAPI CalculatePi(const TArray<UINT> & decompose)
+Real CNAPI CalculatePi(const TArray<UINT> & decompose)
 {
     dim3 blocknumber(decompose[0], decompose[1], decompose[2]);
     dim3 threadnumber(decompose[3], decompose[4], decompose[5]);
@@ -345,7 +345,7 @@ Real CLGAPI CalculatePi(const TArray<UINT> & decompose)
     return F(4.0) * outPutHost[0] / (Real)(total);
 }
 
-Real CLGAPI CalculateE(const TArray<UINT> & decompose)
+Real CNAPI CalculateE(const TArray<UINT> & decompose)
 {
     dim3 blocknumber(decompose[0], decompose[1], decompose[2]);
     dim3 threadnumber(decompose[3], decompose[4], decompose[5]);

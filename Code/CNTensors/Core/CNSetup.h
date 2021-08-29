@@ -26,16 +26,6 @@
 #define _CN_WIN 1
 #endif
 
-//_CN_DOUBLEFLOAT = 0 or 1. 
-//Note that single float is rarely the problem for accuracy, but much much faster
-#ifndef _CN_DOUBLEFLOAT
-#if _CN_DEBUG
-#define _CN_DOUBLEFLOAT 1
-#else
-#define _CN_DOUBLEFLOAT 1
-#endif
-#endif
-
 //_CLG_USE_LAUNCH_BOUND = 0 or 1.
 //NOTE: If the regcount required is out-numbered, sometimes, there is NO error message!
 //So, either be sure to build with _CN_USE_LAUNCH_BOUND = 1, or reduce the thread count

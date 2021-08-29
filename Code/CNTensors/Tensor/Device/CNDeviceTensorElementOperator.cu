@@ -1,16 +1,14 @@
 //=============================================================================
-// FILENAME : CLGLib_Private.cpp
+// FILENAME : CNDeviceTensorCommonNaive.cu
 // 
 // DESCRIPTION:
-// This is the file to build pre-compile header
+// 
 //
 // REVISION:
-//  [01/06/2020 nbale]
+//  [19/06/2021 nbale]
 //=============================================================================
-
 #include "CNTensorsPch.h"
 
-//There are some global objects, decleared but not have a cpp file to implement
 __BEGIN_NAMESPACE
 
 

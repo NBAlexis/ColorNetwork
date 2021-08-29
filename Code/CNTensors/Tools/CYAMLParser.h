@@ -46,7 +46,7 @@ class CNAPI CParameters
 {
 public:
 
-    CParameters() {;}
+    CParameters() {}
     CParameters(const CParameters& other) 
     { 
         m_pStrings = other.m_pStrings;
@@ -54,7 +54,7 @@ public:
         m_pParameters = other.m_pParameters;
     }
 
-    ~CParameters() {;}
+    ~CParameters() {}
 
     void SetStringVaule(const CCString& key, const CCString& value)
     {
@@ -84,7 +84,7 @@ public:
 
     _FetchFunction(INT)
 
-    _FetchFunction(Real)
+    _FetchFunction(DOUBLE)
 
     UBOOL FetchStringValue(const CCString& key, CCString& value) const
     {
@@ -100,7 +100,7 @@ public:
 
     _FetchFunctionArray(UINT)
 
-    _FetchFunctionArray(Real)
+    _FetchFunctionArray(DOUBLE)
 
     UBOOL FetchStringVectorValue(const CCString& key, TArray<CCString>& value) const
     {

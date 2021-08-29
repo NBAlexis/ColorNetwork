@@ -33,10 +33,15 @@
     <ClInclude Include="Platform\PlatformIncs.h" />
     <ClInclude Include="CNTensors.h" />
     <ClInclude Include="CNTensorsPch.h" />
+    <ClInclude Include="Tensor\Device\CNDeviceTensor.h" />
+    <ClInclude Include="Tensor\Device\CNDeviceTensorCommon.h" />
+    <ClInclude Include="Tensor\Device\CNDeviceTensorElementOperator.h" />
+    <ClInclude Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.h" />
     <ClInclude Include="Tensor\Device\TensorFunctions.h" />
     <ClInclude Include="Tools\CYAMLParser.h" />
     <ClInclude Include="Tools\Data\CBitFlag.h" />
     <ClInclude Include="Tools\Data\CCString.h" />
+    <ClInclude Include="Tools\Data\CNMD5.h" />
     <ClInclude Include="Tools\Data\CLinkedList.h" />
     <ClInclude Include="Tools\Data\MemStack.h" />
     <ClInclude Include="Tools\Data\STDStringFunctions.h" />
@@ -48,7 +53,9 @@
     <ClInclude Include="Tools\Tracer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CNTensorsPch.cpp" />
+    <ClCompile Include="CNTensorsPch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Core\CNTensorLib.cpp" />
     <ClCompile Include="Tools\CYAMLParser.cpp" />
     <ClCompile Include="Tools\Data\CCString.cpp" />
@@ -58,6 +65,8 @@
     <CudaCompile Include="CudaFunctions\CNFFT.cu" />
     <CudaCompile Include="CudaFunctions\CNRandom.cu" />
     <CudaCompile Include="CudaFunctions\CudaHelper.cu" />
+    <CudaCompile Include="Tensor\Device\CNDeviceTensorElementOperator.cu" />
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_Common.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_Contract.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_WorkingSpace.cu" />
@@ -66,8 +75,8 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B4269890-49D2-4BE5-BA4F-B8635EA9795D}</ProjectGuid>
     <RootNamespace>CudaSln</RootNamespace>
-    <CudaToolkitCustomDir>F:\Cuda11</CudaToolkitCustomDir>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <CudaToolkitCustomDir>$(CUDA_PATH)</CudaToolkitCustomDir>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>CNTensors</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -99,7 +108,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.1.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.2.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -178,14 +187,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <PreprocessorDefinitions>WIN32;_MBCS;%(PreprocessorDefinitions);DEBUG=1;_WINDLL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_MBCS;%(PreprocessorDefinitions);DEBUG=1</PreprocessorDefinitions>
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>CudaHelper.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>CNTensorsPch.h</PrecompiledHeaderFile>
       <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_$(Configuration).pdb</ProgramDataBaseFileName>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -206,8 +215,8 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <CodeGeneration>compute_86,sm_86;</CodeGeneration>
-      <Defines>WIN32</Defines>
-      <Runtime>MTd</Runtime>
+      <Defines>WIN64</Defines>
+      <Runtime>MDd</Runtime>
       <AdditionalCompilerOptions>
       </AdditionalCompilerOptions>
       <AdditionalOptions>-Xcompiler /wd4819 -Xcompiler /wd4505 -Xcompiler /wd4100 %(AdditionalOptions)</AdditionalOptions>
@@ -268,6 +277,6 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.1.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.2.targets" />
   </ImportGroup>
 </Project>

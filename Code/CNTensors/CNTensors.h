@@ -17,7 +17,7 @@
 
 #if defined(_CN_WIN)
 #   if !defined(CNAPI)
-#        define __LIB_TITLE__    "Tensors"
+#        define __LIB_TITLE__    "CNTensors"
 #       ifdef _CN_PRIVATE
 #           define CNAPI __DLL_EXPORT
 #       else
@@ -53,6 +53,7 @@
 #include "Tools/Data/TArray.h"
 #include "Tools/Data/CCString.h"
 #include "Tools/Data/THashMap.h"
+#include "Tools/Data/CNMD5.h"
 #include "Tools/EnumGather.h"
 #include "Tools/Tracer.h"
 #include "Tools/Timer.h"
@@ -66,7 +67,13 @@
 #include "CudaFunctions/CudaHelper.h"
 
 //====================== Tensor =======================
+#include "Tensor/Device/CNDeviceTensor.h"
 #include "Tensor/Device/TensorFunctions.h"
+#include "Tensor/Device/CNDeviceTensorElementOperator.h"
+#include "Tensor/Device/CNDeviceTensorCommon.h"
+#include "Tensor/Device/Common/CNDeviceTensorCommonNaive.h"
+
+
 //#include "Tensor/CNIndex.h"
 
 

@@ -353,9 +353,6 @@ INT CYAMLParser::ParseVector(TCHAR *buf, TArray<CCString>& vec)
 
 void CYAMLParser::ParseFile(const CCString& params_file, CParameters& params)
 {
-    INT  filesize = 0;
-    TCHAR *buf = 0;
-
     IFSTREAM fin(params_file);
     if (!fin) 
     {
@@ -363,7 +360,7 @@ void CYAMLParser::ParseFile(const CCString& params_file, CParameters& params)
     }
 
     fin.seekg(0, std::ios::end);
-    filesize = (INT)fin.tellg();
+    INT filesize = (INT)fin.tellg();
     fin.seekg(0, std::ios::beg);
 
     const INT padding = 8 - (filesize % 8);
@@ -373,7 +370,7 @@ void CYAMLParser::ParseFile(const CCString& params_file, CParameters& params)
     filesize += padding;
 
 
-    buf = new TCHAR[filesize];
+    TCHAR* buf = new TCHAR[filesize];
     memset(buf, 0, filesize);
 
     fin.read(buf, filesize - padding);
