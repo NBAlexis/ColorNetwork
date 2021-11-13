@@ -52,6 +52,7 @@ inline DOUBLE appStrToDOUBLE(const TCHAR* s)
     return appStoD(s);
 }
 
+
 //=====================================================
 //    CCStringData
 //=====================================================

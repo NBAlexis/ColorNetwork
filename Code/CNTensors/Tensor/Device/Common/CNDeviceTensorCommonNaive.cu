@@ -11,9 +11,97 @@
 
 __BEGIN_NAMESPACE
 
-#if 0
+template class CNDeviceTensorCommonNaive<_SComplex>;
 
 #pragma region kernels
+
+template <class Operator, class srcT>
+__global__ void _CN_LAUNCH_BOUND
+_kernel_NaiveOneOperator(
+    TOperator_D<Operator, srcT> op,
+    srcT* src,
+    const UINT* __restrict__ srcStride,
+    UINT srcIndexStart,
+    const UINT* __restrict__ mutipliedlengths,
+    BYTE byIndexCount)
+{
+    const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    const UINT uiIdxSrc = _deviceThreadIdxToTensorIdxNaive(srcStride, srcIndexStart, mutipliedlengths, uiIdx, byIndexCount);
+    op.Do(src[uiIdxSrc]);
+}
+
+template <class Operator, class srcT>
+__global__ void _CN_LAUNCH_BOUND
+_kernel_NaiveOneOperator_Small(
+    TOperator_D<Operator, srcT> op,
+    srcT* src,
+    const UINT* __restrict__ srcStride,
+    UINT srcIndexStart,
+    const UINT* __restrict__ mutipliedlengths,
+    BYTE byIndexCount)
+{
+    const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    const SWorkingIndex idx = _deviceThreadIndexToWorkIndexNavie(uiIdx, mutipliedlengths, byIndexCount);
+    const UINT uiIdxSrc = _deviceWorkIndexToTensorIndexNaive(idx.m_Idx, srcStride, srcIndexStart, byIndexCount);
+    op.Do(src[uiIdxSrc]);
+}
+
+template <class Operator, class dstT, class srcT>
+__global__ void _CN_LAUNCH_BOUND
+_kernel_NaiveTwoOperator_DS_Value(
+    TOperator_DS<Operator, dstT, srcT> op,
+    dstT* dst, srcT srcV,
+    const UINT* __restrict__ dstStride,
+    UINT dstIndexStart,
+    const UINT* __restrict__ mutipliedlengths,
+    BYTE byIndexCount)
+{
+    const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    const UINT uiIdxSrc = _deviceThreadIdxToTensorIdxNaive(dstStride, dstIndexStart, mutipliedlengths, uiIdx, byIndexCount);
+    dst[uiIdxSrc] = op.Do(srcV);
+}
+
+#if 0
+
+template <class T>
+__global__ void _CN_LAUNCH_BOUND _kernel_NaiveOneOperator(
+    T* src, T val,
+    const UINT* __restrict__ srcStride,
+    const UINT* __restrict__ srcIndexStart,
+    const BYTE* __restrict__ mask,
+    const UINT* __restrict__ maskStride,
+    const UINT* __restrict__ maskIndexStart,
+    const UINT* __restrict__ mutipliedlengths,
+    BYTE byIndexCount)
+{
+    const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    const UINT uiIdxSrc = IndexWithStrideWithStart(srcStride, srcIndexStart, mutipliedlengths, uiIdx, byIndexCount);
+    const UINT uiIdxMask = (NULL == mask) ? 0 : IndexWithStrideWithStart(maskStride, maskIndexStart, mutipliedlengths, uiIdx, byIndexCount);
+    if (NULL == mask || 0 != mask[uiIdxMask])
+    {
+        src[uiIdxSrc] = val;
+    }
+}
+
+template <class T>
+__global__ void _CN_LAUNCH_BOUND _kernel_FillMasked_Small(
+    T* src, T val,
+    const UINT* __restrict__ srcStride,
+    const UINT* __restrict__ srcIndexStart,
+    const BYTE* __restrict__ mask,
+    const UINT* __restrict__ maskStride,
+    const UINT* __restrict__ maskIndexStart,
+    const UINT* __restrict__ mutipliedlengths,
+    BYTE byIndexCount)
+{
+    const SWorkingIndex idx = ThreadIndexToWorkIndex(threadIdx.x + blockIdx.x * blockDim.x, mutipliedlengths, byIndexCount);
+    const UINT uiIdxSrc = WorkIndexToTensorIndexWithStart(idx.m_Idx, srcStride, srcIndexStart, byIndexCount);
+    const UINT uiIdxMask = (NULL == mask) ? 0 : WorkIndexToTensorIndexWithStart(idx.m_Idx, maskStride, maskIndexStart, byIndexCount);
+    if (NULL == mask || 0 != mask[uiIdxMask])
+    {
+        src[uiIdxSrc] = val;
+    }
+}
 
 /**
  * Only thread.x and block.x is used, so thread ID is simple
@@ -53,45 +141,7 @@ __global__ void _CN_LAUNCH_BOUND _kernel_BlockCopy_Small(
     dst[uiIdxDst] = static_cast<dstT>(src[uiIdxSrc]);
 }
 
-template <class T>
-__global__ void _CN_LAUNCH_BOUND _kernel_FillMasked(
-    T* src, T val,
-    const UINT* __restrict__ srcStride,
-    const UINT* __restrict__ srcIndexStart,
-    const BYTE* __restrict__ mask,
-    const UINT* __restrict__ maskStride,
-    const UINT* __restrict__ maskIndexStart,
-    const UINT* __restrict__ mutipliedlengths,
-    BYTE byIndexCount)
-{
-    const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
-    const UINT uiIdxSrc = IndexWithStrideWithStart(srcStride, srcIndexStart, mutipliedlengths, uiIdx, byIndexCount);
-    const UINT uiIdxMask = (NULL == mask) ? 0 : IndexWithStrideWithStart(maskStride, maskIndexStart, mutipliedlengths, uiIdx, byIndexCount);
-    if (NULL == mask || 0 != mask[uiIdxMask])
-    {
-        src[uiIdxSrc] = val;
-    }
-}
 
-template <class T>
-__global__ void _CN_LAUNCH_BOUND _kernel_FillMasked_Small(
-    T* src, T val,
-    const UINT* __restrict__ srcStride,
-    const UINT* __restrict__ srcIndexStart,
-    const BYTE* __restrict__ mask,
-    const UINT* __restrict__ maskStride,
-    const UINT* __restrict__ maskIndexStart,
-    const UINT* __restrict__ mutipliedlengths,
-    BYTE byIndexCount)
-{
-    const SWorkingIndex idx = ThreadIndexToWorkIndex(threadIdx.x + blockIdx.x * blockDim.x, mutipliedlengths, byIndexCount);
-    const UINT uiIdxSrc = WorkIndexToTensorIndexWithStart(idx.m_Idx, srcStride, srcIndexStart, byIndexCount);
-    const UINT uiIdxMask = (NULL == mask) ? 0 : WorkIndexToTensorIndexWithStart(idx.m_Idx, maskStride, maskIndexStart, byIndexCount);
-    if (NULL == mask || 0 != mask[uiIdxMask])
-    {
-        src[uiIdxSrc] = val;
-    }
-}
 
 template <class T>
 __global__ void _CN_LAUNCH_BOUND _kernel_Transpose(
@@ -120,7 +170,46 @@ __global__ void _CN_LAUNCH_BOUND _kernel_Transpose_Small(
     dst[uiThreadIdx] = src[uiIdxSrc];
 }
 
+#endif
+
 #pragma endregion
+
+template<class T>
+template<class Operator>
+void CNDeviceTensorCommonNaive<T>::OneOperator(
+    const TOperator_D<Operator, T>& op,
+    CNDeviceTensor<T>* dst,
+    const UINT dstIndexStart,
+    const UINT* __restrict__ dstStride,
+    const UINT* __restrict__ lengths,
+    BYTE byIndexCount)
+{
+    const UINT dataSize = sizeof(UINT) * byIndexCount;
+    const UINT totalBufferSize = dataSize * 2;
+    UINT uiBlock, uiThread;
+    SimpleThreadDecompose(lengths, byIndexCount, uiBlock, uiThread);
+
+    //BYTE* deviceBuffer = appGetTensorOpWorkingSpace()->GetSmallDeviceBuffer(totalBufferSize);
+    UINT* deviceBuffer = NULL;
+    checkCudaErrors(cudaMalloc((void**)&deviceBuffer, sizeof(UINT) * totalBufferSize));
+
+    UINT* hostBuffer = (UINT*)appAlloca(sizeof(UINT) * dataSize);
+    _memcpy_hd(deviceBuffer, dstStride, dataSize);
+    __BuildMultiplyLength(deviceBuffer + dataSize);
+
+    __KERNALCALNAIVE(_kernel_NaiveOneOperator,
+        op,
+        dst->m_pDeviceDataBuffer,
+        (UINT*)deviceBuffer,
+        dstIndexStart,
+        (UINT*)(deviceBuffer + dataSize),
+        byIndexCount
+    );
+
+    checkCudaErrors(cudaFree(deviceBuffer));
+}
+
+#if 0
 
 template<class dstT, class srcT>
 void CNDeviceTensorCommonNaive::BlockCopy(
@@ -225,6 +314,21 @@ void Transpose(T* dst,
 
 
 #endif
+
+#pragma region Implementation of Calculators
+
+//template<class Operator>
+//void CNHostTensor<_SComplex>::OneOperator(Operator op,
+//    const CNDeviceTensorCommonNaive& calc,
+//    const UINT dstIndexStart,
+//    const UINT* __restrict__ dstStride,
+//    const UINT* __restrict__ lengths,
+//    BYTE byIndexCount)
+//{
+//    
+//}
+
+#pragma endregion
 
 __END_NAMESPACE
 

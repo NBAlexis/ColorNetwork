@@ -3,6 +3,11 @@
 // 
 // DESCRIPTION:
 // 
+// Meanings of three indexes
+//
+// Thread Index is the thread idx different for each thread and start from 0
+// Tensor Index is (linear) index of the buffer, pBuffer[tensorIndex]
+// WorkIndex is human readable tensor index, like {1,2,3,4,0,0,0,0} for T[1,2,3,4]
 //
 // REVISION:
 //  [19/06/2021 nbalexis]
@@ -22,13 +27,12 @@
 
 
 #define __BuildMultiplyLength(ptr) \
-    UINT* mul_length = appGetTensorOpWorkingSpace()->GetMultiplyLengthBuffer(); \
-    mul_length[byIndexCount - 1] = 1; \
+    hostBuffer[byIndexCount - 1] = 1; \
     for (INT i = byIndexCount - 2; i >= 0; --i) /* do not use BYTE here*/ \
     { \
-        mul_length[i] = mul_length[i + 1] * lengths[i + 1]; \
+        hostBuffer[i] = hostBuffer[i + 1] * lengths[i + 1]; \
     } \
-    _memcpy_hd(ptr, mul_length, dataSize);
+    _memcpy_hd(ptr, hostBuffer, dataSize);
 
 __BEGIN_NAMESPACE
 
@@ -209,64 +213,94 @@ __device__ static __inline__ UINT _deviceWorkIndexToTensorIndexNaive(
 
 #pragma endregion
 
-#if 0
-class CNAPI CNDeviceTensorCommonNaive : public TCNDeviceTensorCommon<CNDeviceTensorCommonNaive>
+template<class T>
+class __DLL_EXPORT CNDeviceTensorCommonNaive : public TCNDeviceTensorCommon<CNDeviceTensorCommonNaive<T>, T>
 {
 public:
 
-    template<class dstT, class srcT>
-    void BlockCopy(
-        CNDeviceTensor<dstT>* dst,
+    void Set(
+        CNDeviceTensor<T>* dst, const T& v,
         const UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
-        const CNDeviceTensor<srcT>* __restrict__ src,
-        const UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        appCrucial(_T("Not implemented yet...\n"));
+    }
+
+    void Zero(
+        CNDeviceTensor<T>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        TOperator_Zero<T> op;
+        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    void One(
+        CNDeviceTensor<T>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        TOperator_One<T> op;
+        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    friend class TCNDeviceTensorCommon<CNDeviceTensorCommonNaive, T>;
+
+protected:
+
+    template<class Operator>
+    void OneOperator(
+        const TOperator_D<Operator, T>& op,
+        CNDeviceTensor<T>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount);
 
-    template<class srcT, class valT>
-    void FillMasked(CNDeviceTensor<srcT>* src, const valT& val,
-        const UINT* __restrict__ srcIndexStart,
-        const BYTE* __restrict__ mask,
-        const UINT* __restrict__ maskStride,
-        const UINT* __restrict__ maskIndexStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        ((Calculator*)this)->FillMasked(src, val, srcIndexStart, mask, maskStride, maskIndexStart, lengths, byIndexCount);
-    }
 
-    template <class srcT>
-    void RandomMasked(CNDeviceTensor<srcT>* src,
+
+    template<class Operator>
+    void OneOperatorD(
+        TOperator_D<Operator, T> op,
+        CNDeviceTensor<T>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        CNDeviceTensor<T>* src,
+        const UINT srcIndexStart,
         const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcStart,
-        const UINT* __restrict__ srcEnd,
-        const BYTE* __restrict__ mask,
-        const UINT* __restrict__ maskStride,
-        const UINT* __restrict__ maskIndexStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        appCrucial(_T("RandomMasked not implemented!\n"));
-    }
-
-
-    /**
-     * T[x1, x2, x3, ..., y1, y2, y3, ...] = T[ x2, y1, x1, x3, y4, ...]
-     * order Stride and Dims as stride(dim) of x1, x2, x3, ..., y1, y2, y3.
-     * Note: transpose must copy
-     */
-    template<class dstT, class srcT>
-    void Transpose(CNDeviceTensor<dstT>* dst,
-        const CNDeviceTensor<srcT>* __restrict__ src,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcDim,
+        const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
-        appCrucial(_T("Transpose not implemented!\n"));
+        appCrucial(_T("Not implemented yet...\n"));
     }
+
 };
 
-#endif
+//extern CNDeviceTensorCommonNaive<INT> GCalculatorNaiveCommon;
+//extern CNDeviceTensorCommonNaive<FLOAT> GCalculatorNaiveCommon;
+//extern CNDeviceTensorCommonNaive<DOUBLE> GCalculatorNaiveCommonDouble;
+//extern CNDeviceTensorCommonNaive<INT> GCalculatorNaiveCommon;
+
+//template<class T, class Operator>
+//void Calc_OneOperator(
+//    const CNDeviceTensor<T>& tensor,
+//    const CNDeviceTensorCommonNaive& calc,
+//    const UINT dstIndexStart,
+//    const UINT* __restrict__ dstStride,
+//    const UINT* __restrict__ lengths,
+//    BYTE byIndexCount)
+//{
+//    Operator opone;
+//    calc.OneOperator(opone, tensor, dstIndexStart, dstStride, lengths, byIndexCount);
+//}
+
+//template class CNDeviceTensorCommonNaive<_SComplex>;
 
 __END_NAMESPACE
 

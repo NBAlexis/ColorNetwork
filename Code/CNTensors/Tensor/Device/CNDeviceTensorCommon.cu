@@ -1,23 +1,19 @@
 //=============================================================================
-// FILENAME : TensorsPch.h
+// FILENAME : CNDeviceTensorCommon.cu
 // 
 // DESCRIPTION:
-// This is the header file for pre-compile header
+// 
 //
 // REVISION:
-//  [24/04/2020 nbalexis]
+//  [11/01/2021 nbale]
 //=============================================================================
-#pragma once
+#include "CNTensorsPch.h"
 
-#ifndef _CNTENSORSPCH_H_
-#define _CNTENSORSPCH_H_
+__BEGIN_NAMESPACE
 
-#define _CN_PRIVATE 1
 
-#include "CNTensors.h"
 
-#endif //#ifndef _CNTENSORSPCH_H_
-
+__END_NAMESPACE
 
 //=============================================================================
 // END OF FILE

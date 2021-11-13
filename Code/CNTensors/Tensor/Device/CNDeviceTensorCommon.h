@@ -12,187 +12,6 @@
 
 __BEGIN_NAMESPACE
 
-#if 0
-
-/**
- * In device interfaces, we do NOT check whether things can be done
- */
-class CNAPI CNDeviceTensorCommon
-{
-public:
-    virtual ~CNDeviceTensorCommon() {}
-
-    /**
-     * dst[..., i0 + i, ..., j0 + j] = src[..., i0' + i, ..., j0' + j]
-     * The stride is for things like this:
-     *    dst[i0 + i, j0] = src[i0' + i]
-     * or dst[i0, j0 + i] = src[i0' + i]
-     *
-     * The i0, j0, ..., and i0', j0' are encoded as
-     * flatten indices dstIndexStart and srcIndexStart
-     * 
-     * len(dstStride) = len(srcStride) = len(lengths) = byIndexCount
-     * this is in fact
-     * for i, j, k in lengths
-     *    dst[dstIndexStart + i * dststride1 + j * dststrde2 + k * dststrde3]
-     *  = src[srcIndexStart + i * srcstride1 + j * srcstrde2 + k * srcstrde3]
-     *
-     * dstStride, srcStride, lengths are host buffers
-     */
-    template<class dstT, class srcT>
-    void BlockCopy(
-        CNDeviceTensor<dstT>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const CNDeviceTensor<srcT>* __restrict__ src,
-        const UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ lengths, 
-        BYTE byIndexCount)
-    {
-        appCrucial(_T("BlockCopyMasked not implemented!\n"));
-    }
-
-    /**
-     * if mask[...] != 0, then T[..., i0 + i, ..., j0 + j] = val
-     */
-    template<class srcT, class valT>
-    void FillMasked(CNDeviceTensor<srcT>* src, const valT& val,
-        const UINT* __restrict__ srcIndexStart,
-        const BYTE* __restrict__ mask,
-        const UINT* __restrict__ maskStride,
-        const UINT* __restrict__ maskIndexStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        appCrucial(_T("FillMasked not implemented!\n"));
-    }
-
-    /**
-     * T[..., i0 + i, ..., j0 + j] = val
-     */
-    template<class srcT, class valT>
-    inline void Fill(CNDeviceTensor<srcT>* src, const valT& val,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        FillMasked(src, val, srcStride, srcStart, NULL, NULL, NULL, lengths, byIndexCount);
-    }
-
-    /**
-     * T[..., i, ..., j] = val
-     */
-    template<class srcT, class valT>
-    inline void Fill(CNDeviceTensor<srcT>* src, const valT& val,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        Fill(src, val, srcStride, NULL, lengths, byIndexCount);
-    }
-
-    template <class srcT>
-    void RandomMasked(CNDeviceTensor<srcT>* src,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcStart,
-        const UINT* __restrict__ srcEnd,
-        const BYTE* __restrict__ mask,
-        const UINT* __restrict__ maskStride,
-        const UINT* __restrict__ maskIndexStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        appCrucial(_T("RandomMasked not implemented!\n"));
-    }
-
-    template <class srcT>
-    inline void Random(CNDeviceTensor<srcT>* src,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        
-    }
-
-    /**
-     * T[x1, x2, x3, ..., y1, y2, y3, ...] = T[ x2, y1, x1, x3, y4, ...]
-     * order Stride and Dims as stride(dim) of x1, x2, x3, ..., y1, y2, y3.
-     * Note: transpose must copy
-     */
-    template<class dstT, class srcT>
-    void Transpose(CNDeviceTensor<dstT>* dst,
-        const CNDeviceTensor<srcT>* __restrict__ src,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcDim,
-        BYTE byIndexCount)
-    {
-        appCrucial(_T("Transpose not implemented!\n"));
-    }
-
-    /**
-     * M[x, y] = T[ x2, y1, x1, x3, y4, ...]
-     * order Stride and Dims as stride(dim) of x1, x2, x3, ..., y1, y2, y3, Then everything automatically happen
-     *
-     * Explanation:
-     * threadIdx = x * dimy + y
-     * x1 = threadIdx / x2*x3*...*y1*y2*y3
-     * x2 = (threadIdx % x2*x3*...*y1*y2*y3) % (x3*...*y1*y2*y3)
-     * so the first thing is to make sure multiply lengthes are ordered.
-     * TensorIdx = x1 * stride1 + x2 * stride2 + ...
-     * so the next thing is to make sure the strides are ordered.
-     */
-    template<class dstT, class srcT>
-    inline void ToMatrix(CNDeviceTensor<dstT>* dst,
-        const CNDeviceTensor<srcT>* __restrict__ src,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcDim,
-        BYTE byIndexCount)
-    {
-        Transpose(dst, src, srcStride, srcDim, byIndexCount);
-    }
-
-    template <class T> 
-    void DebugPrint(
-        const T* __restrict__ src,
-        UINT uiSize)
-    {
-        T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
-        _memcpy_dh(hostBuffer, src, sizeof(T) * uiSize);
-
-        for (UINT i = 0; i < uiSize; ++i)
-        {
-            appGeneral(_T("%d: "), i);
-            LogValue(hostBuffer[i]);
-            appGeneral(_T("\n"));
-        }
-
-        appSafeFree(hostBuffer);
-    }
-
-    template <class T> 
-    void DebugPrint(
-        const T* __restrict__ src,
-        UINT uiXDim,
-        UINT uiYDim)
-    {
-        const UINT uiSize = uiXDim * uiYDim;
-        T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
-        _memcpy_dh(hostBuffer, src, sizeof(T) * uiSize);
-
-        for (UINT x = 0; x < uiXDim; ++x)
-        {
-            for (UINT y = 0; y < uiYDim; ++y)
-            {
-                LogValue(hostBuffer[x * uiYDim + y]);
-                if (y != uiYDim - 1)
-                {
-                    appGeneral(_T(", "));
-                }
-            }
-            appGeneral(_T("\n"));
-        }
-
-        appSafeFree(hostBuffer);
-    }
-};
 
 /**
  * This is called CRTP, see:
@@ -201,67 +20,259 @@ public:
  * To implement a calculator, call
  * class Calculator : public TCNDeviceTensorCommon<Calculator>
  *
- * 
+ * NOTE!!!:
+ *  this template is just for convience to make sure all types using one code
+ *  pay attention here:
+ *    https://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
+ *  The only portable way of using templates at the moment is to implement them in header files by using inline functions.
+ *  We will GIVE UP "portable" when we met this problem
  *
+ * Meanings of "index start", "strides" and "lengths"
+ *
+ * Let, m:n = {m, m+1, ..., n-1}
+ * We need to do things like:
+ *   T1[..., a0:(a0+length0), ..., a1:(a1+length1), ..., ai:(ai+lengthi), ...]
+ *     = T2[..., b0:(b0+length0), ..., b1:(b1+length1), ..., bi:(bi+lengthi), ...]
+ *
+ * "byIndexCount" = i
+ * the size of "dstStride" and "lengths" is also i
+ * "dstStride" controlls the position of index,
+ *   for example T[0, 2:5], stride=1,
+ *   T[2:5, 0], stride is size of the first index
+ *
+ * dstIndexStart = sum_i ai*stridei, controlls a0,a1,...
  */
-template<class Calculator>
-class __DLL_EXPORT TCNDeviceTensorCommon : public CNDeviceTensorCommon
+template<class Calculator, class T>
+class __DLL_EXPORT TCNDeviceTensorCommon
 {
 public:
 
-    template<class dstT, class srcT>
-    void BlockCopy(
-        CNDeviceTensor<dstT>* dst,
+    /**
+     * Things like a = constant
+     */
+    void Set(
+        CNDeviceTensor<T>* dst, const T& v,
         const UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
-        const CNDeviceTensor<srcT>* __restrict__ src,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calculator*)this)->Set(dst, v, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    void Zero(
+        CNDeviceTensor<T>* dst, 
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        TOperator_Zero<T> op;
+        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    void One(
+        CNDeviceTensor<T>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        TOperator_One<T> op;
+        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    static void DebugPrint(const CNDeviceTensor<T>& src, UINT uiSize)
+    {
+        appPushLogDate(FALSE);
+        T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
+        appGetCuda()->CopyDH(hostBuffer, src.m_pDeviceDataBuffer, sizeof(T) * uiSize);
+        for (UINT i = 0; i < uiSize; ++i)
+        {
+            appGeneral(_T("%d: "), i);
+            LogValue(hostBuffer[i]);
+            appGeneral(_T("\n"));
+        }
+        appSafeFree(hostBuffer);
+        appPopLogDate();
+    }
+
+    static void DebugPrint(
+        const CNDeviceTensor<T>& src,
+        UINT uiXDim, UINT uiYDim)
+    {
+        appPushLogDate(FALSE);
+        const UINT uiSize = uiXDim * uiYDim;
+        T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
+        appGetCuda()->CopyDH(hostBuffer, src.m_pDeviceDataBuffer, sizeof(T) * uiSize);
+
+        appGeneral(_T("{\n"));
+        for (UINT x = 0; x < uiXDim; ++x)
+        {
+            appGeneral(_T("{"));
+            for (UINT y = 0; y < uiYDim; ++y)
+            {
+                LogValue(hostBuffer[x * uiYDim + y]);
+                if (y != uiYDim - 1)
+                {
+                    appGeneral(_T(", "));
+                }
+            }
+            appGeneral(_T("}%s\n"), (x != (uiXDim - 1)) ? _T(",") : _T(""));
+        }
+        appGeneral(_T("}\n"));
+        appSafeFree(hostBuffer);
+        appPopLogDate();
+    }
+
+protected:
+
+    /**
+     * Things like a = sin(a)
+     * Call it like this:
+     * TOperator_Sin<FLOAT> op();
+     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
+     *
+     * Note, dstStride and lengths are on host
+     */
+    template<class Operator>
+    void OneOperator(
+        const TOperator_D<Operator, T>& op,
+        CNDeviceTensor<T>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calculator*)this)->OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    /**
+     * Things like b = sin(a), where type of b is as same as a
+     * Call it like this:
+     * TOperator_Sin<FLOAT> op();
+     */
+    template<class Operator>
+    void OneOperatorD(
+        TOperator_D<Operator, T> op,
+        CNDeviceTensor<T>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        CNDeviceTensor<T>* src,
         const UINT srcIndexStart,
         const UINT* __restrict__ srcStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
-        ((Calculator*)this)->BlockCopy(dst, dstIndexStart, dstStride, src, srcIndexStart, srcStride, lengths, byIndexCount);
+        ((Calculator*)this)->OneOperatorD(op, dst, dstIndexStart, dstStride, 
+            src, srcIndexStart, srcStride, lengths, byIndexCount);
     }
 
-    template<class srcT, class valT>
-    void FillMasked(CNDeviceTensor<srcT>* src, const valT& val,
-        const UINT* __restrict__ srcIndexStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        ((Calculator*)this)->FillMasked(src, val, srcIndexStart, mask, maskStride, maskIndexStart, lengths, byIndexCount);
-    }
-
-    template <class srcT>
-    void RandomMasked(CNDeviceTensor<srcT>* src,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcStart,
-        const UINT* __restrict__ srcEnd,
-        const BYTE* __restrict__ mask,
-        const UINT* __restrict__ maskStride,
-        const UINT* __restrict__ maskIndexStart,
-        const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        appCrucial(_T("RandomMasked not implemented!\n"));
-    }
-
-
+#if 0
     /**
-     * T[x1, x2, x3, ..., y1, y2, y3, ...] = T[ x2, y1, x1, x3, y4, ...]
-     * order Stride and Dims as stride(dim) of x1, x2, x3, ..., y1, y2, y3.
-     * Note: transpose must copy
+     * Things like b = sin(a), where type of b is different than a
+     * Call it like this:
+     * TOperator_Sin<FLOAT> op();
      */
-    template<class dstT, class srcT>
-    void Transpose(CNDeviceTensor<dstT>* dst,
-        const CNDeviceTensor<srcT>* __restrict__ src,
+    template<class Operator, class dstT, class srcT>
+    void OneOperatorDS(
+        TOperator_DS<Operator, dstT, srcT> op,
+        CNDeviceTensor<dstT>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        CNDeviceTensor<srcT>* src,
+        const UINT srcIndexStart,
         const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ srcDim,
+        const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
-        appCrucial(_T("Transpose not implemented!\n"));
+        ((Calculator*)this)->OneOperatorDS(op, dst, dstIndexStart, dstStride,
+            src, srcIndexStart, srcStride, lengths, byIndexCount);
     }
-};
 
+    /**
+     * Things like c = a + b, type of c is as same as a
+     * Call it like this:
+     * TOperator_Sin<FLOAT> op();
+     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
+     */
+    template<class Operator, class srcTL, class srcTR>
+    void TwoOperatorL(
+        TOperator_L<Operator, srcTL, srcTR> op,
+        CNDeviceTensor<srcTL>* left,
+        const UINT leftIndexStart,
+        const UINT* __restrict__ leftStride,
+        CNDeviceTensor<srcTR>* right,
+        const UINT rightIndexStart,
+        const UINT* __restrict__ rightStride,
+        CNDeviceTensor<srcTL>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calculator*)this)->TwoOperatorL(op,
+            left, leftIndexStart, leftStride,
+            right, rightIndexStart, rightStride,
+            dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    /**
+     * Things like c = a + b, type of c is as same as b
+     * Call it like this:
+     * TOperator_Sin<FLOAT> op();
+     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
+     */
+    template<class Operator, class srcTL, class srcTR>
+    void TwoOperatorR(
+        TOperator_R<Operator, srcTL, srcTR> op,
+        CNDeviceTensor<srcTL>* left,
+        const UINT leftIndexStart,
+        const UINT* __restrict__ leftStride,
+        CNDeviceTensor<srcTR>* right,
+        const UINT rightIndexStart,
+        const UINT* __restrict__ rightStride,
+        CNDeviceTensor<srcTR>* dst,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calculator*)this)->TwoOperatorR(op,
+            left, leftIndexStart, leftStride,
+            right, rightIndexStart, rightStride,
+            dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    /**
+     * Things like c = a + b, type of c is as same as b
+     * Call it like this:
+     * TOperator_Sin<FLOAT> op();
+     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
+     */
+    template<class Operator, class srcTL, class srcTR>
+    void TwoOperatorLN(
+        TOperator_LN<Operator, srcTL, srcTR> op,
+        CNDeviceTensor<srcTL>* left,
+        const UINT leftIndexStart,
+        const UINT* __restrict__ leftStride,
+        CNDeviceTensor<srcTR>* right,
+        const UINT rightIndexStart,
+        const UINT* __restrict__ rightStride,
+        BYTE byIndexCount)
+    {
+        ((Calculator*)this)->TOperator_LN(op,
+            left, leftIndexStart, leftStride,
+            right, rightIndexStart, rightStride, byIndexCount);
+    }
 #endif
+
+    #pragma region functions already implemented
+
+
+
+    #pragma endregion
+};
 
 __END_NAMESPACE
 

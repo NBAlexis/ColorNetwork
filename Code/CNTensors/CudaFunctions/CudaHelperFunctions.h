@@ -558,8 +558,6 @@ __END_NAMESPACE
 
 #define _CN_SYNC checkCudaErrors(cudaDeviceSynchronize());
 #define _CN_CUERR checkCudaErrors(cudaGetLastError());
-#define _mallocd(ptr, size) checkCudaErrors(cudaMalloc((void**)ptr, size));
-#define _freed(ptr) if (NULL != ptr) { checkCudaErrors(cudaFree(ptr)); ptr = NULL; } 
 #define _memcpy_dd(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyDeviceToDevice));
 #define _memcpy_hd(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyHostToDevice));
 #define _memcpy_dh(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyDeviceToHost));
@@ -1229,17 +1227,17 @@ inline char *sdkFindFilePath(const char *filename,
     };
 
     // Extract the executable name
-    std::string executable_name;
+    CCString executable_name;
 
     if (executable_path != 0) {
-        executable_name = std::string(executable_path);
+        executable_name = CCString(executable_path);
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
         // Windows path delimiter
         size_t delimiter_pos = executable_name.find_last_of('\\');
         executable_name.erase(0, delimiter_pos + 1);
 
-        if (executable_name.rfind(".exe") != std::string::npos) {
+        if (executable_name.rfind(".exe") != CCString::npos) {
             // we strip .exe, only if the .exe is found
             executable_name.resize(executable_name.size() - 4);
         }
@@ -1253,12 +1251,12 @@ inline char *sdkFindFilePath(const char *filename,
 
     // Loop over all search paths and return the first hit
     for (unsigned int i = 0; i < sizeof(searchPath) / sizeof(char *); ++i) {
-        std::string path(searchPath[i]);
+        CCString path(searchPath[i]);
         size_t executable_name_pos = path.find("<executable_name>");
 
         // If there is executable_name variable in the searchPath
         // replace it with the value
-        if (executable_name_pos != std::string::npos) {
+        if (executable_name_pos != CCString::npos) {
             if (executable_path != 0) {
                 path.replace(executable_name_pos, strlen("<executable_name>"),
                     executable_name);

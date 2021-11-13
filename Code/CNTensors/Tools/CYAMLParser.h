@@ -18,7 +18,7 @@
     { \
         return FALSE; \
     } \
-    value = appStrTo##typen(v); \
+    value = appStrTo##typen(v.c_str()); \
     return TRUE; \
 }
 
@@ -33,7 +33,7 @@
     } \
     for (INT i = 0; i < vs.Num(); ++i) \
     { \
-        value.AddItem(appStrTo##typen(vs[i])); \
+        value.AddItem(appStrTo##typen(vs[i].c_str())); \
     } \
     return TRUE; \
 }

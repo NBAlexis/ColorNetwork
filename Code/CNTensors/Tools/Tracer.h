@@ -70,17 +70,15 @@ public:
         }
         else if (filename == _T("timestamp"))
         {
-            CCString sRealFile;
-            sRealFile.Format(_T("%d.log"), appGetTimeStamp());
+            const CCString sRealFile = appStringFormat(_T("%d.log"), appGetTimeStamp());
             m_pStream = new OFSTREAM(sRealFile);
             bShowHasFile = TRUE;
         }
         else if (filename == _T("datetime"))
         {
-            CCString sRealFile;
             static TCHAR datetime[256];
             appGetTimeNow(datetime, 256);
-            sRealFile.Format(_T("%s.log"), datetime);
+            const CCString sRealFile = appStringFormat(_T("%s.log"), datetime);
             m_pStream = new OFSTREAM(sRealFile);
             bShowHasFile = TRUE;
         }
@@ -101,7 +99,7 @@ public:
         }
     }
 
-    inline void Initial(EVerboseLevel eLevel, const CCString& filename = _T("stdout"))
+    inline void Initial(EVerboseLevel eLevel = PARANOIAC, const CCString& filename = _T("stdout"))
     {
         m_eLevel = eLevel;
         m_pStdStream = new OSTREAM(COUT.rdbuf());
@@ -112,17 +110,15 @@ public:
         }
         else if (filename == _T("timestamp"))
         {
-            CCString sRealFile;
-            sRealFile.Format(_T("%d.log"), appGetTimeStamp());
+            const CCString sRealFile = appStringFormat(_T("%d.log"), appGetTimeStamp());
             m_pStream = new OFSTREAM(sRealFile);
             bShowHasFile = TRUE;
         }
         else if (filename == _T("datetime"))
         {
-            CCString sRealFile;
             static TCHAR datetime[256];
             appGetTimeNow(datetime, 256);
-            sRealFile.Format(_T("%s.log"), datetime);
+            const CCString sRealFile = appStringFormat(_T("%s.log"), datetime);
             m_pStream = new OFSTREAM(sRealFile);
             bShowHasFile = TRUE;
         }
@@ -219,7 +215,24 @@ public:
         }
     }
 
-    inline void SetLogDate(UBOOL bLog) { m_bLogDate = bLog; }
+    inline void SetLogDate(UBOOL bLog)
+    {
+        m_bLogDate = bLog;
+        m_bLogDateHist.RemoveAll();
+    }
+    inline void PushLogDate(UBOOL bLog)
+    {
+        m_bLogDateHist.AddItem(m_bLogDate);
+        m_bLogDate = bLog;
+    }
+    inline void PopLogDate()
+    {
+        if (m_bLogDateHist.Num() > 0)
+        {
+            m_bLogDate = m_bLogDateHist.Pop();
+        }
+    }
+
     inline void SetLogHeader(const CCString& sHeader) { m_sTraceHeader = sHeader; }
 
 private:
@@ -229,10 +242,11 @@ private:
     OSTREAM * m_pStdStream;
     TCHAR m_cBuff[_kTraceBuffSize];
     UBOOL m_bLogDate;
+    TArray<UBOOL> m_bLogDateHist;
     CCString m_sTraceHeader;
 };
 
-extern CNAPI void appInitialTracer(EVerboseLevel eLevel, const CCString& filename = _T("stdout"));
+extern CNAPI void appInitialTracer(EVerboseLevel eLevel = PARANOIAC, const CCString& filename = _T("stdout"));
 extern CNAPI void appVOut(EVerboseLevel eLevel, const TCHAR *format, ...);
 extern CNAPI void _appCrucial(const TCHAR *format, ...);
 extern CNAPI void _appWarning(const TCHAR* format, ...);
@@ -264,6 +278,16 @@ inline void appFlushLog()
 inline void appSetLogDate(UBOOL bLog)
 {
     GTracer.SetLogDate(bLog);
+}
+
+inline void appPushLogDate(UBOOL bLog)
+{
+    GTracer.PushLogDate(bLog);
+}
+
+inline void appPopLogDate()
+{
+    GTracer.PopLogDate();
 }
 
 inline void appSetLogHeader(const CCString& sHeader)

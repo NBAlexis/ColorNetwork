@@ -12,6 +12,10 @@
 
 __BEGIN_NAMESPACE
 
+__DEFINE_ENUM(ECalculator,
+    EC_Naive,
+    )
+
 /**
  * A 32 order tensor with all dim=2 needs 64G memory
  * Any tensor larger than this is not capable
@@ -34,15 +38,75 @@ public:
 *
 */
 template<class T>
-class __DLL_EXPORT CNDeviceTensor : public CNDeviceTensorPlaceHolder
+class __DLL_EXPORT CNDeviceTensor //: public CNDeviceTensorPlaceHolder
 {
 public:
+
+    CNDeviceTensor()
+        : m_pDeviceDataBuffer(NULL)
+        , m_pDeviceStrides(NULL)
+        , m_pDeviceLength(NULL)
+        , m_iDim(0)
+    {
+        
+    }
+
+    ~CNDeviceTensor()
+    {
+        Release();
+    }
+
+    void Release()
+    {
+        appCudaFree(m_pDeviceDataBuffer);
+        appCudaFree(m_pDeviceStrides);
+        appCudaFree(m_pDeviceLength);
+    }
+
+    void CreateEmpty(const UINT* lengths, UINT dim)
+    {
+        Release();
+        m_iDim = dim;
+        UINT* strides = (UINT*)appAlloca(sizeof(UINT) * dim);
+        strides[dim - 1] = 1;
+        UINT v = 1;
+        for (UINT i = 1; i < dim; ++i)
+        {
+            v = v * lengths[dim - i];
+            strides[dim - i - 1] = v;
+        }
+        v = v * lengths[0];
+
+        appCudaMalloc((void**)&m_pDeviceDataBuffer, sizeof(T) * v);
+        appCudaMalloc((void**)&m_pDeviceStrides, sizeof(UINT) * dim);
+        appCudaMalloc((void**)&m_pDeviceLength, sizeof(UINT) * dim);
+
+        CCudaHelper::CopyHD(m_pDeviceStrides, strides, sizeof(UINT) * dim);
+        CCudaHelper::CopyHD(m_pDeviceLength, lengths, sizeof(UINT) * dim);
+    }
+
+    void Zero(
+        ECalculator eCalc,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        Calc_Zero(
+            eCalc,
+            this,
+            dstIndexStart,
+            dstStride,
+            lengths,
+            byIndexCount);
+    }
 
     T* m_pDeviceDataBuffer;
     UINT* m_pDeviceStrides;
     UINT* m_pDeviceLength;
     UINT m_iDim;
 };
+
 
 __END_NAMESPACE
 

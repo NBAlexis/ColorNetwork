@@ -278,49 +278,7 @@ void Transpose(T* dst,
         byIndexCount);
 }
 
-template <class T> __DLL_EXPORT
-void DebugPrint(
-    const T* __restrict__ src,
-    UINT uiSize)
-{
-    T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
-    _memcpy_dh(hostBuffer, src, sizeof(T) * uiSize);
 
-    for (UINT i = 0; i < uiSize; ++i)
-    {
-        appGeneral(_T("%d: "), i);
-        LogValue(hostBuffer[i]);
-        appGeneral(_T("\n"));
-    }
-
-    appSafeFree(hostBuffer);
-}
-
-template <class T> __DLL_EXPORT
-void DebugPrint(
-    const T* __restrict__ src,
-    UINT uiXDim,
-    UINT uiYDim)
-{
-    const UINT uiSize = uiXDim * uiYDim;
-    T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
-    _memcpy_dh(hostBuffer, src, sizeof(T) * uiSize);
-
-    for (UINT x = 0; x < uiXDim; ++x)
-    {
-        for (UINT y = 0; y < uiYDim; ++y)
-        {
-            LogValue(hostBuffer[x * uiYDim + y]);
-            if (y != uiYDim - 1)
-            {
-                appGeneral(_T(", "));
-            }
-        }
-        appGeneral(_T("\n"));
-    }
-
-    appSafeFree(hostBuffer);
-}
 
 #endif
 

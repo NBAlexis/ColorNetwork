@@ -296,8 +296,8 @@ static CCString CLGMD5Hash(const BYTE* pData, UINT uiDataCount)
     CCString sRet;
     for (UINT i = 0; i < (iLength << 2); ++i)
     {
-        const TCHAR char1 = sMid.GetAt(2 * i);
-        const TCHAR char2 = sMid.GetAt(2 * i + 1);
+        const TCHAR char1 = sMid[2 * i];
+        const TCHAR char2 = sMid[2 * i + 1];
         sRet += char2;
         sRet += char1;
     }

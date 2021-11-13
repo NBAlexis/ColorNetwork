@@ -38,7 +38,7 @@ inline UINT TMapHashKey(ARG_KEY key)
 template<>
 inline UINT TMapHashKey<const CCString&>(const CCString& key)
 {
-    const TCHAR* name = key;
+    const TCHAR* name = key.c_str();
     DWORD hash = 0;
     while (*name)
     {

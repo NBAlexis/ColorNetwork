@@ -26,7 +26,7 @@ __BEGIN_NAMESPACE
 * "Ey"->1
 * "Ec"->0x77
 */
-inline THashMap<CCString, INT> appGetEnumTable(const CCString &inGatheredEnum)
+inline THashMap<CCString, INT> appGetEnumTable(const CCString&inGatheredEnum)
 {
     TArray <INT> inSeps;
     inSeps.AddItem(_T(','));
@@ -40,7 +40,7 @@ inline THashMap<CCString, INT> appGetEnumTable(const CCString &inGatheredEnum)
         TArray <CCString> sEnumArray2 = appGetStringList(sEnumArray[i], inSeps2, EGSLF_IgnorTabSpaceInSide | EGSLF_IgnorEmety);
         assert(1 == sEnumArray2.Num() || 2 == sEnumArray2.Num());
         if (2 == sEnumArray2.Num())
-            iCurrentNum = appStrToINT(sEnumArray2[1]);
+            iCurrentNum = appStrToINT(sEnumArray2[1].c_str());
         else
             ++iCurrentNum;
         sOutTable.SetAt(sEnumArray2[0], iCurrentNum);
@@ -71,7 +71,7 @@ inline CCString appEnumToStringEabc(Eabc v)
         assert(1 == sEnumArray2.Num() || 2 == sEnumArray2.Num());
         if (2 == sEnumArray2.Num())
         {
-            iCurrentNum = appStrToINT(sEnumArray2[1]);
+            iCurrentNum = appStrToINT(sEnumArray2[1].c_str());
         }
         else
         {
@@ -109,7 +109,7 @@ __END_NAMESPACE
         assert(1 == sEnumArray2.Num() || 2 == sEnumArray2.Num()); \
         if (2 == sEnumArray2.Num()) \
         { \
-            iCurrentNum = appStrToINT(sEnumArray2[1]); \
+            iCurrentNum = appStrToINT(sEnumArray2[1].c_str()); \
         } \
         else \
         { \

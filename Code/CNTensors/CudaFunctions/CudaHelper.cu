@@ -18,10 +18,14 @@ __constant__ INT _constIntegers[kContentLength];
 
 #pragma region Kernels
 
+template<class Operator>
 __global__ void _CN_LAUNCH_BOUND_SINGLE
-_kernelDebugFunction()
+_kernelDebugFunction(TOperator_DS<Operator, _SComplex, FLOAT>* pDS)
 {
-
+    FLOAT b = 3.0;
+    _SComplex res = pDS->Do(b);
+    printf("===============\n");
+    printf("%f, %f", res.x, res.y);
 }
 
 template<class T> __global__ void _CN_LAUNCH_BOUND_MAXTHREAD
@@ -294,7 +298,7 @@ void CCudaHelper::DeviceQuery()
     // *****************************
     // exe and CUDA driver name
     appGeneral(_T("\n"));
-    std::string sProfileString = "deviceQuery, CUDA Driver = CUDART";
+    CCString sProfileString = "deviceQuery, CUDA Driver = CUDART";
     char cTemp[16];
 
     // driver version
@@ -342,7 +346,12 @@ void CCudaHelper::MemoryQuery()
 
 void CCudaHelper::DebugFunction()
 {
-    _kernelDebugFunction << <1,1 >> > ();
+    TOperatorDS_Sin<_SComplex, FLOAT> op;
+    TOperatorDS_Sin<_SComplex, FLOAT>* device = NULL;
+    checkCudaErrors(cudaMalloc((void**)&device, sizeof(TOperatorDS_Sin<_SComplex, FLOAT>)));
+    checkCudaErrors(cudaMemcpy(device, &op, sizeof(TOperatorDS_Sin<_SComplex, FLOAT>), cudaMemcpyHostToDevice));
+    _kernelDebugFunction << <1,1 >> > (device);
+    checkCudaErrors(cudaDeviceSynchronize());
 }
 
 #pragma endregion
@@ -384,6 +393,7 @@ TArray<UINT> CCudaHelper::GetMaxThreadCountAndThreadPerblock()
 
 void CCudaHelper::AllocateTemeraryBuffers()
 {
+    checkCudaErrors(cudaMalloc((void**)&m_pSmallSizeBuffer, kSmallBufferSize));
     //checkCudaErrors(cudaMalloc((void**)&m_pRealBufferThreadCount, sizeof(Real)* MAX_THREAD));
     //checkCudaErrors(cudaMalloc((void**)&m_pComplexBufferThreadCount, sizeof(CNComplex)* MAX_THREAD));
     //checkCudaErrors(cudaMalloc((void**)&m_pIntBufferThreadCount, sizeof(INT) * MAX_THREAD));
@@ -391,9 +401,42 @@ void CCudaHelper::AllocateTemeraryBuffers()
 
 void CCudaHelper::ReleaseTemeraryBuffers()
 {
-    //_freed(m_pRealBufferThreadCount);
+    if (NULL != m_pSmallSizeBuffer)
+    {
+        checkCudaErrors(cudaFree(m_pSmallSizeBuffer));
+        m_pSmallSizeBuffer = NULL;
+    }
+
     //_freed(m_pComplexBufferThreadCount);
     //_freed(m_pIntBufferThreadCount);
+}
+
+void CCudaHelper::_Malloc(const TCHAR* sLocation, void** ptr, UINT uiSize, UINT uiReason)
+{
+    checkCudaErrors(cudaMalloc(ptr, uiSize));
+}
+
+void CCudaHelper::Free(void* ptr)
+{
+    if (NULL != ptr)
+    {
+        checkCudaErrors(cudaFree(ptr));
+    }
+}
+
+void CCudaHelper::CopyDD(void* dest, const void* src, UINT uiSize)
+{
+    checkCudaErrors(cudaMemcpy(dest, src, uiSize, cudaMemcpyDeviceToDevice));
+}
+
+void CCudaHelper::CopyHD(void* dest, const void* src, UINT uiSize)
+{
+    checkCudaErrors(cudaMemcpy(dest, src, uiSize, cudaMemcpyHostToDevice));
+}
+
+void CCudaHelper::CopyDH(void* dest, const void* src, UINT uiSize)
+{
+    checkCudaErrors(cudaMemcpy(dest, src, uiSize, cudaMemcpyDeviceToHost));
 }
 
 template<class T> T CCudaHelper::ReduceSum(T* deviceBuffer, UINT uiLength)
@@ -439,7 +482,7 @@ template<class T> void CCudaHelper::ThreadBufferInitial(T* deviceBuffer, const T
 
 void CCudaHelper::CopyConstants() const
 {
-    checkCudaErrors(cudaMemcpyToSymbol(_constIntegers, m_ConstIntegers, sizeof(INT) * kContentLength));
+    //checkCudaErrors(cudaMemcpyToSymbol(_constIntegers, m_ConstIntegers, sizeof(INT) * kContentLength));
     //checkCudaErrors(cudaMemcpyToSymbol(_constFloats, m_ConstFloats, sizeof(Real) * kContentLength));
 }
 
@@ -454,12 +497,12 @@ void CCudaHelper::CopyRandomPointer(const class CRandom* r) const
 
 void CCudaHelper::InitialHelpers()
 {
-    m_pTensorWorkingSpace = new CTensorOpWorkingSpace();
+    //m_pTensorWorkingSpace = new CTensorOpWorkingSpace();
 }
 
 void CCudaHelper::ReleaseHelpers()
 {
-    appSafeDelete(m_pTensorWorkingSpace);
+    //appSafeDelete(m_pTensorWorkingSpace);
 }
 
 #pragma endregion

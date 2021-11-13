@@ -78,6 +78,27 @@ int main(int argc, char * argv[])
     appInitialTracer(PARANOIAC);
 
     appInitialCNLib(_T(""));
+    CNHostTensor<_SComplex> tensor1;
+    UINT lengths[] = { 4, 4, 4, 4 };
+    tensor1.CreateEmpty(lengths, 4);
+
+    //tensor1.DebugPrint(16, 16);
+
+    UINT strides[] = { 64, 16, 4, 1 };
+    tensor1.Zero(EC_Naive, 0, strides, lengths, 4);
+
+    tensor1.DebugPrint(16, 16);
+
+    tensor1.One(EC_Naive, 0, strides, lengths, 4);
+
+    tensor1.DebugPrint(16, 16);
+
+    CCudaHelper::DebugFunction();
+    CCudaHelper::DebugFunction();
+    CCudaHelper::DebugFunction();
+
+    appInitialTracer();
+    appGeneral(_T("hello %d\n"), 3);
 
     return 0;
 }

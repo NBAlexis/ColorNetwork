@@ -362,32 +362,19 @@ void CCString::TrimLeft()
 */
 void __cdecl CCString::Format(const TCHAR* lpszFormat, ...)
 {
-#if 0
     va_list argList;
     va_start(argList, lpszFormat);
+
     FormatV(lpszFormat, argList);
-    va_end(argList);
-#else
-    va_list argList;
-    va_start(argList, lpszFormat);
-
-    static TCHAR tmpBuffer[4096];
-    appVsnprintf(tmpBuffer, 4095, lpszFormat, argList);
-    const INT nLen = static_cast<INT>(appStrlen(tmpBuffer) + 1);
-    GetBuffer(nLen);
-    appStrcpy(m_pchData, GetAllocLength(), tmpBuffer);
-    ReleaseBuffer();
 
     va_end(argList);
-#endif
 }
 
 CCString CCString::FormatS(const TCHAR* lpszFormat, ...)
 {
-    CCString ret;
     va_list argList;
     va_start(argList, lpszFormat);
-    ret = FormatVS(lpszFormat, argList);
+    CCString ret = FormatVS(lpszFormat, argList);
     va_end(argList);
     return ret;
 }
@@ -413,173 +400,12 @@ CCString CCString::FormatVS(const TCHAR* lpszFormat, va_list argList)
 */
 void CCString::FormatV(const TCHAR* lpszFormat, va_list argList)
 {
-    //va_list argListSave = argList;
-    va_list argListSave;
-    va_copy(argListSave, argList);
-
-    // make a guess at the maximum length of the resulting string
-    INT nMaxLen = 0;
-    for (const TCHAR* lpsz = lpszFormat; *lpsz != _T('\0'); lpsz = appStrInc(lpsz))
-    {
-        // handle '%' character, but watch out for '%%'
-        if (*lpsz != _T('%') || *(lpsz = appStrInc(lpsz)) == _T('%'))
-        {
-            nMaxLen += (INT)appStrlen(lpsz);
-            continue;
-        }
-
-        INT nItemLen = 0;
-
-        // handle '%' character with format
-        INT nWidth = 0;
-        for (; *lpsz != _T('\0'); lpsz = appStrInc(lpsz))
-        {
-            // check for valid flags
-            if (*lpsz == _T('#'))
-                nMaxLen += 2;   // for '0x'
-            else if (*lpsz == _T('*'))
-                nWidth = va_arg(argList, INT);
-            else if (*lpsz == _T('-') || *lpsz == _T('+') || *lpsz == _T('0') ||
-                *lpsz == _T(' '))
-                ;
-            else // hit non-flag character
-                break;
-        }
-        // get width and skip it
-        if (nWidth == 0)
-        {
-            // width indicated by
-            if (appIsDigit(*lpsz))
-            {
-                nWidth = appStoI(lpsz);
-                for (; *lpsz != _T('\0') && appIsDigit(*lpsz); lpsz = appStrInc(lpsz))
-                    ;
-            }
-        }
-        assert(nWidth >= 0);
-
-        INT nPrecision = 0;
-        if (*lpsz == _T('.'))
-        {
-            // skip past '.' separator (width.precision)
-            lpsz = appStrInc(lpsz);
-
-            // get precision and skip it
-            if (*lpsz == _T('*'))
-            {
-                nPrecision = va_arg(argList, INT);
-                lpsz = appStrInc(lpsz);
-            }
-            else
-            {
-                nPrecision = appStoI(lpsz);
-                for (; *lpsz != _T('\0') && appIsDigit(*lpsz); lpsz = appStrInc(lpsz))
-                    ;
-            }
-            assert(nPrecision >= 0);
-        }
-
-        // now should be on specifier
-        switch (*lpsz)
-        {
-            // single characters
-        case _T('c'):
-        case _T('C'):
-            nItemLen = 2;
-            va_arg(argList, TCHAR_ARG);
-            break;
-
-            // strings
-        case _T('s'):
-        case _T('S'):
-        {
-            const TCHAR* pstrNextArg = va_arg(argList, const TCHAR*);
-            if (pstrNextArg == NULL)
-                nItemLen = 6;  // "(null)"
-            else
-            {
-                nItemLen = (INT)appStrlen(pstrNextArg);
-                nItemLen = appMax(1, nItemLen);
-            }
-        }
-        break;
-        }
-
-        // adjust nItemLen for strings
-        if (nItemLen != 0)
-        {
-            if (nPrecision != 0)
-                nItemLen = appMin(nItemLen, nPrecision);
-            nItemLen = appMax(nItemLen, nWidth);
-        }
-        else
-        {
-            switch (*lpsz)
-            {
-                // integers
-            case _T('d'):
-            case _T('i'):
-            case _T('u'):
-            case _T('x'):
-            case _T('X'):
-            case _T('o'):
-                va_arg(argList, INT);
-                nItemLen = 32;
-                nItemLen = appMax(nItemLen, nWidth + nPrecision);
-                break;
-
-            case _T('e'):
-            case _T('g'):
-            case _T('G'):
-
-                va_arg(argList, DOUBLE_ARG);
-                nItemLen = 128;
-                nItemLen = appMax(nItemLen, nWidth + nPrecision);
-                break;
-
-            case _T('f'):
-            {
-                DOUBLE f;
-                TCHAR* pszTemp;
-
-                // 312 == strlen("-1+(309 zeroes).")
-                // 309 zeroes == max precision of a double
-                // 6 == adjustment in case precision is not specified,
-                //   which means that the precision defaults to 6
-                const DWORD nLength = appMax(nWidth, 312 + nPrecision + 6);
-                pszTemp = (TCHAR*)appAlloca(nLength);
-
-                f = va_arg(argList, DOUBLE);
-                appSprintf(pszTemp, nLength, _T("%*.*f"), nWidth, nPrecision + 6, f);
-                nItemLen = (INT)appStrlen(pszTemp);
-            }
-            break;
-
-            case _T('p'):
-                va_arg(argList, void*);
-                nItemLen = 32;
-                nItemLen = appMax(nItemLen, nWidth + nPrecision);
-                break;
-
-                // no output
-            case _T('n'):
-                va_arg(argList, INT*);
-                break;
-
-            default:
-                assert(FALSE);  // unknown formatting option
-            }
-        }
-
-        // adjust nMaxLen for output nItemLen
-        nMaxLen += nItemLen;
-    }
-
-    GetBuffer(nMaxLen);
-    appVsprintf(m_pchData, GetAllocLength(), lpszFormat, argListSave);
+    static TCHAR tmpBuffer[4096];
+    appVsnprintf(tmpBuffer, 4095, lpszFormat, argList);
+    const INT nLen = static_cast<INT>(appStrlen(tmpBuffer) + 1);
+    GetBuffer(nLen);
+    appStrcpy(m_pchData, GetAllocLength(), tmpBuffer);
     ReleaseBuffer();
-
-    va_end(argListSave);
 }
 
 //////////////////////////////////////////////////////////////////////////////

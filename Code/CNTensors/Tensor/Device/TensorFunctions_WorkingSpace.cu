@@ -17,7 +17,7 @@ CTensorOpWorkingSpace::CTensorOpWorkingSpace()
     , m_uiSmallBufferIdx(0)
     , m_pDeviceZeroStart(NULL)
 {
-    _mallocd(m_pDeviceZeroStart, sizeof(UINT) * _kMaxSupportedOrder);
+    appCudaMalloc((void**)&m_pDeviceZeroStart, sizeof(UINT) * _kMaxSupportedOrder);
     UINT zeros[_kMaxSupportedOrder];
     memset(zeros, 0, sizeof(UINT) * _kMaxSupportedOrder);
     _memcpy_hd(m_pDeviceZeroStart, zeros, sizeof(UINT) * _kMaxSupportedOrder);
@@ -25,8 +25,8 @@ CTensorOpWorkingSpace::CTensorOpWorkingSpace()
 
 CTensorOpWorkingSpace::~CTensorOpWorkingSpace()
 {
-    _freed(m_pSmallBuffer);
-    _freed(m_pDeviceZeroStart);
+    appCudaFree(m_pSmallBuffer);
+    appCudaFree(m_pDeviceZeroStart);
 }
 
 BYTE* CTensorOpWorkingSpace::GetSmallDeviceBuffer(UINT uiLength)
@@ -39,8 +39,8 @@ BYTE* CTensorOpWorkingSpace::GetSmallDeviceBuffer(UINT uiLength)
         return m_pSmallBuffer + uiOldIndex;
     }
 
-    _freed(m_pSmallBuffer);
-    _mallocd(m_pSmallBuffer, _kSmallBufferSize);
+    appCudaFree(m_pSmallBuffer);
+    appCudaMalloc((void**)&m_pSmallBuffer, _kSmallBufferSize);
     m_uiSmallBufferIdx = alignedLength;
     return m_pSmallBuffer;
 }

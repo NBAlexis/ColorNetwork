@@ -9,8 +9,8 @@
 //=============================================================================
 #pragma once
 
-#ifndef _TENSORS_H_
-#define _TENSORS_H_
+#ifndef _CNTENSORS_H_
+#define _CNTENSORS_H_
 
 #include "Core/CNSetup.h"
 #include "Core/CNDefine.h"
@@ -49,7 +49,7 @@
 #include "Tools/Data/TemplateFunctions.h"
 #include "Tools/Data/MemStack.h"
 #include "Tools/Data/CBitFlag.h"
-//using these class to avoid warnings by STL...
+//using these class to avoid warnings by STL..., see: https://code.i-harness.com/en/q/56642a
 #include "Tools/Data/TArray.h"
 #include "Tools/Data/CCString.h"
 #include "Tools/Data/THashMap.h"
@@ -67,12 +67,14 @@
 #include "CudaFunctions/CudaHelper.h"
 
 //====================== Tensor =======================
+#include "Tensor/Device/CNDeviceTensorElementOperator.h"
 #include "Tensor/Device/CNDeviceTensor.h"
 #include "Tensor/Device/TensorFunctions.h"
-#include "Tensor/Device/CNDeviceTensorElementOperator.h"
 #include "Tensor/Device/CNDeviceTensorCommon.h"
 #include "Tensor/Device/Common/CNDeviceTensorCommonNaive.h"
+#include "Tensor/Device/CNDeviceTensorCalculatorGather.h"
 
+#include "Tensor/Host/CNHostTensor.h"
 
 //#include "Tensor/CNIndex.h"
 

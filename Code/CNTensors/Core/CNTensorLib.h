@@ -21,7 +21,7 @@ public:
     /**
      * Make sure call Initial after GTrace is initialed
      */
-    void Initial(const class CCString& sConfigFile);
+    void Initial(const TCHAR* sConfigFile);
 
     /**
      * Make sure it always safe to call Initial again after Exit
@@ -40,7 +40,7 @@ protected:
 
 extern CNAPI CNTensorLib GCNLib;
 
-inline void appInitialCNLib(const class CCString& sConfigFile) { GCNLib.Initial(sConfigFile); }
+inline void appInitialCNLib(const TCHAR* sConfigFile) { GCNLib.Initial(sConfigFile); }
 inline void appExitCNLib() { GCNLib.Exit(); }
 
 inline class CCudaHelper* appGetCuda() { return GCNLib.GetCuda(); }

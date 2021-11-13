@@ -14,6 +14,7 @@
 __BEGIN_NAMESPACE
 
 constexpr UINT kContentLength = 256;
+constexpr UINT kSmallBufferSize = 65536;
 
 extern __constant__ INT _constIntegers[kContentLength];
 //extern __constant__ Real _constFloats[kContentLength];
@@ -40,12 +41,7 @@ class CNAPI CCudaHelper
 public:
 
     CCudaHelper()
-        /*: m_pComplexBufferThreadCount(NULL)
-        , m_pRealBufferThreadCount(NULL)
-        , m_pIntBufferThreadCount(NULL)
-
-        , m_pTensorWorkingSpace(NULL)
-        */
+        : m_pSmallSizeBuffer(NULL)
     {
         //memset(m_ConstIntegers, 0, sizeof(INT) * kContentLength);
         //memset(m_ConstFloats, 0, sizeof(Real) * kContentLength);
@@ -123,17 +119,41 @@ public:
     void InitialHelpers();
     void ReleaseHelpers();
 
-    class CTensorOpWorkingSpace* GetTensorOpWorkingSpace() const { return m_pTensorWorkingSpace; }
+    /**
+     * For using those in .h files
+     * malloc and free is not static constant for
+     * furture possible for statistics for memory usage
+     */
+    void _Malloc(const TCHAR* sLocation, void** ptr, UINT uiSize, UINT uiReason = 0);
+    void Free(void* ptr);
+    static void CopyDD(void* dest, const void* src, UINT uiSize);
+    static void CopyHD(void* dest, const void* src, UINT uiSize);
+    static void CopyDH(void* dest, const void* src, UINT uiSize);
+
+    BYTE* GetSmallBuffer() const
+    {
+        return m_pSmallSizeBuffer;
+    }
 
 protected:
 
-    class CTensorOpWorkingSpace* m_pTensorWorkingSpace;
+    /**
+     * This is a buffer for one time usage
+     */
+    BYTE* m_pSmallSizeBuffer;
 
     #pragma endregion
 };
 
 __END_NAMESPACE
 
+#define appCudaFree(ptr) appGetCuda()->Free(ptr); ptr=NULL;
+
+#ifdef _CN_DEBUG
+#   define appCudaMalloc(...) {static TCHAR ___msg[1024];appSprintf(___msg, 1024, _T("%s(%d)"), _T(__FILE__), __LINE__); appGetCuda()->_Malloc(___msg, __VA_ARGS__);}
+#else
+#   define appCudaMalloc(...) {appGetCuda()->_Malloc(NULL, __VA_ARGS__);}
+#endif
 
 #endif //#ifndef _CUDAHELPER_H_
 

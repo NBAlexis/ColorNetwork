@@ -34,10 +34,12 @@
     <ClInclude Include="CNTensors.h" />
     <ClInclude Include="CNTensorsPch.h" />
     <ClInclude Include="Tensor\Device\CNDeviceTensor.h" />
+    <ClInclude Include="Tensor\Device\CNDeviceTensorCalculatorGather.h" />
     <ClInclude Include="Tensor\Device\CNDeviceTensorCommon.h" />
     <ClInclude Include="Tensor\Device\CNDeviceTensorElementOperator.h" />
     <ClInclude Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.h" />
     <ClInclude Include="Tensor\Device\TensorFunctions.h" />
+    <ClInclude Include="Tensor\Host\CNHostTensor.h" />
     <ClInclude Include="Tools\CYAMLParser.h" />
     <ClInclude Include="Tools\Data\CBitFlag.h" />
     <ClInclude Include="Tools\Data\CCString.h" />
@@ -57,6 +59,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Core\CNTensorLib.cpp" />
+    <ClCompile Include="Tensor\Host\CNHostTensor.cpp" />
     <ClCompile Include="Tools\CYAMLParser.cpp" />
     <ClCompile Include="Tools\Data\CCString.cpp" />
     <ClCompile Include="Tools\Tracer.cpp" />
@@ -65,6 +68,7 @@
     <CudaCompile Include="CudaFunctions\CNFFT.cu" />
     <CudaCompile Include="CudaFunctions\CNRandom.cu" />
     <CudaCompile Include="CudaFunctions\CudaHelper.cu" />
+    <CudaCompile Include="Tensor\Device\CNDeviceTensorCommon.cu" />
     <CudaCompile Include="Tensor\Device\CNDeviceTensorElementOperator.cu" />
     <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_Common.cu" />
@@ -214,7 +218,7 @@
     </CudaCompile>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_86,sm_86;</CodeGeneration>
+      <CodeGeneration>compute_75,sm_75;</CodeGeneration>
       <Defines>WIN64</Defines>
       <Runtime>MDd</Runtime>
       <AdditionalCompilerOptions>

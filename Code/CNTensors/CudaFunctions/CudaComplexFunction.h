@@ -175,7 +175,7 @@ _DComplex _Sqrt(const _DComplex& a)
 }
 
 template<class T> __inline__ __host__ __device__
-T _Sin(const T& a) { return sin(a); }
+T _Sin(const T& a) { return static_cast<T>(sin(a)); }
 
 template<> __inline__ __host__ __device__
 _SComplex _Sin(const _SComplex& a)
@@ -248,25 +248,25 @@ _DComplex _Add(const _DComplex& a, const _SComplex& b) { return make_cuDoubleCom
 
 //========== _Sub_L =============
 template<class T1, class T2> __inline__ __host__ __device__
-T1 _Sub_L(const T1& a, const T2& b) { return a - static_cast<T1>(b); }
+T1 _Sub(const T1& a, const T2& b) { return a - static_cast<T1>(b); }
 
 template<class T2> __inline__ __host__ __device__
-_SComplex _Sub_L(const _SComplex& a, const T2& b) { return make_cuComplex(a.x - static_cast<FLOAT>(b), a.y); }
+_SComplex _Sub(const _SComplex& a, const T2& b) { return make_cuComplex(a.x - static_cast<FLOAT>(b), a.y); }
 
 template<class T2> __inline__ __host__ __device__
-_DComplex _Sub_L(const _DComplex& a, const T2& b) { return make_cuDoubleComplex(a.x - static_cast<DOUBLE>(b), a.y); }
+_DComplex _Sub(const _DComplex& a, const T2& b) { return make_cuDoubleComplex(a.x - static_cast<DOUBLE>(b), a.y); }
 
 template<> __inline__ __host__ __device__
-_SComplex _Sub_L(const _SComplex& a, const _SComplex& b) { return cuCsubf(a, b); }
+_SComplex _Sub(const _SComplex& a, const _SComplex& b) { return cuCsubf(a, b); }
 
 template<> __inline__ __host__ __device__
-_SComplex _Sub_L(const _SComplex& a, const _DComplex& b) { return make_cuComplex(a.x - static_cast<FLOAT>(b.x), a.y - static_cast<FLOAT>(b.y)); }
+_SComplex _Sub(const _SComplex& a, const _DComplex& b) { return make_cuComplex(a.x - static_cast<FLOAT>(b.x), a.y - static_cast<FLOAT>(b.y)); }
 
 template<> __inline__ __host__ __device__
-_DComplex _Sub_L(const _DComplex& a, const _DComplex& b) { return cuCsub(a, b); }
+_DComplex _Sub(const _DComplex& a, const _DComplex& b) { return cuCsub(a, b); }
 
 template<> __inline__ __host__ __device__
-_DComplex _Sub_L(const _DComplex& a, const _SComplex& b) { return make_cuDoubleComplex(a.x - static_cast<DOUBLE>(b.x), a.y - static_cast<DOUBLE>(b.y)); }
+_DComplex _Sub(const _DComplex& a, const _SComplex& b) { return make_cuDoubleComplex(a.x - static_cast<DOUBLE>(b.x), a.y - static_cast<DOUBLE>(b.y)); }
 
 //========== _Sub_R =============
 template<class T1, class T2> __inline__ __host__ __device__
@@ -326,19 +326,19 @@ _DComplex _Mul(const _DComplex& a, const _SComplex& b)
 
 //========== Div_L =============
 template<class T1, class T2> __inline__ __host__ __device__
-T1 _Div_L(const T1& a, const T2& b) { return a / static_cast<T1>(b); }
+T1 _Div(const T1& a, const T2& b) { return a / static_cast<T1>(b); }
 
 template<class T2> __inline__ __host__ __device__
-_SComplex _Div_L(const _SComplex& a, const T2& b) { return make_cuComplex(a.x / static_cast<FLOAT>(b), a.y / static_cast<FLOAT>(b)); }
+_SComplex _Div(const _SComplex& a, const T2& b) { return make_cuComplex(a.x / static_cast<FLOAT>(b), a.y / static_cast<FLOAT>(b)); }
 
 template<class T2> __inline__ __host__ __device__
-_DComplex _Div_L(const _DComplex& a, const T2& b) { return make_cuDoubleComplex(a.x / static_cast<DOUBLE>(b), a.y / static_cast<DOUBLE>(b)); }
+_DComplex _Div(const _DComplex& a, const T2& b) { return make_cuDoubleComplex(a.x / static_cast<DOUBLE>(b), a.y / static_cast<DOUBLE>(b)); }
 
 template<> __inline__ __host__ __device__
-_SComplex _Div_L(const _SComplex& a, const _SComplex& b) { return cuCdivf(a, b); }
+_SComplex _Div(const _SComplex& a, const _SComplex& b) { return cuCdivf(a, b); }
 
 template<> __inline__ __host__ __device__
-_SComplex _Div_L(const _SComplex& a, const _DComplex& b)
+_SComplex _Div(const _SComplex& a, const _DComplex& b)
 {
     FLOAT s = static_cast<FLOAT>(abs(b.x) + abs(b.y));
     FLOAT oos = 1.0f / s;
@@ -354,10 +354,10 @@ _SComplex _Div_L(const _SComplex& a, const _DComplex& b)
 }
 
 template<> __inline__ __host__ __device__
-_DComplex _Div_L(const _DComplex& a, const _DComplex& b) { return cuCdiv(a, b); }
+_DComplex _Div(const _DComplex& a, const _DComplex& b) { return cuCdiv(a, b); }
 
 template<> __inline__ __host__ __device__
-_DComplex _Div_L(const _DComplex& a, const _SComplex& b)
+_DComplex _Div(const _DComplex& a, const _SComplex& b)
 {
     DOUBLE s = abs(b.x) + abs(b.y);
     DOUBLE oos = 1.0 / s;
@@ -451,12 +451,12 @@ template<class T> inline void LogValue(const T& )
 
 template<> inline void LogValue(const FLOAT& v)
 {
-    appGeneral(_T("%2.20f"), v);
+    appGeneral(_T("%2.12f"), v);
 }
 
 template<> inline void LogValue(const DOUBLE& v)
 {
-    appGeneral(_T("%2.20f"), v);
+    appGeneral(_T("%2.12f"), v);
 }
 
 template<> inline void LogValue(const INT& v)
@@ -501,7 +501,7 @@ template<> inline void LogValue(const SQWORD& v)
 
 template<> inline void LogValue(const _SComplex& v)
 {
-    appGeneral(_T("%2.20f %s %2.20f I"), 
+    appGeneral(_T("%2.12f %s %2.12f I"), 
         v.x,
         v.y >= 0.0f ? _T("+") : _T("-"),
         _Abs(v.y));
@@ -509,7 +509,7 @@ template<> inline void LogValue(const _SComplex& v)
 
 template<> inline void LogValue(const _DComplex& v)
 {
-    appGeneral(_T("%2.20f %s %2.20f I"),
+    appGeneral(_T("%2.12f %s %2.12f I"),
         v.x,
         v.y >= 0.0 ? _T("+") : _T("-"),
         _Abs(v.y));

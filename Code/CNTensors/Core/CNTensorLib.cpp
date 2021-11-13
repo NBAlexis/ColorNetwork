@@ -24,15 +24,14 @@ CNTensorLib::~CNTensorLib()
     
 }
 
-void CNTensorLib::Initial(const class CCString& sConfigFile)
+void CNTensorLib::Initial(const TCHAR* sConfigFile)
 {
-    m_pCuda = new CCudaHelper();
+    //m_pCuda = new CCudaHelper();
 }
 
 void CNTensorLib::Exit()
 {
     appSafeDelete(m_pCuda);
-
     appFlushLog();
 }
 
