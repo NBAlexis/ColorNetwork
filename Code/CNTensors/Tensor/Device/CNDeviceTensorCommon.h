@@ -42,21 +42,21 @@ __BEGIN_NAMESPACE
  *
  * dstIndexStart = sum_i ai*stridei, controlls a0,a1,...
  */
-template<class Calculator, class T>
+template<class T>
 class __DLL_EXPORT TCNDeviceTensorCommon
 {
 public:
 
-    TCNDeviceTensorCommon(T* pBuffer)
-        : m_pBuffer(pBuffer)
-    {
-        
-    }
+    //TCNDeviceTensorCommon(T* pBuffer)
+    //    : m_pBuffer(pBuffer)
+    //{
+    //    
+    //}
 
-    virtual ~TCNDeviceTensorCommon()
-    {
-        
-    }
+    //virtual ~TCNDeviceTensorCommon()
+    //{
+    //    
+    //}
 
     /**
      * Things like a = constant
@@ -71,25 +71,25 @@ public:
     //    ((Calculator*)this)->Set(dst, v, dstIndexStart, dstStride, lengths, byIndexCount);
     //}
 
-    void Zero(
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        TOperator_Zero<T> op;
-        OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
+    //void Zero(
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    TOperator_Zero<T> op;
+    //    OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+    //}
 
-    void One(
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        TOperator_One<T> op;
-        OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
+    //void One(
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    TOperator_One<T> op;
+    //    OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+    //}
 
     static void DebugPrint(const CNDeviceTensor<T>& src, UINT uiSize)
     {
@@ -134,7 +134,7 @@ public:
         appPopLogDate();
     }
 
-    T* m_pBuffer;
+    //T* m_pBuffer;
 
 protected:
 
@@ -146,38 +146,38 @@ protected:
      *
      * Note, dstStride and lengths are on host
      */
-    template<class Operator>
-    void OneOperator(
-        const TOperator_D<Operator, T>& op,
-        T* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        ((Calculator*)this)->OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
+    //template<class Operator>
+    //void OneOperator(
+    //    const TOperator_D<Operator, T>& op,
+    //    T* dst,
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    ((Calculator*)this)->OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    //}
 
     /**
      * Things like b = sin(a), where type of b is as same as a
      * Call it like this:
      * TOperator_Sin<FLOAT> op();
      */
-    template<class Operator>
-    void OneOperatorD(
-        TOperator_D<Operator, T> op,
-        CNDeviceTensor<T>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        CNDeviceTensor<T>* src,
-        const UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        ((Calculator*)this)->OneOperatorD(op, dst, dstIndexStart, dstStride, 
-            src, srcIndexStart, srcStride, lengths, byIndexCount);
-    }
+    //template<class Operator>
+    //void OneOperatorD(
+    //    TOperator_D<Operator, T> op,
+    //    CNDeviceTensor<T>* dst,
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    CNDeviceTensor<T>* src,
+    //    const UINT srcIndexStart,
+    //    const UINT* __restrict__ srcStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    ((Calculator*)this)->OneOperatorD(op, dst, dstIndexStart, dstStride, 
+    //        src, srcIndexStart, srcStride, lengths, byIndexCount);
+    //}
 
 #if 0
     /**
@@ -283,6 +283,33 @@ protected:
 
 
     #pragma endregion
+};
+
+template<class Calculator, class Operator, class T>
+class __DLL_EXPORT TCNDeviceTensorCommonOneOperator
+{
+public:
+    TCNDeviceTensorCommonOneOperator(T* pBuffer)
+        : m_pBuffer(pBuffer)
+    {
+
+    }
+
+    virtual ~TCNDeviceTensorCommonOneOperator()
+    {
+        
+    }
+
+    virtual void OneOperator(
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount) = 0;
+
+protected:
+
+    T* m_pBuffer;
+    TOperator_D<Operator, T> m_op;
 };
 
 __END_NAMESPACE

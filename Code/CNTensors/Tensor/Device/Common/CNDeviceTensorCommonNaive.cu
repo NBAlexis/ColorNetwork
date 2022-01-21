@@ -14,7 +14,8 @@ __BEGIN_NAMESPACE
 //__CN_FORCEOBJ_CPP(CNDeviceTensorCommonNaive);
 
 //This is the critical specialization
-template class CNDeviceTensorCommonNaive<_SComplex>;
+template class CNDeviceTensorCommonNaiveOneOperator<TOperator_Zero<_SComplex>, _SComplex>;
+template class CNDeviceTensorCommonNaiveOneOperator<TOperator_One<_SComplex>, _SComplex>;
 
 #pragma region kernels
 
@@ -177,11 +178,8 @@ __global__ void _CN_LAUNCH_BOUND _kernel_Transpose_Small(
 
 #pragma endregion
 
-template<class T>
-template<class Operator>
-void CNDeviceTensorCommonNaive<T>::OneOperator(
-    const TOperator_D<Operator, T>& op,
-    T* dst,
+template<class Operator, class T>
+void CNDeviceTensorCommonNaiveOneOperator<Operator, T>::OneOperator(
     const UINT dstIndexStart,
     const UINT* __restrict__ dstStride,
     const UINT* __restrict__ lengths,
@@ -199,8 +197,8 @@ void CNDeviceTensorCommonNaive<T>::OneOperator(
     __BuildMultiplyLength(deviceBuffer + dataSize);
 
     __KERNALCALNAIVE(_kernel_NaiveOneOperator,
-        op,
-        dst,
+        m_op,
+        m_pBuffer,
         (UINT*)deviceBuffer,
         dstIndexStart,
         (UINT*)(deviceBuffer + dataSize),

@@ -71,7 +71,7 @@ public:
 
     void DebugPrint(UINT uiXDim, UINT uiYDim) const
     {
-        TCNDeviceTensorCommon<CNDeviceTensorCommonNaive<T>, T>::DebugPrint(m_cDeviceTensor, uiXDim, uiYDim);
+        TCNDeviceTensorCommon<T>::DebugPrint(m_cDeviceTensor, uiXDim, uiYDim);
     }
 
     void Zero(ECalculator eCalc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount);

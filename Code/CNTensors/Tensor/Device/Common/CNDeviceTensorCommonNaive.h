@@ -215,13 +215,14 @@ __device__ static __inline__ UINT _deviceWorkIndexToTensorIndexNaive(
 
 //__CN_FORCEOBJ_HEAD(CNDeviceTensorCommonNaive);
 
-template<class T>
-class __DLL_EXPORT CNDeviceTensorCommonNaive : public TCNDeviceTensorCommon<CNDeviceTensorCommonNaive<T>, T>
+template<class Operator, class T>
+class __DLL_EXPORT CNDeviceTensorCommonNaiveOneOperator
+: public TCNDeviceTensorCommonOneOperator<CNDeviceTensorCommonNaiveOneOperator<Operator, T>, Operator, T>
 {
 public:
 
-    CNDeviceTensorCommonNaive(T* pBuffer)
-        : TCNDeviceTensorCommon<CNDeviceTensorCommonNaive<T>, T>(pBuffer)
+    CNDeviceTensorCommonNaiveOneOperator(T* pBuffer)
+        : TCNDeviceTensorCommonOneOperator<CNDeviceTensorCommonNaiveOneOperator, Operator, T>(pBuffer)
     {
         
     }
@@ -229,11 +230,11 @@ public:
     /**
      * This dummy function is only to put the implementations into .obj files
      */
-    void __Dummy()
-    {
-        OneOperator(TOperator_Zero<T>(), 0, NULL, NULL, 0, 0);
-        OneOperator(TOperator_One<T>(), 0, NULL, NULL, 0, 0);
-    }
+    //void __Dummy()
+    //{
+    //    OneOperator(TOperator_Zero<T>(), 0, NULL, NULL, 0, 0);
+    //    OneOperator(TOperator_One<T>(), 0, NULL, NULL, 0, 0);
+    //}
 
     //void Set(
     //    CNDeviceTensor<T>* dst, const T& v,
@@ -269,35 +270,32 @@ public:
 
 
 
-    friend class TCNDeviceTensorCommon<CNDeviceTensorCommonNaive, T>;
+    //friend class TCNDeviceTensorCommon<CNDeviceTensorCommonNaive, T>;
 
-protected:
+//public:
 
-    template<class Operator>
     void OneOperator(
-        const TOperator_D<Operator, T>& op,
-        T* dst,
-        const UINT dstIndexStart,
+        UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,
-        BYTE byIndexCount);
+        BYTE byIndexCount) override;
 
 
 
-    template<class Operator>
-    void OneOperatorD(
-        TOperator_D<Operator, T> op,
-        CNDeviceTensor<T>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        CNDeviceTensor<T>* src,
-        const UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        appCrucial(_T("Not implemented yet...\n"));
-    }
+    //template<class Operator>
+    //void OneOperatorD(
+    //    TOperator_D<Operator, T> op,
+    //    CNDeviceTensor<T>* dst,
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    CNDeviceTensor<T>* src,
+    //    const UINT srcIndexStart,
+    //    const UINT* __restrict__ srcStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    appCrucial(_T("Not implemented yet...\n"));
+    //}
 
 };
 

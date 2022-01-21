@@ -54,7 +54,8 @@ void Calc_Zero(
     switch (eCalc)
     {
     case EC_Naive:
-        CNDeviceTensorCommonNaive<T>(tensor->m_pDeviceDataBuffer).Zero(dstIndexStart, dstStride, lengths, byIndexCount);
+        CNDeviceTensorCommonNaiveOneOperator<TOperator_Zero<T>, T>(tensor->m_pDeviceDataBuffer)
+        .OneOperator(dstIndexStart, dstStride, lengths, byIndexCount);
         break;
     default:
         appCrucial(_T("Calc_OneOperator:: Calculator not implemented!\n"));
@@ -74,7 +75,9 @@ void Calc_One(
     switch (eCalc)
     {
     case EC_Naive:
-        CNDeviceTensorCommonNaive<T>(tensor->m_pDeviceDataBuffer).One(dstIndexStart, dstStride, lengths, byIndexCount);
+        //CNDeviceTensorCommonNaive<T>(tensor->m_pDeviceDataBuffer).One(dstIndexStart, dstStride, lengths, byIndexCount);
+        CNDeviceTensorCommonNaiveOneOperator<TOperator_One<T>, T>(tensor->m_pDeviceDataBuffer)
+            .OneOperator(dstIndexStart, dstStride, lengths, byIndexCount);
         break;
     default:
         appCrucial(_T("Calc_OneOperator:: Calculator not implemented!\n"));
