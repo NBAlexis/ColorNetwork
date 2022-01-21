@@ -47,6 +47,17 @@ class __DLL_EXPORT TCNDeviceTensorCommon
 {
 public:
 
+    TCNDeviceTensorCommon(T* pBuffer)
+        : m_pBuffer(pBuffer)
+    {
+        
+    }
+
+    virtual ~TCNDeviceTensorCommon()
+    {
+        
+    }
+
     /**
      * Things like a = constant
      */
@@ -61,25 +72,23 @@ public:
     //}
 
     void Zero(
-        CNDeviceTensor<T>* dst, 
         const UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
         TOperator_Zero<T> op;
-        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+        OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
     }
 
     void One(
-        CNDeviceTensor<T>* dst,
         const UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
         TOperator_One<T> op;
-        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+        OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
     }
 
     static void DebugPrint(const CNDeviceTensor<T>& src, UINT uiSize)
@@ -125,6 +134,8 @@ public:
         appPopLogDate();
     }
 
+    T* m_pBuffer;
+
 protected:
 
     /**
@@ -138,7 +149,7 @@ protected:
     template<class Operator>
     void OneOperator(
         const TOperator_D<Operator, T>& op,
-        CNDeviceTensor<T>* dst,
+        T* dst,
         const UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,

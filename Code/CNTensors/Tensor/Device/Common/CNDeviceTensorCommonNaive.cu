@@ -181,7 +181,7 @@ template<class T>
 template<class Operator>
 void CNDeviceTensorCommonNaive<T>::OneOperator(
     const TOperator_D<Operator, T>& op,
-    CNDeviceTensor<T>* dst,
+    T* dst,
     const UINT dstIndexStart,
     const UINT* __restrict__ dstStride,
     const UINT* __restrict__ lengths,
@@ -200,7 +200,7 @@ void CNDeviceTensorCommonNaive<T>::OneOperator(
 
     __KERNALCALNAIVE(_kernel_NaiveOneOperator,
         op,
-        dst->m_pDeviceDataBuffer,
+        dst,
         (UINT*)deviceBuffer,
         dstIndexStart,
         (UINT*)(deviceBuffer + dataSize),
