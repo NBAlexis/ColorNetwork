@@ -289,8 +289,8 @@ template<class Calculator, class Operator, class T>
 class __DLL_EXPORT TCNDeviceTensorCommonOneOperator
 {
 public:
-    TCNDeviceTensorCommonOneOperator(T* pBuffer)
-        : m_pBuffer(pBuffer)
+    TCNDeviceTensorCommonOneOperator()
+        //: m_pBuffer(pBuffer)
     {
 
     }
@@ -306,10 +306,10 @@ public:
         const UINT* __restrict__ lengths,
         BYTE byIndexCount) = 0;
 
-protected:
-
-    T* m_pBuffer;
-    TOperator_D<Operator, T> m_op;
+//public:
+//
+//    T* m_pBuffer;
+//    TOperator_D<Operator, T> m_op;
 };
 
 __END_NAMESPACE

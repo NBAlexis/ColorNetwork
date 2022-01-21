@@ -222,7 +222,8 @@ class __DLL_EXPORT CNDeviceTensorCommonNaiveOneOperator
 public:
 
     CNDeviceTensorCommonNaiveOneOperator(T* pBuffer)
-        : TCNDeviceTensorCommonOneOperator<CNDeviceTensorCommonNaiveOneOperator, Operator, T>(pBuffer)
+        : TCNDeviceTensorCommonOneOperator<CNDeviceTensorCommonNaiveOneOperator<Operator, T>, Operator, T>()
+        , m_pBuffer(pBuffer)
     {
         
     }
@@ -296,7 +297,10 @@ public:
     //{
     //    appCrucial(_T("Not implemented yet...\n"));
     //}
+protected:
 
+    T* m_pBuffer;
+    TOperator_D<Operator, T> m_op;
 };
 
 //extern CNDeviceTensorCommonNaive<INT> GCalculatorNaiveCommon;
