@@ -11,6 +11,8 @@
 
 __BEGIN_NAMESPACE
 
+__CN_FORCEOBJ_CPP(CNDeviceTensorCommonNaive);
+
 //This is the critical specialization
 template class CNDeviceTensorCommonNaive<_SComplex>;
 

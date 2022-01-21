@@ -92,6 +92,16 @@
 //extern "C" void* __cdecl _alloca(size_t);
 #define appAlloca(size) ((0 == size) ? 0 : alloca((size+7)&~7))
 
+#define __CN_FORCEOBJ_HEAD(name) \
+struct CNAPI name##helper \
+{ \
+    name##helper(); \
+}; \
+static name##helper s_##name##helper;
+
+#define __CN_FORCEOBJ_CPP(name) \
+    name##helper::name##helper() {} 
+
 #pragma endregion
 
 #endif //#ifndef _CNDEFINE_H_

@@ -213,6 +213,8 @@ __device__ static __inline__ UINT _deviceWorkIndexToTensorIndexNaive(
 
 #pragma endregion
 
+__CN_FORCEOBJ_HEAD(CNDeviceTensorCommonNaive);
+
 template<class T>
 class __DLL_EXPORT CNDeviceTensorCommonNaive : public TCNDeviceTensorCommon<CNDeviceTensorCommonNaive<T>, T>
 {
