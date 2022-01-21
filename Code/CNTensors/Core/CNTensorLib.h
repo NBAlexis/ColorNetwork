@@ -29,10 +29,12 @@ public:
     void Exit();
 
     class CCudaHelper* GetCuda() const { return m_pCuda; }
+    class CTensorOpWorkingSpace* GetOpWorkingSpace() const { return m_pOpWorkingSpace; }
 
 protected:
 
     class CCudaHelper* m_pCuda;
+    class CTensorOpWorkingSpace* m_pOpWorkingSpace;
 
 };
 
@@ -44,6 +46,7 @@ inline void appInitialCNLib(const TCHAR* sConfigFile) { GCNLib.Initial(sConfigFi
 inline void appExitCNLib() { GCNLib.Exit(); }
 
 inline class CCudaHelper* appGetCuda() { return GCNLib.GetCuda(); }
+inline class CTensorOpWorkingSpace* appGetOpWorkingSpace() { return GCNLib.GetOpWorkingSpace(); }
 
 #pragma endregion
 

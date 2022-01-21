@@ -1,5 +1,5 @@
 //=============================================================================
-// FILENAME : TensorFunctions_WorkingSpace.cu
+// FILENAME : CTensorOpWorkingSpace.cu
 // 
 // DESCRIPTION:
 // 
@@ -14,7 +14,7 @@ __BEGIN_NAMESPACE
 
 CTensorOpWorkingSpace::CTensorOpWorkingSpace()
     : m_pSmallBuffer(NULL)
-    , m_uiSmallBufferIdx(0)
+    , m_uiSmallBufferSize(0)
     , m_pDeviceZeroStart(NULL)
 {
     appCudaMalloc((void**)&m_pDeviceZeroStart, sizeof(UINT) * _kMaxSupportedOrder);
@@ -29,25 +29,19 @@ CTensorOpWorkingSpace::~CTensorOpWorkingSpace()
     appCudaFree(m_pDeviceZeroStart);
 }
 
-BYTE* CTensorOpWorkingSpace::GetSmallDeviceBuffer(UINT uiLength)
+BYTE* CTensorOpWorkingSpace::GetSmallDeviceBuffer(UINT uiSize)
 {
-    const UINT alignedLength = (uiLength + _kAlignByteMinusOne) & (~_kAlignByteMinusOne);
-    const UINT uiOldIndex = m_uiSmallBufferIdx;
-    m_uiSmallBufferIdx = m_uiSmallBufferIdx + alignedLength;
-    if (m_uiSmallBufferIdx < _kSmallBufferSize)
+    if (NULL != m_pSmallBuffer && m_uiSmallBufferSize < uiSize)
     {
-        return m_pSmallBuffer + uiOldIndex;
+        appCudaFree(m_pSmallBuffer);
     }
-
-    appCudaFree(m_pSmallBuffer);
-    appCudaMalloc((void**)&m_pSmallBuffer, _kSmallBufferSize);
-    m_uiSmallBufferIdx = alignedLength;
+    if (NULL == m_pSmallBuffer)
+    {
+        m_uiSmallBufferSize = (uiSize + _kSmallBufferSize) & (~_kSmallBufferSize);
+        appCudaMalloc((void**)&m_pSmallBuffer, m_uiSmallBufferSize);
+    }
+    
     return m_pSmallBuffer;
-}
-
-CTensorOpWorkingSpace* appGetTensorOpWorkingSpace()
-{
-    return NULL;
 }
 
 __END_NAMESPACE

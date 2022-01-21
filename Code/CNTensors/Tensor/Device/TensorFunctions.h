@@ -17,39 +17,6 @@ __BEGIN_NAMESPACE
 
 
 
-#pragma region Working Space
-
-class CNAPI CTensorOpWorkingSpace
-{
-public:
-    enum
-    {
-        _kSmallBufferSize = 65536,
-        _kAlignByteMinusOne = 7,
-    };
-
-    CTensorOpWorkingSpace();
-    ~CTensorOpWorkingSpace();
-
-    /**
-     * Note: Every call to GetSmallDeviceBuffer will make previous buffer unsafe
-     */
-    BYTE* GetSmallDeviceBuffer(UINT uiLength);
-
-    const UINT* GetZeroStartBuffer() const { return m_pDeviceZeroStart; }
-    UINT* GetMultiplyLengthBuffer() { return m_pMultiplyLengthBuffer; }
-
-protected:
-
-    BYTE* m_pSmallBuffer;
-    UINT m_uiSmallBufferIdx;
-    UINT* m_pDeviceZeroStart;
-    UINT m_pMultiplyLengthBuffer[_kMaxSupportedOrder];
-};
-
-CTensorOpWorkingSpace* appGetTensorOpWorkingSpace();
-
-#pragma endregion
 
 #pragma region Common
 

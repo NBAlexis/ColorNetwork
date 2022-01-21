@@ -97,8 +97,7 @@ int main(int argc, char * argv[])
     CCudaHelper::DebugFunction();
     CCudaHelper::DebugFunction();
 
-    appInitialTracer();
-    appGeneral(_T("hello %d\n"), 3);
+    appExitCNLib();
 
     return 0;
 }

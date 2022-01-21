@@ -68,6 +68,7 @@
 
 //====================== Tensor =======================
 #include "Tensor/Device/CNDeviceTensorElementOperator.h"
+#include "Tensor/Device/CTensorOpWorkingSpace.h"
 #include "Tensor/Device/CNDeviceTensor.h"
 #include "Tensor/Device/TensorFunctions.h"
 #include "Tensor/Device/CNDeviceTensorCommon.h"

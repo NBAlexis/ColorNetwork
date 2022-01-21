@@ -20,7 +20,7 @@ __DEFINE_ENUM(ECalculator,
  * A 32 order tensor with all dim=2 needs 64G memory
  * Any tensor larger than this is not capable
  */
-constexpr BYTE _kMaxSupportedOrder = 32;
+//constexpr BYTE _kMaxSupportedOrder = 32;
 
 class CNAPI CNDeviceTensorPlaceHolder
 {
@@ -81,8 +81,8 @@ public:
         appCudaMalloc((void**)&m_pDeviceStrides, sizeof(UINT) * dim);
         appCudaMalloc((void**)&m_pDeviceLength, sizeof(UINT) * dim);
 
-        CCudaHelper::CopyHD(m_pDeviceStrides, strides, sizeof(UINT) * dim);
-        CCudaHelper::CopyHD(m_pDeviceLength, lengths, sizeof(UINT) * dim);
+        _memcpy_hd(m_pDeviceStrides, strides, sizeof(UINT) * dim);
+        _memcpy_hd(m_pDeviceLength, lengths, sizeof(UINT) * dim);
     }
 
     void Zero(

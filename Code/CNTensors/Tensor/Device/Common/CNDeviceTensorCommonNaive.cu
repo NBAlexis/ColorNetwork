@@ -11,6 +11,7 @@
 
 __BEGIN_NAMESPACE
 
+//This is the critical specialization
 template class CNDeviceTensorCommonNaive<_SComplex>;
 
 #pragma region kernels
@@ -189,11 +190,9 @@ void CNDeviceTensorCommonNaive<T>::OneOperator(
     UINT uiBlock, uiThread;
     SimpleThreadDecompose(lengths, byIndexCount, uiBlock, uiThread);
 
-    //BYTE* deviceBuffer = appGetTensorOpWorkingSpace()->GetSmallDeviceBuffer(totalBufferSize);
-    UINT* deviceBuffer = NULL;
-    checkCudaErrors(cudaMalloc((void**)&deviceBuffer, sizeof(UINT) * totalBufferSize));
+    BYTE* deviceBuffer = appGetSmallDeviceBuffer(totalBufferSize);
 
-    UINT* hostBuffer = (UINT*)appAlloca(sizeof(UINT) * dataSize);
+    UINT* hostBuffer = (UINT*)appAlloca(dataSize);
     _memcpy_hd(deviceBuffer, dstStride, dataSize);
     __BuildMultiplyLength(deviceBuffer + dataSize);
 
@@ -205,8 +204,6 @@ void CNDeviceTensorCommonNaive<T>::OneOperator(
         (UINT*)(deviceBuffer + dataSize),
         byIndexCount
     );
-
-    checkCudaErrors(cudaFree(deviceBuffer));
 }
 
 #if 0

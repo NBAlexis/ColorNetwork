@@ -26,11 +26,14 @@ CNTensorLib::~CNTensorLib()
 
 void CNTensorLib::Initial(const TCHAR* sConfigFile)
 {
-    //m_pCuda = new CCudaHelper();
+    m_pCuda = new CCudaHelper();
+    m_pOpWorkingSpace = new CTensorOpWorkingSpace();
+
 }
 
 void CNTensorLib::Exit()
 {
+    appSafeDelete(m_pOpWorkingSpace);
     appSafeDelete(m_pCuda);
     appFlushLog();
 }

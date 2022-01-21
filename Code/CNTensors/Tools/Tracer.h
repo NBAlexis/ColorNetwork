@@ -254,13 +254,9 @@ extern CNAPI void appGeneral(const TCHAR *format, ...);
 extern CNAPI void appDetailed(const TCHAR *format, ...);
 extern CNAPI void appParanoiac(const TCHAR *format, ...);
 
-#ifdef _CN_DEBUG
-#   define appCrucial(...) {char ___msg[1024];appSprintf(___msg, 1024, __VA_ARGS__);_appCrucial(_T("%s(%d): Error: %s\n"), _T(__FILE__), __LINE__, ___msg);}
-#   define appWarning(...) {char ___msg[1024];appSprintf(___msg, 1024, __VA_ARGS__);_appWarning(_T("%s(%d): Warning: %s\n"), _T(__FILE__), __LINE__, ___msg);}
-#else
-#   define appCrucial(...) {_appCrucial(__VA_ARGS__);}
-#   define appWarning(...) {_appWarning(__VA_ARGS__);}
-#endif
+#define appAssert(exp) { if (!(exp)) { appCrucial(_T("assert failed %s\n"), _T(#exp)); } }
+#define appCrucial(...) {TCHAR ___msg[1024];appSprintf(___msg, 1024, __VA_ARGS__);_appCrucial(_T("%s(%d): Error: %s\n"), _T(__FILE__), __LINE__, ___msg);}
+#define appWarning(...) {TCHAR ___msg[1024];appSprintf(___msg, 1024, __VA_ARGS__);_appWarning(_T("%s(%d): Warning: %s\n"), _T(__FILE__), __LINE__, ___msg);}
 
 extern CNAPI CTracer GTracer;
 

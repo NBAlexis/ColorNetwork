@@ -126,9 +126,14 @@ public:
      */
     void _Malloc(const TCHAR* sLocation, void** ptr, UINT uiSize, UINT uiReason = 0);
     void Free(void* ptr);
-    static void CopyDD(void* dest, const void* src, UINT uiSize);
-    static void CopyHD(void* dest, const void* src, UINT uiSize);
-    static void CopyDH(void* dest, const void* src, UINT uiSize);
+
+    /**
+     * (1) To avoid checkCudaErrors in .h file
+     * (2) Furture possible for statistics for memory copy
+     */
+    void CopyDD(void* dest, const void* src, UINT uiSize);
+    void CopyHD(void* dest, const void* src, UINT uiSize);
+    void CopyDH(void* dest, const void* src, UINT uiSize);
 
     BYTE* GetSmallBuffer() const
     {
@@ -148,12 +153,7 @@ protected:
 __END_NAMESPACE
 
 #define appCudaFree(ptr) appGetCuda()->Free(ptr); ptr=NULL;
-
-#ifdef _CN_DEBUG
-#   define appCudaMalloc(...) {static TCHAR ___msg[1024];appSprintf(___msg, 1024, _T("%s(%d)"), _T(__FILE__), __LINE__); appGetCuda()->_Malloc(___msg, __VA_ARGS__);}
-#else
-#   define appCudaMalloc(...) {appGetCuda()->_Malloc(NULL, __VA_ARGS__);}
-#endif
+#define appCudaMalloc(...) {TCHAR ___msg[1024];appSprintf(___msg, 1024, _T("%s(%d)"), _T(__FILE__), __LINE__); appGetCuda()->_Malloc(___msg, __VA_ARGS__);}
 
 #endif //#ifndef _CUDAHELPER_H_
 

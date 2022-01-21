@@ -393,7 +393,7 @@ TArray<UINT> CCudaHelper::GetMaxThreadCountAndThreadPerblock()
 
 void CCudaHelper::AllocateTemeraryBuffers()
 {
-    checkCudaErrors(cudaMalloc((void**)&m_pSmallSizeBuffer, kSmallBufferSize));
+    //checkCudaErrors(cudaMalloc((void**)&m_pSmallSizeBuffer, kSmallBufferSize));
     //checkCudaErrors(cudaMalloc((void**)&m_pRealBufferThreadCount, sizeof(Real)* MAX_THREAD));
     //checkCudaErrors(cudaMalloc((void**)&m_pComplexBufferThreadCount, sizeof(CNComplex)* MAX_THREAD));
     //checkCudaErrors(cudaMalloc((void**)&m_pIntBufferThreadCount, sizeof(INT) * MAX_THREAD));
@@ -401,11 +401,11 @@ void CCudaHelper::AllocateTemeraryBuffers()
 
 void CCudaHelper::ReleaseTemeraryBuffers()
 {
-    if (NULL != m_pSmallSizeBuffer)
-    {
-        checkCudaErrors(cudaFree(m_pSmallSizeBuffer));
-        m_pSmallSizeBuffer = NULL;
-    }
+    //if (NULL != m_pSmallSizeBuffer)
+    //{
+    //    checkCudaErrors(cudaFree(m_pSmallSizeBuffer));
+    //    m_pSmallSizeBuffer = NULL;
+    //}
 
     //_freed(m_pComplexBufferThreadCount);
     //_freed(m_pIntBufferThreadCount);

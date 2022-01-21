@@ -99,6 +99,9 @@
     <ClInclude Include="Tensor\Device\CNDeviceTensorCalculatorGather.h">
       <Filter>Tensor\Device</Filter>
     </ClInclude>
+    <ClInclude Include="Tensor\Device\CTensorOpWorkingSpace.h">
+      <Filter>Tensor\Device</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -169,9 +172,6 @@
     <CudaCompile Include="Tensor\Device\TensorFunctions_Common.cu">
       <Filter>Tensor\Device</Filter>
     </CudaCompile>
-    <CudaCompile Include="Tensor\Device\TensorFunctions_WorkingSpace.cu">
-      <Filter>Tensor\Device</Filter>
-    </CudaCompile>
     <CudaCompile Include="CudaFunctions\CudaHelper.cu">
       <Filter>CudaFunctions</Filter>
     </CudaCompile>
@@ -185,6 +185,9 @@
       <Filter>Tensor\Device</Filter>
     </CudaCompile>
     <CudaCompile Include="Tensor\Device\CNDeviceTensorCommon.cu">
+      <Filter>Tensor\Device</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\CTensorOpWorkingSpace.cu">
       <Filter>Tensor\Device</Filter>
     </CudaCompile>
   </ItemGroup>

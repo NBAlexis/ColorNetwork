@@ -218,37 +218,46 @@ class __DLL_EXPORT CNDeviceTensorCommonNaive : public TCNDeviceTensorCommon<CNDe
 {
 public:
 
-    void Set(
-        CNDeviceTensor<T>* dst, const T& v,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
+    /**
+     * This dummy function is only to put the implementations into .obj files
+     */
+    void __Dummy()
     {
-        appCrucial(_T("Not implemented yet...\n"));
+        OneOperator(TOperator_Zero<T>(), NULL, NULL, NULL, 0, 0);
+        OneOperator(TOperator_One<T>(), NULL, NULL, NULL, 0, 0);
     }
 
-    void Zero(
-        CNDeviceTensor<T>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        TOperator_Zero<T> op;
-        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
+    //void Set(
+    //    CNDeviceTensor<T>* dst, const T& v,
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    appCrucial(_T("Not implemented yet...\n"));
+    //}
 
-    void One(
-        CNDeviceTensor<T>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        TOperator_One<T> op;
-        OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
+    //void Zero(
+    //    CNDeviceTensor<T>* dst,
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    TOperator_Zero<T> op;
+    //    OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    //}
+
+    //void One(
+    //    CNDeviceTensor<T>* dst,
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    TOperator_One<T> op;
+    //    OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
+    //}
 
     friend class TCNDeviceTensorCommon<CNDeviceTensorCommonNaive, T>;
 

@@ -558,9 +558,9 @@ __END_NAMESPACE
 
 #define _CN_SYNC checkCudaErrors(cudaDeviceSynchronize());
 #define _CN_CUERR checkCudaErrors(cudaGetLastError());
-#define _memcpy_dd(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyDeviceToDevice));
-#define _memcpy_hd(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyHostToDevice));
-#define _memcpy_dh(des, src, size) checkCudaErrors(cudaMemcpy(des, src, size, cudaMemcpyDeviceToHost));
+#define _memcpy_dd(des, src, size) appGetCuda()->CopyDD(des, src, size);
+#define _memcpy_hd(des, src, size) appGetCuda()->CopyHD(des, src, size);
+#define _memcpy_dh(des, src, size) appGetCuda()->CopyDH(des, src, size);
 
 #pragma region Device Info Support (from Cuda Samples)
 

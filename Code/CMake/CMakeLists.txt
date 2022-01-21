@@ -52,6 +52,7 @@ add_library(CNTensors STATIC
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/CNDeviceTensorCommon.h
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/CNDeviceTensorElementOperator.h
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/Common/CNDeviceTensorCommonNaive.h
+    ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/CTensorOpWorkingSpace.h
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/TensorFunctions.h
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Host/CNHostTensor.h
     ${PROJECT_SOURCE_DIR}/CNTensors/Tools/CYAMLParser.h
@@ -75,7 +76,7 @@ add_library(CNTensors STATIC
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/Common/CNDeviceTensorCommonNaive.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/TensorFunctions_Common.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/TensorFunctions_Contract.cu
-    ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/TensorFunctions_WorkingSpace.cu
+    ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/CTensorOpWorkingSpace.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/CNTensorsPch.cpp
     ${PROJECT_SOURCE_DIR}/CNTensors/Core/CNTensorLib.cpp
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Host/CNHostTensor.cpp

@@ -38,6 +38,7 @@
     <ClInclude Include="Tensor\Device\CNDeviceTensorCommon.h" />
     <ClInclude Include="Tensor\Device\CNDeviceTensorElementOperator.h" />
     <ClInclude Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.h" />
+    <ClInclude Include="Tensor\Device\CTensorOpWorkingSpace.h" />
     <ClInclude Include="Tensor\Device\TensorFunctions.h" />
     <ClInclude Include="Tensor\Host\CNHostTensor.h" />
     <ClInclude Include="Tools\CYAMLParser.h" />
@@ -73,7 +74,7 @@
     <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_Common.cu" />
     <CudaCompile Include="Tensor\Device\TensorFunctions_Contract.cu" />
-    <CudaCompile Include="Tensor\Device\TensorFunctions_WorkingSpace.cu" />
+    <CudaCompile Include="Tensor\Device\CTensorOpWorkingSpace.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -50,15 +50,15 @@ public:
     /**
      * Things like a = constant
      */
-    void Set(
-        CNDeviceTensor<T>* dst, const T& v,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        ((Calculator*)this)->Set(dst, v, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
+    //void Set(
+    //    CNDeviceTensor<T>* dst, const T& v,
+    //    const UINT dstIndexStart,
+    //    const UINT* __restrict__ dstStride,
+    //    const UINT* __restrict__ lengths,
+    //    BYTE byIndexCount)
+    //{
+    //    ((Calculator*)this)->Set(dst, v, dstIndexStart, dstStride, lengths, byIndexCount);
+    //}
 
     void Zero(
         CNDeviceTensor<T>* dst, 
