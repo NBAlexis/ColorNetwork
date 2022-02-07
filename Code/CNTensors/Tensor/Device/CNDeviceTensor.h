@@ -85,16 +85,55 @@ public:
         _memcpy_hd(m_pDeviceLength, lengths, sizeof(UINT) * dim);
     }
 
+    void DebugPrint(UINT uiXDim, UINT uiYDim) const
+    {
+        CNDeviceTensorCommonEmpty::DebugPrint(m_pDeviceDataBuffer, uiXDim, uiYDim);
+    }
+
+    template <class Calc>
     void Zero(
-        ECalculator eCalc,
+        TCNDeviceTensorCommon<Calc>* pCalc,
         const UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
-        Calc_Zero(
-            eCalc,
-            this,
+        pCalc->Zero(
+            m_pDeviceDataBuffer,
+            dstIndexStart,
+            dstStride,
+            lengths,
+            byIndexCount);
+    }
+
+    template <class Calc>
+    void One(
+        TCNDeviceTensorCommon<Calc>* pCalc,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        pCalc->One(
+            m_pDeviceDataBuffer,
+            dstIndexStart,
+            dstStride,
+            lengths,
+            byIndexCount);
+    }
+
+    template <class Calc, class Tsrc>
+    void Set(
+        TCNDeviceTensorCommon<Calc>* pCalc,
+        const Tsrc& v,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        pCalc->Set(
+            m_pDeviceDataBuffer,
+            v,
             dstIndexStart,
             dstStride,
             lengths,
@@ -105,6 +144,7 @@ public:
     UINT* m_pDeviceStrides;
     UINT* m_pDeviceLength;
     UINT m_iDim;
+
 };
 
 

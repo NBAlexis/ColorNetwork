@@ -69,13 +69,16 @@
 //====================== Tensor =======================
 #include "Tensor/Device/CNDeviceTensorElementOperator.h"
 #include "Tensor/Device/CTensorOpWorkingSpace.h"
-#include "Tensor/Device/CNDeviceTensor.h"
 #include "Tensor/Device/TensorFunctions.h"
 #include "Tensor/Device/CNDeviceTensorCommon.h"
+#include "Tensor/Device/CNDeviceTensor.h"
+#include "Tensor/Host/CNHostTensor.h"
+
+//====================== Caclculator =======================
 #include "Tensor/Device/Common/CNDeviceTensorCommonNaive.h"
 #include "Tensor/Device/CNDeviceTensorCalculatorGather.h"
 
-#include "Tensor/Host/CNHostTensor.h"
+
 
 //#include "Tensor/CNIndex.h"
 

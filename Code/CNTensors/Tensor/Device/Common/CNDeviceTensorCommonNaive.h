@@ -215,15 +215,15 @@ __device__ static __inline__ UINT _deviceWorkIndexToTensorIndexNaive(
 
 //__CN_FORCEOBJ_HEAD(CNDeviceTensorCommonNaive);
 
+
 template<class Operator, class T>
 class __DLL_EXPORT CNDeviceTensorCommonNaiveOneOperator
 : public TCNDeviceTensorCommonOneOperator<CNDeviceTensorCommonNaiveOneOperator<Operator, T>, Operator, T>
 {
 public:
 
-    CNDeviceTensorCommonNaiveOneOperator(T* pBuffer)
+    CNDeviceTensorCommonNaiveOneOperator()
         : TCNDeviceTensorCommonOneOperator<CNDeviceTensorCommonNaiveOneOperator<Operator, T>, Operator, T>()
-        , m_pBuffer(pBuffer)
     {
         
     }
@@ -276,6 +276,7 @@ public:
 //public:
 
     void OneOperator(
+        T* pBuffer,
         UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,
@@ -299,7 +300,6 @@ public:
     //}
 protected:
 
-    T* m_pBuffer;
     TOperator_D<Operator, T> m_op;
 };
 
@@ -322,6 +322,72 @@ protected:
 //}
 
 //template class CNDeviceTensorCommonNaive<_SComplex>;
+
+template<class Operator, class Tdst, class Tsrc>
+class __DLL_EXPORT CNDeviceTensorCommonTwoOperatorNaive
+: public TCNDeviceTensorCommonTwoOperator<CNDeviceTensorCommonTwoOperatorNaive<Operator, Tdst, Tsrc>, Operator, Tdst, Tsrc>
+{
+public:
+    CNDeviceTensorCommonTwoOperatorNaive()
+        : TCNDeviceTensorCommonTwoOperator<CNDeviceTensorCommonTwoOperatorNaive<Operator, Tdst, Tsrc>, Operator, Tdst, Tsrc>()
+    {
+
+    }
+
+    void TwoOperatorValue(
+        Tdst* pBuffer,
+        const Tsrc& v,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount) override;
+
+protected:
+
+    TOperator_DS<Operator, Tdst, Tsrc> m_op;
+};
+
+class __DLL_EXPORT CNDeviceTensorCommonNaive : public TCNDeviceTensorCommon<CNDeviceTensorCommonNaive>
+{
+public:
+
+    template<class T>
+    void Zero(
+        T* pBuffer,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        CNDeviceTensorCommonNaiveOneOperator<TOperator_Zero<T>, T>()
+            .OneOperator(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    template<class T>
+    void One(
+        T* pBuffer,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        CNDeviceTensorCommonNaiveOneOperator<TOperator_One<T>, T>()
+            .OneOperator(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    template<class Tdst, class Tsrc>
+    void Set(
+        Tdst* pBuffer,
+        const Tsrc& v,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        CNDeviceTensorCommonTwoOperatorNaive<TOperator_Set<Tdst, Tsrc>, Tdst, Tsrc>()
+        .TwoOperatorValue(pBuffer, v, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+};
 
 __END_NAMESPACE
 

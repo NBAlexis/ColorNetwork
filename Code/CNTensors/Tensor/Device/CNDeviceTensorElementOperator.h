@@ -171,6 +171,26 @@ public:
     }
 };
 
+template<>
+class __DLL_EXPORT TOperator_Set<_SComplex, _SComplex> : public TOperator_DS<TOperator_Set<_SComplex, _SComplex>, _SComplex, _SComplex>
+{
+public:
+    __inline__ __host__ __device__ _SComplex Do(_SComplex b)
+    {
+        return b;
+    }
+};
+
+template<>
+class __DLL_EXPORT TOperator_Set<_DComplex, _DComplex> : public TOperator_DS<TOperator_Set<_DComplex, _DComplex>, _DComplex, _DComplex>
+{
+public:
+    __inline__ __host__ __device__ _DComplex Do(_DComplex b)
+    {
+        return b;
+    }
+};
+
 #pragma endregion
 
 #pragma region functions

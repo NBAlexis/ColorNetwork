@@ -42,48 +42,48 @@ __BEGIN_NAMESPACE
 
 #pragma region specific operators
 
-template<class T>
-void Calc_Zero(
-    ECalculator eCalc,
-    CNDeviceTensor<T>* tensor,
-    const UINT dstIndexStart,
-    const UINT* __restrict__ dstStride,
-    const UINT* __restrict__ lengths,
-    BYTE byIndexCount)
-{
-    switch (eCalc)
-    {
-    case EC_Naive:
-        CNDeviceTensorCommonNaiveOneOperator<TOperator_Zero<T>, T>(tensor->m_pDeviceDataBuffer)
-        .OneOperator(dstIndexStart, dstStride, lengths, byIndexCount);
-        break;
-    default:
-        appCrucial(_T("Calc_OneOperator:: Calculator not implemented!\n"));
-        break;
-    }
-}
-
-template<class T>
-void Calc_One(
-    ECalculator eCalc,
-    CNDeviceTensor<T>* tensor,
-    const UINT dstIndexStart,
-    const UINT* __restrict__ dstStride,
-    const UINT* __restrict__ lengths,
-    BYTE byIndexCount)
-{
-    switch (eCalc)
-    {
-    case EC_Naive:
-        //CNDeviceTensorCommonNaive<T>(tensor->m_pDeviceDataBuffer).One(dstIndexStart, dstStride, lengths, byIndexCount);
-        CNDeviceTensorCommonNaiveOneOperator<TOperator_One<T>, T>(tensor->m_pDeviceDataBuffer)
-            .OneOperator(dstIndexStart, dstStride, lengths, byIndexCount);
-        break;
-    default:
-        appCrucial(_T("Calc_OneOperator:: Calculator not implemented!\n"));
-        break;
-    }
-}
+//template<class T>
+//void Calc_Zero(
+//    ECalculator eCalc,
+//    CNDeviceTensor<T>* tensor,
+//    const UINT dstIndexStart,
+//    const UINT* __restrict__ dstStride,
+//    const UINT* __restrict__ lengths,
+//    BYTE byIndexCount)
+//{
+//    switch (eCalc)
+//    {
+//    case EC_Naive:
+//        CNDeviceTensorCommonNaiveOneOperator<TOperator_Zero<T>, T>(tensor->m_pDeviceDataBuffer)
+//        .OneOperator(dstIndexStart, dstStride, lengths, byIndexCount);
+//        break;
+//    default:
+//        appCrucial(_T("Calc_OneOperator:: Calculator not implemented!\n"));
+//        break;
+//    }
+//}
+//
+//template<class T>
+//void Calc_One(
+//    ECalculator eCalc,
+//    CNDeviceTensor<T>* tensor,
+//    const UINT dstIndexStart,
+//    const UINT* __restrict__ dstStride,
+//    const UINT* __restrict__ lengths,
+//    BYTE byIndexCount)
+//{
+//    switch (eCalc)
+//    {
+//    case EC_Naive:
+//        //CNDeviceTensorCommonNaive<T>(tensor->m_pDeviceDataBuffer).One(dstIndexStart, dstStride, lengths, byIndexCount);
+//        CNDeviceTensorCommonNaiveOneOperator<TOperator_One<T>, T>(tensor->m_pDeviceDataBuffer)
+//            .OneOperator(dstIndexStart, dstStride, lengths, byIndexCount);
+//        break;
+//    default:
+//        appCrucial(_T("Calc_OneOperator:: Calculator not implemented!\n"));
+//        break;
+//    }
+//}
 
 #pragma endregion
 

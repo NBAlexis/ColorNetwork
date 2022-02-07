@@ -85,11 +85,16 @@ int main(int argc, char * argv[])
     //tensor1.DebugPrint(16, 16);
 
     UINT strides[] = { 64, 16, 4, 1 };
-    tensor1.Zero(EC_Naive, 0, strides, lengths, 4);
+    CNDeviceTensorCommonNaive calc;
+    tensor1.Zero(calc, 0, strides, lengths, 4);
 
     tensor1.DebugPrint(16, 16);
 
-    tensor1.One(EC_Naive, 0, strides, lengths, 4);
+    tensor1.One(calc, 0, strides, lengths, 4);
+
+    tensor1.DebugPrint(16, 16);
+
+    tensor1.Set(calc, 0.1f, 0, strides, lengths, 4);
 
     tensor1.DebugPrint(16, 16);
 

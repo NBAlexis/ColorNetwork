@@ -71,11 +71,26 @@ public:
 
     void DebugPrint(UINT uiXDim, UINT uiYDim) const
     {
-        TCNDeviceTensorCommon<T>::DebugPrint(m_cDeviceTensor, uiXDim, uiYDim);
+        m_cDeviceTensor.DebugPrint(uiXDim, uiYDim);
     }
 
-    void Zero(ECalculator eCalc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount);
-    void One(ECalculator eCalc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount);
+    template<class Calc>
+    void Zero(TCNDeviceTensorCommon<Calc>& calc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount)
+    {
+        m_cDeviceTensor.Zero(&calc, uiIndexStart, strides, lengths, uiIndexCount);
+    }
+
+    template<class Calc>
+    void One(TCNDeviceTensorCommon<Calc>& calc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount)
+    {
+        m_cDeviceTensor.One(&calc, uiIndexStart, strides, lengths, uiIndexCount);
+    }
+
+    template<class Calc, class Tsrc>
+    void Set(TCNDeviceTensorCommon<Calc>& calc, const Tsrc& v, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount)
+    {
+        m_cDeviceTensor.Set(&calc, v, uiIndexStart, strides, lengths, uiIndexCount);
+    }
 
     CNDeviceTensor<T> m_cDeviceTensor;
     UINT* m_pStrides;

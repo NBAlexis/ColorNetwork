@@ -12,7 +12,6 @@
 
 __BEGIN_NAMESPACE
 
-
 /**
  * This is called CRTP, see:
  * https://stackoverflow.com/questions/2354210/can-a-class-member-function-template-be-virtual#
@@ -42,7 +41,7 @@ __BEGIN_NAMESPACE
  *
  * dstIndexStart = sum_i ai*stridei, controlls a0,a1,...
  */
-template<class T>
+template<class Calc>
 class __DLL_EXPORT TCNDeviceTensorCommon
 {
 public:
@@ -53,10 +52,10 @@ public:
     //    
     //}
 
-    //virtual ~TCNDeviceTensorCommon()
-    //{
-    //    
-    //}
+    virtual ~TCNDeviceTensorCommon()
+    {
+        
+    }
 
     /**
      * Things like a = constant
@@ -71,31 +70,36 @@ public:
     //    ((Calculator*)this)->Set(dst, v, dstIndexStart, dstStride, lengths, byIndexCount);
     //}
 
-    //void Zero(
-    //    const UINT dstIndexStart,
-    //    const UINT* __restrict__ dstStride,
-    //    const UINT* __restrict__ lengths,
-    //    BYTE byIndexCount)
-    //{
-    //    TOperator_Zero<T> op;
-    //    OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
-    //}
+    template<class T>
+    void Zero(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, const UINT* __restrict__ lengths, BYTE byIndexCount)
+    {
+        ((Calc*)this)->Zero(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
 
-    //void One(
-    //    const UINT dstIndexStart,
-    //    const UINT* __restrict__ dstStride,
-    //    const UINT* __restrict__ lengths,
-    //    BYTE byIndexCount)
-    //{
-    //    TOperator_One<T> op;
-    //    OneOperator(op, m_pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
-    //}
+    template<class T>
+    void One(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, const UINT* __restrict__ lengths, BYTE byIndexCount)
+    {
+        ((Calc*)this)->One(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
 
-    static void DebugPrint(const CNDeviceTensor<T>& src, UINT uiSize)
+    template<class Tdst, class Tsrc>
+    void Set(
+        Tdst* pBuffer,
+        const Tsrc& v,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calc*)this)->Set(pBuffer, v, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    template<class T>
+    static void DebugPrint(const T* __restrict__ src, UINT uiSize)
     {
         appPushLogDate(FALSE);
         T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
-        appGetCuda()->CopyDH(hostBuffer, src.m_pDeviceDataBuffer, sizeof(T) * uiSize);
+        appGetCuda()->CopyDH(hostBuffer, src, sizeof(T) * uiSize);
         for (UINT i = 0; i < uiSize; ++i)
         {
             appGeneral(_T("%d: "), i);
@@ -106,14 +110,15 @@ public:
         appPopLogDate();
     }
 
+    template<class T>
     static void DebugPrint(
-        const CNDeviceTensor<T>& src,
+        const T* __restrict__ src,
         UINT uiXDim, UINT uiYDim)
     {
         appPushLogDate(FALSE);
         const UINT uiSize = uiXDim * uiYDim;
         T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
-        appGetCuda()->CopyDH(hostBuffer, src.m_pDeviceDataBuffer, sizeof(T) * uiSize);
+        appGetCuda()->CopyDH(hostBuffer, src, sizeof(T) * uiSize);
 
         appGeneral(_T("{\n"));
         for (UINT x = 0; x < uiXDim; ++x)
@@ -285,31 +290,114 @@ protected:
     #pragma endregion
 };
 
+class __DLL_EXPORT CNDeviceTensorCommonEmpty : public TCNDeviceTensorCommon<CNDeviceTensorCommonEmpty>
+{
+};
+
+//template<class Calculator, class T>
+//class __DLL_EXPORT TCNDeviceTensorCommonImp : public TCNDeviceTensorCommon<T>
+//{
+//public:
+//    void Zero(
+//        T* pBuffer,
+//        UINT dstIndexStart,
+//        const UINT* __restrict__ dstStride,
+//        const UINT* __restrict__ lengths,
+//        BYTE byIndexCount)
+//    {
+//        ((Calculator*)this)->Zero(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+//    }
+//
+//    void One(
+//        T* pBuffer,
+//        UINT dstIndexStart,
+//        const UINT* __restrict__ dstStride,
+//        const UINT* __restrict__ lengths,
+//        BYTE byIndexCount)
+//    {
+//        ((Calculator*)this)->One(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
+//    }
+//};
+
 template<class Calculator, class Operator, class T>
 class __DLL_EXPORT TCNDeviceTensorCommonOneOperator
 {
 public:
-    TCNDeviceTensorCommonOneOperator()
-        //: m_pBuffer(pBuffer)
+    TCNDeviceTensorCommonOneOperator() { }
+    virtual ~TCNDeviceTensorCommonOneOperator() { }
+    virtual void OneOperator(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, const UINT* __restrict__ lengths, BYTE byIndexCount) = 0;
+};
+
+template<class Calculator, class Operator, class Tdst, class Tsrc>
+class __DLL_EXPORT TCNDeviceTensorCommonTwoOperator
+{
+public:
+    TCNDeviceTensorCommonTwoOperator()
     {
 
     }
 
-    virtual ~TCNDeviceTensorCommonOneOperator()
+    virtual ~TCNDeviceTensorCommonTwoOperator()
     {
-        
+
     }
 
-    virtual void OneOperator(
+    virtual void TwoOperatorValue(
+        Tdst* pBuffer,
+        const Tsrc& v,
         UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount) = 0;
 
-//public:
-//
-//    T* m_pBuffer;
-//    TOperator_D<Operator, T> m_op;
+};
+
+template<class Calculator, class Operator, class Tdst, class Tsrc>
+class __DLL_EXPORT TCNDeviceTensorCommonTwoOperatorDDS
+{
+public:
+    TCNDeviceTensorCommonTwoOperatorDDS()
+    {
+
+    }
+
+    virtual ~TCNDeviceTensorCommonTwoOperatorDDS()
+    {
+
+    }
+
+    virtual void TwoOperator(
+        Tdst* pBuffer,
+        const Tsrc& v,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount) = 0;
+
+};
+
+template<class Calculator, class Operator, class Tdst, class Tsrc>
+class __DLL_EXPORT TCNDeviceTensorCommonTwoOperatorDSS
+{
+public:
+    TCNDeviceTensorCommonTwoOperatorDSS()
+    {
+
+    }
+
+    virtual ~TCNDeviceTensorCommonTwoOperatorDSS()
+    {
+
+    }
+
+    virtual void TwoOperator(
+        Tdst* pBuffer,
+        const Tsrc& v,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount) = 0;
+
 };
 
 __END_NAMESPACE
