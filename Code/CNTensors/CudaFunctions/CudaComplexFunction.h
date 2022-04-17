@@ -405,7 +405,13 @@ __inline__ __host__ __device__
 _DComplex _Arg(const _DComplex& a) { return make_cuDoubleComplex(atan2(cuCimag(a), cuCreal(a)), 0.0); }
 
 template<class T> __inline__ __host__ __device__
-T _Exp(const T& a) { return exp(a); }
+T _Exp(const T& a) { return static_cast<T>(exp(static_cast<FLOAT>(a))); }
+
+template<> __inline__ __host__ __device__
+DOUBLE _Exp(const DOUBLE& a)
+{
+    return exp(a);
+}
 
 template<> __inline__ __host__ __device__
 _SComplex _Exp(const _SComplex& a)
@@ -442,7 +448,10 @@ _DComplex _Log(const _DComplex& a)
 }
 
 template<class T> __inline__ __host__ __device__
-T _Sqrt(const T& a) { return sqrt(a); }
+T _Sqrt(const T& a) { return static_cast<T>(sqrt(static_cast<FLOAT>(a))); }
+
+template<> __inline__ __host__ __device__
+DOUBLE _Sqrt(const DOUBLE& a) { return sqrt(a); }
 
 template<> __inline__ __host__ __device__
 _SComplex _Sqrt(const _SComplex& a)
@@ -473,7 +482,10 @@ _DComplex _Sqrt(const _DComplex& a)
 }
 
 template<class T> __inline__ __host__ __device__
-T _Sin(const T& a) { return static_cast<T>(sin(a)); }
+T _Sin(const T& a) { return static_cast<T>(sin(static_cast<FLOAT>(a))); }
+
+template<> __inline__ __host__ __device__
+DOUBLE _Sin(const DOUBLE &a) { return sin(a); }
 
 template<> __inline__ __host__ __device__
 _SComplex _Sin(const _SComplex& a)
@@ -496,7 +508,10 @@ _DComplex _Sin(const _DComplex& a)
 }
 
 template<class T> __inline__ __host__ __device__
-T _Cos(const T& a) { return cos(a); }
+T _Cos(const T& a) { return static_cast<T>(cos(static_cast<FLOAT>(a))); }
+
+template<> __inline__ __host__ __device__
+DOUBLE _Cos(const DOUBLE& a) { return cos(a); }
 
 template<> __inline__ __host__ __device__
 _SComplex _Cos(const _SComplex& a)
