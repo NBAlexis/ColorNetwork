@@ -33,7 +33,7 @@ template<class ARG_KEY>
 inline UINT TMapHashKey(ARG_KEY key)
 {
     // default identity hash - works for most primitive values
-    return (UINT)((DWORD)(key) >> 4 );
+    return (UINT)((UINT)(key) >> 4 );
 }
 template<>
 inline UINT TMapHashKey<const CCString&>(const CCString& key)
