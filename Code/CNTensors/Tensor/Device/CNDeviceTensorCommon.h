@@ -10,6 +10,51 @@
 #ifndef _CNDEVICETENSOR_COMMON_H_
 #define _CNDEVICETENSOR_COMMON_H_
 
+//==========================================================
+#define __IMPLEMENT_COMMON_ONE1(name, type, calc) \
+template class calc<TOperator_##name<type>, type>;
+
+#define __IMPLEMENT_COMMON_ONE2(type, calc) \
+__OVER_ALL_ONE_OPAB(__IMPLEMENT_COMMON_ONE1, type, calc)
+
+#define __IMPLEMENT_COMMON_ONE(calc) \
+__OVER_ALL_TYPE_ONEA(__IMPLEMENT_COMMON_ONE2, calc)
+
+//==========================================================
+#define __IMPLEMENT_COMMON_TWO_SET(type1, type2, name, calc) \
+template class calc<TOperator_##name<type1, type2>, type1, type2>;
+
+//==========================================================
+#define __IMPLEMENT_COMMON_TWO1(name, type1, type2, calc) \
+template class calc<TOperator_##name<type1, type2>, type1, type2>;
+
+#define __IMPLEMENT_COMMON_TWO2(type1, type2, calc) \
+__OVER_ALL_TWO_OPABC(__IMPLEMENT_COMMON_TWO1, type1, type2, calc)
+
+#define __IMPLEMENT_COMMON_TWO(calc) \
+__OVER_ALL_TYPE_TWOA(__IMPLEMENT_COMMON_TWO2, calc)
+
+
+#define __Tensor_Common_One_Func(name) \
+template<class T> \
+void name(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, const UINT* __restrict__ lengths, BYTE byIndexCount) \
+{ \
+    ((Calc*)this)->name(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount); \
+}
+
+#define __Tensor_Common_Two_Func_NoReturn(name) \
+template<class Tdst, class Tsrc> \
+void name( \
+    Tdst* pBuffer, \
+    const Tsrc& v, \
+    UINT dstIndexStart, \
+    const UINT* __restrict__ dstStride, \
+    const UINT* __restrict__ lengths, \
+    BYTE byIndexCount) \
+{ \
+    ((Calc*)this)->name(pBuffer, v, dstIndexStart, dstStride, lengths, byIndexCount); \
+}
+
 __BEGIN_NAMESPACE
 
 /**
@@ -46,40 +91,9 @@ class __DLL_EXPORT TCNDeviceTensorCommon
 {
 public:
 
-    //TCNDeviceTensorCommon(T* pBuffer)
-    //    : m_pBuffer(pBuffer)
-    //{
-    //    
-    //}
-
     virtual ~TCNDeviceTensorCommon()
     {
         
-    }
-
-    /**
-     * Things like a = constant
-     */
-    //void Set(
-    //    CNDeviceTensor<T>* dst, const T& v,
-    //    const UINT dstIndexStart,
-    //    const UINT* __restrict__ dstStride,
-    //    const UINT* __restrict__ lengths,
-    //    BYTE byIndexCount)
-    //{
-    //    ((Calculator*)this)->Set(dst, v, dstIndexStart, dstStride, lengths, byIndexCount);
-    //}
-
-    template<class T>
-    void Zero(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        ((Calc*)this)->Zero(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
-
-    template<class T>
-    void One(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, const UINT* __restrict__ lengths, BYTE byIndexCount)
-    {
-        ((Calc*)this)->One(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
     }
 
     template<class Tdst, class Tsrc>
@@ -92,6 +106,37 @@ public:
         BYTE byIndexCount)
     {
         ((Calc*)this)->Set(pBuffer, v, dstIndexStart, dstStride, lengths, byIndexCount);
+    }
+
+    template<class Tdst, class Tsrc>
+    void Set(
+        Tdst* pBuffer,
+        const Tsrc* __restrict__ src,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calc*)this)->Set(pBuffer, src, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount);
+    }
+
+    __OVER_ALL_ONE_OP(__Tensor_Common_One_Func)
+    __OVER_ALL_TWO_OP(__Tensor_Common_Two_Func_NoReturn)
+
+    template<class Tdst, class Tsrc>
+    void Add(
+        Tdst* pBuffer,
+        const Tsrc* __restrict__ src,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calc*)this)->Add(pBuffer, src, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount);
     }
 
     template<class T>
@@ -294,31 +339,6 @@ class __DLL_EXPORT CNDeviceTensorCommonEmpty : public TCNDeviceTensorCommon<CNDe
 {
 };
 
-//template<class Calculator, class T>
-//class __DLL_EXPORT TCNDeviceTensorCommonImp : public TCNDeviceTensorCommon<T>
-//{
-//public:
-//    void Zero(
-//        T* pBuffer,
-//        UINT dstIndexStart,
-//        const UINT* __restrict__ dstStride,
-//        const UINT* __restrict__ lengths,
-//        BYTE byIndexCount)
-//    {
-//        ((Calculator*)this)->Zero(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
-//    }
-//
-//    void One(
-//        T* pBuffer,
-//        UINT dstIndexStart,
-//        const UINT* __restrict__ dstStride,
-//        const UINT* __restrict__ lengths,
-//        BYTE byIndexCount)
-//    {
-//        ((Calculator*)this)->One(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount);
-//    }
-//};
-
 template<class Calculator, class Operator, class T>
 class __DLL_EXPORT TCNDeviceTensorCommonOneOperator
 {
@@ -350,6 +370,15 @@ public:
         const UINT* __restrict__ lengths,
         BYTE byIndexCount) = 0;
 
+    virtual void TwoOperatorTensor(
+        Tdst* pBuffer,
+        const Tsrc* __restrict__ src,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount) = 0;
 };
 
 template<class Calculator, class Operator, class Tdst, class Tsrc>

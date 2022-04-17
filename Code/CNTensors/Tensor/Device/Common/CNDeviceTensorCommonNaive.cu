@@ -14,11 +14,11 @@ __BEGIN_NAMESPACE
 //__CN_FORCEOBJ_CPP(CNDeviceTensorCommonNaive);
 
 //This is the critical specialization
-template class CNDeviceTensorCommonNaiveOneOperator<TOperator_Zero<_SComplex>, _SComplex>;
-template class CNDeviceTensorCommonNaiveOneOperator<TOperator_One<_SComplex>, _SComplex>;
+__IMPLEMENT_COMMON_ONE(CNDeviceTensorCommonNaiveOneOperator)
 
-template class CNDeviceTensorCommonTwoOperatorNaive<TOperator_Set<_SComplex, _SComplex>, _SComplex, _SComplex>;
-template class CNDeviceTensorCommonTwoOperatorNaive<TOperator_Set<_SComplex, FLOAT>, _SComplex, FLOAT>;
+__OVER_ALL_TYPE_TWOAB(__IMPLEMENT_COMMON_TWO_SET, Set, CNDeviceTensorCommonTwoOperatorNaive)
+//__OVER_ALL_TYPE_TWOAB(__IMPLEMENT_COMMON_TWO_SET, Add, CNDeviceTensorCommonTwoOperatorNaive)
+__IMPLEMENT_COMMON_TWO(CNDeviceTensorCommonTwoOperatorNaive)
 
 #pragma region kernels
 
@@ -55,8 +55,8 @@ _kernel_NaiveOneOperator_Small(
 
 template <class Operator, class dstT, class srcT>
 __global__ void _CN_LAUNCH_BOUND
-_kernel_NaiveTwoOperator_DS_Value(
-    TOperator_DS<Operator, dstT, srcT> op,
+_kernel_NaiveTwoOperator_Value(
+    TOperator_S<Operator, dstT, srcT> op,
     dstT* dst, srcT srcV,
     const UINT* __restrict__ dstStride,
     UINT dstIndexStart,
@@ -65,13 +65,13 @@ _kernel_NaiveTwoOperator_DS_Value(
 {
     const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
     const UINT uiIdxSrc = _deviceThreadIdxToTensorIdxNaive(dstStride, dstIndexStart, mutipliedlengths, uiIdx, byIndexCount);
-    dst[uiIdxSrc] = op.Do(srcV);
+    op.Do(dst[uiIdxSrc], srcV);
 }
 
 template <class Operator, class dstT, class srcT>
 __global__ void _CN_LAUNCH_BOUND
-_kernel_NaiveTwoOperator_DS_Value_Small(
-    TOperator_DS<Operator, dstT, srcT> op,
+_kernel_NaiveTwoOperator_Value_Small(
+    TOperator_S<Operator, dstT, srcT> op,
     dstT* dst, srcT srcV,
     const UINT* __restrict__ dstStride,
     UINT dstIndexStart,
@@ -81,7 +81,43 @@ _kernel_NaiveTwoOperator_DS_Value_Small(
     const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
     const SWorkingIndex idx = _deviceThreadIndexToWorkIndexNavie(uiIdx, mutipliedlengths, byIndexCount);
     const UINT uiIdxSrc = _deviceWorkIndexToTensorIndexNaive(idx.m_Idx, dstStride, dstIndexStart, byIndexCount);
-    dst[uiIdxSrc] = op.Do(srcV);
+    op.Do(dst[uiIdxSrc], srcV);
+}
+
+template <class Operator, class dstT, class srcT>
+__global__ void _CN_LAUNCH_BOUND _kernel_NaiveTwoOperator_Tensor(
+    TOperator_S<Operator, dstT, srcT> op,
+    dstT* dst,
+    const UINT* __restrict__ dstStride,
+    const UINT dstIndexStart,
+    const srcT* __restrict__ src,
+    const UINT* __restrict__ srcStride,
+    const UINT srcIndexStart,
+    const UINT* __restrict__ mutipliedlengths,
+    BYTE byIndexCount)
+{
+    const UINT uiIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    const UINT uiIdxDst = _deviceThreadIdxToTensorIdxNaive(dstStride, dstIndexStart, mutipliedlengths, uiIdx, byIndexCount);
+    const UINT uiIdxSrc = _deviceThreadIdxToTensorIdxNaive(srcStride, srcIndexStart, mutipliedlengths, uiIdx, byIndexCount);
+    op.Do(dst[uiIdxDst], src[uiIdxSrc]);
+}
+
+template <class Operator, class dstT, class srcT>
+__global__ void _CN_LAUNCH_BOUND _kernel_NaiveTwoOperator_Tensor_Small(
+    TOperator_S<Operator, dstT, srcT> op,
+    dstT* dst,
+    const UINT* __restrict__ dstStride,
+    const UINT dstIndexStart,
+    const srcT* __restrict__ src,
+    const UINT* __restrict__ srcStride,
+    const UINT srcIndexStart,
+    const UINT* __restrict__ mutipliedlengths,
+    BYTE byIndexCount)
+{
+    const SWorkingIndex idx = _deviceThreadIndexToWorkIndexNavie(threadIdx.x + blockIdx.x * blockDim.x, mutipliedlengths, byIndexCount);
+    const UINT uiIdxDst = _deviceWorkIndexToTensorIndexNaive(idx.m_Idx, dstStride, dstIndexStart, byIndexCount);
+    const UINT uiIdxSrc = _deviceWorkIndexToTensorIndexNaive(idx.m_Idx, srcStride, srcIndexStart, byIndexCount);
+    op.Do(dst[uiIdxDst], src[uiIdxSrc]);
 }
 
 #if 0
@@ -197,6 +233,10 @@ __global__ void _CN_LAUNCH_BOUND _kernel_Transpose_Small(
 
 #pragma endregion
 
+/**
+* dest[].Sin(dest)
+* ...
+*/
 template<class Operator, class T>
 void CNDeviceTensorCommonNaiveOneOperator<Operator, T>::OneOperator(
     T* pBuffer,
@@ -226,6 +266,10 @@ void CNDeviceTensorCommonNaiveOneOperator<Operator, T>::OneOperator(
     );
 }
 
+/**
+* dest[] = src...
+* dest[].Add(src)...
+*/
 template<class Operator, class Tdst, class Tsrc>
 void CNDeviceTensorCommonTwoOperatorNaive<Operator, Tdst, Tsrc>::TwoOperatorValue(
     Tdst* pBuffer,
@@ -246,7 +290,7 @@ void CNDeviceTensorCommonTwoOperatorNaive<Operator, Tdst, Tsrc>::TwoOperatorValu
     _memcpy_hd(deviceBuffer, dstStride, dataSize);
     __BuildMultiplyLength(deviceBuffer + dataSize);
 
-    __KERNALCALNAIVE(_kernel_NaiveTwoOperator_DS_Value,
+    __KERNALCALNAIVE(_kernel_NaiveTwoOperator_Value,
         m_op,
         pBuffer,
         v,
@@ -256,6 +300,47 @@ void CNDeviceTensorCommonTwoOperatorNaive<Operator, Tdst, Tsrc>::TwoOperatorValu
         byIndexCount
     );
 }
+
+/**
+* dest[] = src[]
+* dest[].Add(src[])
+* ...
+*/
+template<class Operator, class Tdst, class Tsrc>
+void CNDeviceTensorCommonTwoOperatorNaive<Operator, Tdst, Tsrc>::TwoOperatorTensor(
+    Tdst* pBuffer,
+    const Tsrc* __restrict__ src,
+    UINT dstIndexStart,
+    const UINT* __restrict__ dstStride,
+    UINT srcIndexStart,
+    const UINT* __restrict__ srcStride,
+    const UINT* __restrict__ lengths,
+    BYTE byIndexCount)
+{
+    const UINT dataSize = sizeof(UINT) * byIndexCount;
+    const UINT totalBufferSize = dataSize * 3;
+    UINT uiBlock, uiThread;
+    SimpleThreadDecompose(lengths, byIndexCount, uiBlock, uiThread);
+
+    BYTE* deviceBuffer = appGetSmallDeviceBuffer(totalBufferSize);
+    UINT* hostBuffer = (UINT*)appAlloca(dataSize);
+    _memcpy_hd(deviceBuffer, dstStride, dataSize);
+    _memcpy_hd(deviceBuffer + dataSize, srcStride, dataSize);
+    __BuildMultiplyLength(deviceBuffer + (dataSize << 1));
+
+    __KERNALCALNAIVE(_kernel_NaiveTwoOperator_Tensor,
+        m_op,
+        pBuffer,
+        (UINT*)deviceBuffer,
+        dstIndexStart,
+        src,
+        (UINT*)(deviceBuffer + dataSize),
+        srcIndexStart,
+        (UINT*)(deviceBuffer + (dataSize << 1)),
+        byIndexCount
+    );
+}
+
 
 #if 0
 
@@ -363,20 +448,6 @@ void Transpose(T* dst,
 
 #endif
 
-#pragma region Implementation of Calculators
-
-//template<class Operator>
-//void CNHostTensor<_SComplex>::OneOperator(Operator op,
-//    const CNDeviceTensorCommonNaive& calc,
-//    const UINT dstIndexStart,
-//    const UINT* __restrict__ dstStride,
-//    const UINT* __restrict__ lengths,
-//    BYTE byIndexCount)
-//{
-//    
-//}
-
-#pragma endregion
 
 __END_NAMESPACE
 

@@ -18,15 +18,15 @@ __constant__ INT _constIntegers[kContentLength];
 
 #pragma region Kernels
 
-template<class Operator>
-__global__ void _CN_LAUNCH_BOUND_SINGLE
-_kernelDebugFunction(TOperator_DS<Operator, _SComplex, FLOAT>* pDS)
-{
-    FLOAT b = 3.0;
-    _SComplex res = pDS->Do(b);
-    printf("===============\n");
-    printf("%f, %f", res.x, res.y);
-}
+//template<class Operator>
+//__global__ void _CN_LAUNCH_BOUND_SINGLE
+//_kernelDebugFunction(TOperator_DS<Operator, _SComplex, FLOAT>* pDS)
+//{
+//    FLOAT b = 3.0;
+//    _SComplex res = pDS->Do(b);
+//    printf("===============\n");
+//    printf("%f, %f", res.x, res.y);
+//}
 
 template<class T> __global__ void _CN_LAUNCH_BOUND_MAXTHREAD
 _kernelThreadBufferZero(T * arr, T initial)
@@ -131,11 +131,11 @@ void CCudaHelper::DeviceQuery()
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
         appGeneral(_T("  Total amount of global memory:                 %.0f MBytes (%llu bytes)\n"),
             static_cast<FLOAT>(deviceProp.totalGlobalMem / 1048576.0f),
-            (ULONGLONG)deviceProp.totalGlobalMem);
+            (QWORD)deviceProp.totalGlobalMem);
 #else
         appGeneral(_T("  Total amount of global memory:                 %.0f MBytes (%llu bytes)\n"),
             static_cast<FLOAT>(deviceProp.totalGlobalMem / 1048576.0f),
-            (ULONGLONG)deviceProp.totalGlobalMem);
+            (QWORD)deviceProp.totalGlobalMem);
 #endif
 
         appGeneral(_T("  (%2d) Multiprocessors, (%3d) CUDA Cores/MP:     %d CUDA Cores\n"),
@@ -346,12 +346,12 @@ void CCudaHelper::MemoryQuery()
 
 void CCudaHelper::DebugFunction()
 {
-    TOperatorDS_Sin<_SComplex, FLOAT> op;
-    TOperatorDS_Sin<_SComplex, FLOAT>* device = NULL;
-    checkCudaErrors(cudaMalloc((void**)&device, sizeof(TOperatorDS_Sin<_SComplex, FLOAT>)));
-    checkCudaErrors(cudaMemcpy(device, &op, sizeof(TOperatorDS_Sin<_SComplex, FLOAT>), cudaMemcpyHostToDevice));
-    _kernelDebugFunction << <1,1 >> > (device);
-    checkCudaErrors(cudaDeviceSynchronize());
+    //TOperatorDS_Sin<_SComplex, FLOAT> op;
+    //TOperatorDS_Sin<_SComplex, FLOAT>* device = NULL;
+    //checkCudaErrors(cudaMalloc((void**)&device, sizeof(TOperatorDS_Sin<_SComplex, FLOAT>)));
+    //checkCudaErrors(cudaMemcpy(device, &op, sizeof(TOperatorDS_Sin<_SComplex, FLOAT>), cudaMemcpyHostToDevice));
+    //_kernelDebugFunction << <1,1 >> > (device);
+    //checkCudaErrors(cudaDeviceSynchronize());
 }
 
 #pragma endregion

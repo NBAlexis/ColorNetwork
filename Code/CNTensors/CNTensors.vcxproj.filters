@@ -190,5 +190,8 @@
     <CudaCompile Include="Tensor\Device\CTensorOpWorkingSpace.cu">
       <Filter>Tensor\Device</Filter>
     </CudaCompile>
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveAdd.cu">
+      <Filter>Tensor\Device\Common</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

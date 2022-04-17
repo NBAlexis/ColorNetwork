@@ -79,8 +79,10 @@ int main(int argc, char * argv[])
 
     appInitialCNLib(_T(""));
     CNHostTensor<_SComplex> tensor1;
+    CNHostTensor<FLOAT> tensor2;
     UINT lengths[] = { 4, 4, 4, 4 };
     tensor1.CreateEmpty(lengths, 4);
+    tensor2.CreateEmpty(lengths, 4);
 
     //tensor1.DebugPrint(16, 16);
 
@@ -97,6 +99,22 @@ int main(int argc, char * argv[])
     tensor1.Set(calc, 0.1f, 0, strides, lengths, 4);
 
     tensor1.DebugPrint(16, 16);
+
+    tensor1.Sin(calc, 0, strides, lengths, 4);
+
+    tensor1.DebugPrint(16, 16);
+
+    tensor1.Add(calc, 1.0f, 0, strides, lengths, 4);
+
+    tensor1.DebugPrint(16, 16);
+
+    tensor2.Set(calc, tensor1, 0, strides, 0, strides, lengths, 4);
+
+    tensor2.DebugPrint(16, 16);
+
+    tensor2.Add(calc, tensor1, 0, strides, 0, strides, lengths, 4);
+
+    tensor2.DebugPrint(16, 16);
 
     CCudaHelper::DebugFunction();
     CCudaHelper::DebugFunction();

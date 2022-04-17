@@ -10,6 +10,43 @@
 #ifndef _CNDEVICETENSOR_H_
 #define _CNDEVICETENSOR_H_
 
+#define __DeviceTensorOneElementFunc(name) \
+template <class Calc> \
+void name( \
+    TCNDeviceTensorCommon<Calc>* pCalc, \
+    const UINT dstIndexStart, \
+    const UINT* __restrict__ dstStride, \
+    const UINT* __restrict__ lengths, \
+    BYTE byIndexCount) \
+{ \
+    pCalc->name( \
+        m_pDeviceDataBuffer, \
+        dstIndexStart, \
+        dstStride, \
+        lengths, \
+        byIndexCount); \
+}
+
+#define __DeviceTensorTwoElementFunc(name) \
+template <class Calc, class Tsrc> \
+void name( \
+    TCNDeviceTensorCommon<Calc>* pCalc, \
+    const Tsrc& v, \
+    const UINT dstIndexStart, \
+    const UINT* __restrict__ dstStride, \
+    const UINT* __restrict__ lengths, \
+    BYTE byIndexCount) \
+{ \
+    pCalc->name( \
+        m_pDeviceDataBuffer, \
+        v, \
+        dstIndexStart, \
+        dstStride, \
+        lengths, \
+        byIndexCount); \
+}
+
+
 __BEGIN_NAMESPACE
 
 __DEFINE_ENUM(ECalculator,
@@ -90,38 +127,6 @@ public:
         CNDeviceTensorCommonEmpty::DebugPrint(m_pDeviceDataBuffer, uiXDim, uiYDim);
     }
 
-    template <class Calc>
-    void Zero(
-        TCNDeviceTensorCommon<Calc>* pCalc,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        pCalc->Zero(
-            m_pDeviceDataBuffer,
-            dstIndexStart,
-            dstStride,
-            lengths,
-            byIndexCount);
-    }
-
-    template <class Calc>
-    void One(
-        TCNDeviceTensorCommon<Calc>* pCalc,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        pCalc->One(
-            m_pDeviceDataBuffer,
-            dstIndexStart,
-            dstStride,
-            lengths,
-            byIndexCount);
-    }
-
     template <class Calc, class Tsrc>
     void Set(
         TCNDeviceTensorCommon<Calc>* pCalc,
@@ -136,6 +141,54 @@ public:
             v,
             dstIndexStart,
             dstStride,
+            lengths,
+            byIndexCount);
+    }
+
+    template <class Calc, class Tsrc>
+    void Set(
+        TCNDeviceTensorCommon<Calc>* pCalc,
+        const Tsrc* __restrict__ src,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        pCalc->Set(
+            m_pDeviceDataBuffer,
+            src,
+            dstIndexStart,
+            dstStride,
+            srcIndexStart,
+            srcStride,
+            lengths,
+            byIndexCount);
+    }
+
+    __OVER_ALL_ONE_OP(__DeviceTensorOneElementFunc)
+
+    __OVER_ALL_TWO_OP(__DeviceTensorTwoElementFunc)
+
+    template <class Calc, class Tsrc>
+    void Add(
+        TCNDeviceTensorCommon<Calc>* pCalc,
+        const Tsrc* __restrict__ v,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        pCalc->Add(
+            m_pDeviceDataBuffer,
+            v,
+            dstIndexStart,
+            dstStride,
+            srcIndexStart,
+            srcStride,
             lengths,
             byIndexCount);
     }

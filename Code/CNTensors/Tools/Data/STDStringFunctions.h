@@ -87,7 +87,7 @@ inline UINT appStoUI(const TCHAR* str, INT iBase = 10)
     }
 }
 
-inline LONGLONG appStoLL(const TCHAR* str, INT iBase = 10)
+inline SQWORD appStoLL(const TCHAR* str, INT iBase = 10)
 {
     try { return std::stoll(STDSTRING(str), 0, iBase); }
     catch (...)
@@ -96,7 +96,7 @@ inline LONGLONG appStoLL(const TCHAR* str, INT iBase = 10)
     }
 }
 
-inline ULONGLONG appStoULL(const TCHAR* str, INT iBase = 10)
+inline QWORD appStoULL(const TCHAR* str, INT iBase = 10)
 {
     try { return std::stoull(STDSTRING(str), 0, iBase); }
     catch (...)

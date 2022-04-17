@@ -39,7 +39,7 @@ template<>
 inline UINT TMapHashKey<const CCString&>(const CCString& key)
 {
     const TCHAR* name = key.c_str();
-    DWORD hash = 0;
+    UINT hash = 0;
     while (*name)
     {
         const TCHAR Ch = (TCHAR)appToUpper(*name++);
@@ -182,7 +182,7 @@ public:
         rValue = pAssoc->m_Value;
         return TRUE;
     }
-    const THashMap *PLookup(ARG_KEY key) const
+    const TAssoc*PLookup(ARG_KEY key) const
     {
         UINT nHashBucket, nHashValue;
         TAssoc* pAssoc = GetAssocAt(key, nHashBucket, nHashValue);

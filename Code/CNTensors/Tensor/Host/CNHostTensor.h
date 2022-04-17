@@ -10,6 +10,20 @@
 #ifndef _CNHOSTTENSOR_H_
 #define _CNHOSTTENSOR_H_
 
+#define __TEST_HOST_DEVECE_ONE_ELEMENT_INTERFACE(name) \
+template<class Calc> \
+void name(TCNDeviceTensorCommon<Calc>& calc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount) \
+{ \
+    m_cDeviceTensor.name(&calc, uiIndexStart, strides, lengths, uiIndexCount); \
+}
+
+#define __TEST_HOST_DEVECE_TWO_ELEMENT_INTERFACE(name) \
+template<class Calc, class Tsrc> \
+void name(TCNDeviceTensorCommon<Calc>& calc, const Tsrc& v, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount) \
+{ \
+    m_cDeviceTensor.name(&calc, v, uiIndexStart, strides, lengths, uiIndexCount); \
+}
+
 __BEGIN_NAMESPACE
 
 template<class T>
@@ -56,40 +70,49 @@ public:
         m_cDeviceTensor.CreateEmpty(m_pLength, m_iDim);
     }
 
-    //static CNCalcTensorCommon* GetCommonCalculator(ECalculator eCalc)
-    //{
-    //    switch (eCalc)
-    //    {
-    //    case EC_Naive:
-    //        return &GCalculatorNaiveCommon;
-    //    }
-
-    //    const CCString sCalculatorName = __ENUM_TO_STRING(ECalculator, eCalc);
-    //    appCrucial(_T("Common Calculator not implementd! %s\n"), sCalculatorName.c_str());
-    //    return NULL;
-    //}
-
     void DebugPrint(UINT uiXDim, UINT uiYDim) const
     {
         m_cDeviceTensor.DebugPrint(uiXDim, uiYDim);
-    }
-
-    template<class Calc>
-    void Zero(TCNDeviceTensorCommon<Calc>& calc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount)
-    {
-        m_cDeviceTensor.Zero(&calc, uiIndexStart, strides, lengths, uiIndexCount);
-    }
-
-    template<class Calc>
-    void One(TCNDeviceTensorCommon<Calc>& calc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount)
-    {
-        m_cDeviceTensor.One(&calc, uiIndexStart, strides, lengths, uiIndexCount);
     }
 
     template<class Calc, class Tsrc>
     void Set(TCNDeviceTensorCommon<Calc>& calc, const Tsrc& v, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount)
     {
         m_cDeviceTensor.Set(&calc, v, uiIndexStart, strides, lengths, uiIndexCount);
+    }
+
+    template<class Calc, class Tsrc>
+    void Set(TCNDeviceTensorCommon<Calc>& calc, const CNHostTensor<Tsrc>& v,
+        UINT uiIndexStart,
+        const UINT* strides,
+        UINT uiSrcIndexStart,
+        const UINT* srcStrides,
+        const UINT* lengths,
+        BYTE uiIndexCount)
+    {
+        m_cDeviceTensor.Set(&calc, v.m_cDeviceTensor.m_pDeviceDataBuffer,
+            uiIndexStart, strides,
+            uiSrcIndexStart, srcStrides,
+            lengths, uiIndexCount);
+    }
+
+    __OVER_ALL_ONE_OP(__TEST_HOST_DEVECE_ONE_ELEMENT_INTERFACE)
+
+    __OVER_ALL_TWO_OP(__TEST_HOST_DEVECE_TWO_ELEMENT_INTERFACE)
+
+    template<class Calc, class Tsrc>
+    void Add(TCNDeviceTensorCommon<Calc>& calc, const CNHostTensor<Tsrc>& v,
+        UINT uiIndexStart, 
+        const UINT* strides, 
+        UINT uiSrcIndexStart,
+        const UINT* srcStrides,
+        const UINT* lengths, 
+        BYTE uiIndexCount)
+    {
+        m_cDeviceTensor.Add(&calc, v.m_cDeviceTensor.m_pDeviceDataBuffer, 
+            uiIndexStart, strides, 
+            uiSrcIndexStart, srcStrides,
+            lengths, uiIndexCount);
     }
 
     CNDeviceTensor<T> m_cDeviceTensor;

@@ -39,10 +39,15 @@
 
 // Undo any Windows defines.
 #undef BYTE
-#undef WORD
-#undef DWORD
+#undef USHORT
+#undef UINT
+#undef QWORD
+#undef SBYTE
+#undef SHORT
 #undef INT
-#undef Real
+#undef SQWORD
+#undef FLOAT
+#undef DOUBLE
 #undef VOID
 
 #define VOID void
@@ -51,19 +56,15 @@
 //NOTE: We assume int is int32, and long long is int64, which is true both for MSVC and GCC
 //We do NOT use long, long is int32 in MSVC and int64 in GCC.
 
-typedef long long           LONGLONG;
-typedef unsigned long long  ULONGLONG;
-
 // Unsigned base types.
 typedef unsigned char       BYTE;        // 8-bit  unsigned.
-typedef unsigned short      WORD;        // 16-bit unsigned.
+typedef unsigned short      USHORT;        // 16-bit unsigned.
 typedef unsigned int        UINT;        // 32-bit unsigned.
-typedef unsigned long       DWORD;        // 32-bit unsigned.
 typedef unsigned long long  QWORD;        // 64-bit unsigned.
 
                                         // Signed base types.
 typedef signed char         SBYTE;        // 8-bit  signed.
-typedef signed short        SWORD;        // 16-bit signed.
+typedef signed short        SHORT;        // 16-bit signed.
 typedef signed int          INT;        // 32-bit signed.
 typedef signed long long    SQWORD;        // 64-bit signed.
 typedef size_t              SIZE_T;

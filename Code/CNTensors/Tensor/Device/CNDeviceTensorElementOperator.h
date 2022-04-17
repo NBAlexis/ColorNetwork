@@ -21,6 +21,110 @@
 
 __BEGIN_NAMESPACE
 
+#pragma region set value
+
+template<class Operator, class dstT, class srcT>
+class __DLL_EXPORT TOperator_S
+{
+public:
+    __inline__ __host__ __device__ void Do(dstT& d, const srcT& s)
+    {
+        ((Operator*)this)->Do(d, s);
+    }
+};
+
+template<class dstT, class srcT>
+class __DLL_EXPORT TOperator_Set : public TOperator_S<TOperator_Set<dstT, srcT>, dstT, srcT>
+{
+public:
+    __inline__ __host__ __device__ void Do(dstT& d, const srcT& s)
+    {
+        d = static_cast<dstT>(s);
+    }
+};
+
+template<class srcT>
+class __DLL_EXPORT TOperator_Set<_SComplex, srcT> : public TOperator_S<TOperator_Set<_SComplex, srcT>, _SComplex, srcT>
+{
+public:
+    __inline__ __host__ __device__ void Do(_SComplex& d, const srcT& s)
+    {
+        d = make_cuComplex(static_cast<FLOAT>(s), 0.0f);
+    }
+};
+
+template<class dstT>
+class __DLL_EXPORT TOperator_Set<dstT, _SComplex> : public TOperator_S<TOperator_Set<dstT, _SComplex>, dstT, _SComplex>
+{
+public:
+    __inline__ __host__ __device__ void Do(dstT& d, const _SComplex& s)
+    {
+        d = static_cast<dstT>(cuCabsf(s));
+    }
+};
+
+template<>
+class __DLL_EXPORT TOperator_Set<_SComplex, _DComplex> : public TOperator_S<TOperator_Set<_SComplex, _DComplex>, _SComplex, _DComplex>
+{
+public:
+    __inline__ __host__ __device__ void Do(_SComplex& d, const _DComplex& s)
+    {
+        d = make_cuComplex(static_cast<FLOAT>(s.x), static_cast<FLOAT>(s.y));
+    }
+};
+
+template<class srcT>
+class __DLL_EXPORT TOperator_Set<_DComplex, srcT> : public TOperator_S<TOperator_Set<_DComplex, srcT>, _DComplex, srcT>
+{
+public:
+    __inline__ __host__ __device__ void Do(_DComplex& d, const srcT& s)
+    {
+        d = make_cuDoubleComplex(static_cast<DOUBLE>(s), 0.0f);
+    }
+};
+
+template<class dstT>
+class __DLL_EXPORT TOperator_Set<dstT, _DComplex> : public TOperator_S<TOperator_Set<dstT, _DComplex>, dstT, _DComplex>
+{
+public:
+    __inline__ __host__ __device__ void Do(dstT& d, const _DComplex& s)
+    {
+        d = static_cast<dstT>(cuCabs(s));
+    }
+};
+
+template<>
+class __DLL_EXPORT TOperator_Set<_DComplex, _SComplex> : public TOperator_S<TOperator_Set<_DComplex, _SComplex>, _DComplex, _SComplex>
+{
+public:
+    __inline__ __host__ __device__ void Do(_DComplex& d, const _SComplex& s)
+    {
+        d = make_cuDoubleComplex(static_cast<DOUBLE>(s.x), static_cast<DOUBLE>(s.y));
+    }
+};
+
+template<>
+class __DLL_EXPORT TOperator_Set<_SComplex, _SComplex> : public TOperator_S<TOperator_Set<_SComplex, _SComplex>, _SComplex, _SComplex>
+{
+public:
+    __inline__ __host__ __device__ void Do(_SComplex& d, const _SComplex& s)
+    {
+        d = s;
+    }
+};
+
+template<>
+class __DLL_EXPORT TOperator_Set<_DComplex, _DComplex> : public TOperator_S<TOperator_Set<_DComplex, _DComplex>, _DComplex, _DComplex>
+{
+public:
+    __inline__ __host__ __device__ void Do(_DComplex& d, const _DComplex& s)
+    {
+        d = s;
+    }
+};
+
+#pragma endregion
+
 #pragma region only dest
 
 template<class Operator, class dstT>
@@ -33,201 +137,69 @@ public:
     }
 };
 
-#define __DEFINE_D_OPERATOR_FUNCTION_NORETURN(funcName) \
+#define __DEFINE_D_OPERATOR_FUNCTION(funcName) \
 template<class dstT> \
-class __DLL_EXPORT TOperator##funcName : public TOperator_D<TOperator##funcName<dstT>, dstT> \
+class __DLL_EXPORT TOperator_##funcName : public TOperator_D<TOperator_##funcName<dstT>, dstT> \
 { \
 public: \
     __inline__ __host__ __device__ void Do(dstT& b) \
     { \
-        funcName(b); \
+        b = _##funcName(b); \
     } \
 };
 
-#define __DEFINE_D_OPERATOR_FUNCTION_RETURN(funcName) \
-template<class dstT> \
-class __DLL_EXPORT TOperator##funcName : public TOperator_D<TOperator##funcName<dstT>, dstT> \
-{ \
-public: \
-    __inline__ __host__ __device__ void Do(dstT& b) \
-    { \
-        b = funcName(b); \
-    } \
-};
-
-__DEFINE_D_OPERATOR_FUNCTION_NORETURN(_Zero)
-
-__DEFINE_D_OPERATOR_FUNCTION_NORETURN(_One)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Abs)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Re)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Im)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Conj)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Arg)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Pow)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Exp)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Log)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Sqrt)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Sin)
-
-__DEFINE_D_OPERATOR_FUNCTION_RETURN(_Cos)
+__OVER_ALL_ONE_OP(__DEFINE_D_OPERATOR_FUNCTION)
 
 #pragma endregion
 
 #pragma region dest - src
 
-/**
- * a=b, a=b*, ...
- */
-template<class Operator, class dstT, class srcT>
-class __DLL_EXPORT TOperator_DS
-{
-public:
-    __inline__ __host__ __device__ dstT Do(srcT b)
-    {
-        return ((Operator*)this)->Do(b);
-    }
-};
 
-
-#pragma region set value
-
-template<class dstT, class srcT>
-class __DLL_EXPORT TOperator_Set : public TOperator_DS<TOperator_Set<dstT, srcT>, dstT, srcT>
-{
-public:
-    __inline__ __host__ __device__ dstT Do(srcT b)
-    {
-        return static_cast<dstT>(b);
-    }
-};
-
-template<class srcT>
-class __DLL_EXPORT TOperator_Set<_SComplex, srcT> : public TOperator_DS<TOperator_Set<_SComplex, srcT>, _SComplex, srcT>
-{
-public:
-    __inline__ __host__ __device__ _SComplex Do(srcT b)
-    {
-        return make_cuComplex(static_cast<FLOAT>(b), 0.0f);
-    }
-};
-
-template<class dstT>
-class __DLL_EXPORT TOperator_Set<dstT, _SComplex> : public TOperator_DS<TOperator_Set<dstT, _SComplex>, dstT, _SComplex>
-{
-public:
-    __inline__ __host__ __device__ dstT Do(_SComplex b)
-    {
-        return static_cast<dstT>(b.x);
-    }
-};
-
-template<>
-class __DLL_EXPORT TOperator_Set<_SComplex, _DComplex> : public TOperator_DS<TOperator_Set<_SComplex, _DComplex>, _SComplex, _DComplex>
-{
-public:
-    __inline__ __host__ __device__ _SComplex Do(_DComplex b)
-    {
-        return make_cuComplex(static_cast<FLOAT>(b.x), static_cast<FLOAT>(b.y));
-    }
-};
-
-template<class srcT>
-class __DLL_EXPORT TOperator_Set<_DComplex, srcT> : public TOperator_DS<TOperator_Set<_DComplex, srcT>, _DComplex, srcT>
-{
-public:
-    __inline__ __host__ __device__ _DComplex Do(srcT b)
-    {
-        return make_cuDoubleComplex(static_cast<DOUBLE>(b), 0.0f);
-    }
-};
-
-template<class dstT>
-class __DLL_EXPORT TOperator_Set<dstT, _DComplex> : public TOperator_DS<TOperator_Set<dstT, _DComplex>, dstT, _DComplex>
-{
-public:
-    __inline__ __host__ __device__ dstT Do(_DComplex b)
-    {
-        return static_cast<dstT>(b.x);
-    }
-};
-
-template<>
-class __DLL_EXPORT TOperator_Set<_DComplex, _SComplex> : public TOperator_DS<TOperator_Set<_DComplex, _SComplex>, _DComplex, _SComplex>
-{
-public:
-    __inline__ __host__ __device__ _DComplex Do(_SComplex b)
-    {
-        return make_cuDoubleComplex(static_cast<DOUBLE>(b.x), static_cast<DOUBLE>(b.y));
-    }
-};
-
-template<>
-class __DLL_EXPORT TOperator_Set<_SComplex, _SComplex> : public TOperator_DS<TOperator_Set<_SComplex, _SComplex>, _SComplex, _SComplex>
-{
-public:
-    __inline__ __host__ __device__ _SComplex Do(_SComplex b)
-    {
-        return b;
-    }
-};
-
-template<>
-class __DLL_EXPORT TOperator_Set<_DComplex, _DComplex> : public TOperator_DS<TOperator_Set<_DComplex, _DComplex>, _DComplex, _DComplex>
-{
-public:
-    __inline__ __host__ __device__ _DComplex Do(_DComplex b)
-    {
-        return b;
-    }
-};
-
-#pragma endregion
 
 #pragma region functions
 
-#define __DEFINE_DS_OPERATOR_FUNCTION(funcName) \
+
+//#define __DEFINE_DS_OPERATOR_FUNCTION(funcName) \
+//template<class dstT, class srcT> \
+//class __DLL_EXPORT TOperatorDS_##funcName : public TOperator_DS<TOperatorDS_##funcName<dstT, srcT>, dstT, srcT> \
+//{ \
+//public: \
+//    __inline__ __host__ __device__ dstT Do(const srcT& b) \
+//    { \
+//        TOperator_Set<dstT, srcT> setOperator; \
+//        return setOperator.Do(_##funcName(b)); \
+//    } \
+//};
+//
+//__OVER_ALL_ONE_OP(__DEFINE_DS_OPERATOR_FUNCTION)
+
+
+#define __DEFINE_D_OPERATOR_FUNCTION_S(name) \
 template<class dstT, class srcT> \
-class __DLL_EXPORT TOperatorDS##funcName : public TOperator_DS<TOperatorDS##funcName<dstT, srcT>, dstT, srcT> \
+class __DLL_EXPORT TOperatorS_##name : public TOperator_S<TOperatorS_##name<dstT, srcT>, dstT, srcT> \
 { \
 public: \
-    __inline__ __host__ __device__ dstT Do(srcT b) \
+    __inline__ __host__ __device__ void Do(dstT& d, const srcT& s) \
     { \
         TOperator_Set<dstT, srcT> setOperator; \
-        return setOperator.Do(funcName(b)); \
+        setOperator.Do(d, _##name(s)); \
     } \
 };
 
-__DEFINE_DS_OPERATOR_FUNCTION(_Abs)
+__OVER_ALL_ONE_OP(__DEFINE_D_OPERATOR_FUNCTION_S)
 
-__DEFINE_DS_OPERATOR_FUNCTION(_Re)
+#define __DEFINE_D_OPERATOR_FUNCTION_S_TWO(name) \
+template<class dstT, class srcT> \
+class __DLL_EXPORT TOperator_##name : public TOperator_S<TOperator_##name<dstT, srcT>, dstT, srcT> \
+{ \
+public: \
+    __inline__ __host__ __device__ void Do(dstT& d, const srcT& s) \
+    { \
+        d = _##name(d, s); \
+    } \
+};
 
-__DEFINE_DS_OPERATOR_FUNCTION(_Im)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Conj)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Arg)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Pow)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Exp)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Log)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Sqrt)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Sin)
-
-__DEFINE_DS_OPERATOR_FUNCTION(_Cos)
+__OVER_ALL_TWO_OP(__DEFINE_D_OPERATOR_FUNCTION_S_TWO)
 
 #pragma endregion
 
@@ -251,22 +223,17 @@ public:
 
 #define __DEFINE_DSS_OPERATOR_FUNCTION_L(funcName) \
 template<class dstT, class srcT> \
-class __DLL_EXPORT TOperatorL##funcName : public TOperator_L<TOperatorL##funcName<dstT, srcT>, dstT, srcT> \
+class __DLL_EXPORT TOperatorL_##funcName : public TOperator_L<TOperatorL_##funcName<dstT, srcT>, dstT, srcT> \
 { \
 public: \
     __inline__ __host__ __device__ dstT Do(dstT a, srcT b) \
     { \
-        return funcName(a, b); \
+        return _##funcName(a, b); \
     } \
 };
 
-__DEFINE_DSS_OPERATOR_FUNCTION_L(_Add)
+__OVER_ALL_TWO_OP(__DEFINE_DSS_OPERATOR_FUNCTION_L)
 
-__DEFINE_DSS_OPERATOR_FUNCTION_L(_Mul)
-
-__DEFINE_DSS_OPERATOR_FUNCTION_L(_Sub)
-
-__DEFINE_DSS_OPERATOR_FUNCTION_L(_Div)
 
 /**
  * c=a+b, c=a*b, ...

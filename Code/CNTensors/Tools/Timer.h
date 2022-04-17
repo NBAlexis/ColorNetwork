@@ -56,13 +56,13 @@ public:
     }
 
     FLOAT Elapsed() const { return m_fElapsed; }
-    DWORD GetCounter() const { return m_dwCounter; }
+    UINT GetCounter() const { return m_dwCounter; }
 
     void Report(const EVerboseLevel vl = GENERAL)
     {
         Stop();
 
-        const DWORD dwCount = GetCounter();
+        const UINT dwCount = GetCounter();
         const FLOAT fElapsed = Elapsed();
         const FLOAT fAverage = (0 != dwCount) ? (fElapsed / dwCount) : 0;
 
@@ -76,9 +76,9 @@ public:
 private:
 
     UBOOL m_bStarted;
-    ULONGLONG m_uiStart;
+    QWORD m_uiStart;
     FLOAT m_fElapsed;
-    DWORD m_dwCounter;
+    UINT m_dwCounter;
     CCString m_sId;
     UBOOL m_bReportOnExit;
 };

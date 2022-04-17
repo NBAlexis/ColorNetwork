@@ -767,7 +767,7 @@ enum EGetStringListFlag
 * appGetStringList( _T(".asdad.asdasda.   .    gag   aga ", '.', EGSLF_IgnorTabSpaceInSide);
 * there is "asdad"  "asdasda" ""  "gagaga" if not EGSLF_IgnorTabSpaceInSide, it's  "asdad"  "asdasda" "  "  "    gaga  ga"
 */
-inline TArray<CCString> appGetStringList(const CCString& orignString, TArray<INT> seperate, DWORD dwFlag = 0)
+inline TArray<CCString> appGetStringList(const CCString& orignString, TArray<INT> seperate, UINT dwFlag = 0)
 {
     TArray<CCString> outList;
     const CCBitFlag flag(dwFlag);
@@ -839,7 +839,7 @@ inline TArray<CCString> appGetStringList(const CCString& orignString, TArray<INT
     return outList;
 }
 
-inline TArray<CCString> appGetStringList(const CCString& orignString, INT seperate, DWORD dwFlag = 0)
+inline TArray<CCString> appGetStringList(const CCString& orignString, INT seperate, UINT dwFlag = 0)
 {
     TArray <INT> inSep;
     inSep.AddItem(seperate);

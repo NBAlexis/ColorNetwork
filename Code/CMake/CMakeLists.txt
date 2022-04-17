@@ -25,7 +25,7 @@ set(LIBRARY_OUTPUT_PATH  ${CMAKE_CURRENT_BINARY_DIR})
 # This is our code file dir
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/..)
 # Flags
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3 --compiler-options;/bigobj")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -Wall -Wno-unknown-pragmas -Wno-strict-overflow -Wno-class-memaccess")
 add_definitions(-D_UBUNTU)
 MESSAGE("CMAKE_CUDA_FLAGS flag = ${CMAKE_CUDA_FLAGS}")
@@ -74,6 +74,7 @@ add_library(CNTensors STATIC
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/CNDeviceTensorCommon.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/CNDeviceTensorElementOperator.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/Common/CNDeviceTensorCommonNaive.cu
+    ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/Common/CNDeviceTensorCommonNaiveAdd.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/TensorFunctions_Common.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/TensorFunctions_Contract.cu
     ${PROJECT_SOURCE_DIR}/CNTensors/Tensor/Device/CTensorOpWorkingSpace.cu
