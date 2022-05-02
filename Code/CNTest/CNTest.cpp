@@ -116,6 +116,26 @@ int main(int argc, char * argv[])
 
     tensor2.DebugPrint(16, 16);
 
+    CNHostTensor<_DComplex> tensor3;
+    UINT lengths2[] = { 256, 256, 256 };
+    tensor3.CreateEmpty(lengths2, 3);
+    tensor3.Random(calc, 1);
+
+    //tensor3.DebugPrint(16, 1048576);
+    CNDeviceTensorContractionNaive calc2;
+    CNHostTensor<_DComplex>* tensor4 = tensor3.Sum(calc2, 1);
+    CNHostTensor<_DComplex>* tensor5 = tensor4->Sum(calc2, 1);
+    tensor5->DebugPrint(16, 16);
+
+    _DComplex sum = tensor5->ReduceSum(calc2);
+    LogValue(sum);
+
+    _DComplex sum2 = tensor3.ReduceSum(calc2);
+    LogValue(sum2);
+
+    delete tensor5;
+    delete tensor4;
+
     CCudaHelper::DebugFunction();
     CCudaHelper::DebugFunction();
     CCudaHelper::DebugFunction();

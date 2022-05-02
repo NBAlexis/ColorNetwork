@@ -27,7 +27,16 @@ void name( \
         byIndexCount); \
 }
 
-#define __DeviceTensorTwoElementFunc(name) \
+
+#define __DeviceTensorOneElementFuncTotal(name) \
+template <class Calc, class Tsrc> \
+void name(TCNDeviceTensorCommon<Calc>* pCalc, const Tsrc& v) \
+{ \
+    pCalc->name(m_pDeviceDataBuffer, m_uiTotalSize); \
+}
+
+
+#define __DeviceTensorTwoElementFuncValue(name) \
 template <class Calc, class Tsrc> \
 void name( \
     TCNDeviceTensorCommon<Calc>* pCalc, \
@@ -44,6 +53,38 @@ void name( \
         dstStride, \
         lengths, \
         byIndexCount); \
+}
+
+
+#define __DeviceTensorTwoElementFuncTensor(name) \
+template <class Calc, class Tsrc> \
+void name( \
+    TCNDeviceTensorCommon<Calc>* pCalc, \
+    const Tsrc* __restrict__ v, \
+    const UINT dstIndexStart, \
+    const UINT* __restrict__ dstStride, \
+    const UINT srcIndexStart, \
+    const UINT* __restrict__ srcStride, \
+    const UINT* __restrict__ lengths, \
+    BYTE byIndexCount) \
+{ \
+    pCalc->name( \
+        m_pDeviceDataBuffer, \
+        v, \
+        dstIndexStart, \
+        dstStride, \
+        srcIndexStart, \
+        srcStride, \
+        lengths, \
+        byIndexCount); \
+}
+
+
+#define __DeviceTensorTwoElementFuncTotal(name) \
+template <class Calc, class Tsrc> \
+void name(TCNDeviceTensorCommon<Calc>* pCalc, const Tsrc& v) \
+{ \
+    pCalc->name(m_pDeviceDataBuffer, v, m_uiTotalSize); \
 }
 
 
@@ -84,6 +125,7 @@ public:
         , m_pDeviceStrides(NULL)
         , m_pDeviceLength(NULL)
         , m_iDim(0)
+        , m_uiTotalSize(0)
     {
         
     }
@@ -113,6 +155,7 @@ public:
             strides[dim - i - 1] = v;
         }
         v = v * lengths[0];
+        m_uiTotalSize = v;
 
         appCudaMalloc((void**)&m_pDeviceDataBuffer, sizeof(T) * v);
         appCudaMalloc((void**)&m_pDeviceStrides, sizeof(UINT) * dim);
@@ -125,6 +168,12 @@ public:
     void DebugPrint(UINT uiXDim, UINT uiYDim) const
     {
         CNDeviceTensorCommonEmpty::DebugPrint(m_pDeviceDataBuffer, uiXDim, uiYDim);
+    }
+
+    template <class Calc, class Tsrc>
+    void Set(TCNDeviceTensorCommon<Calc>* pCalc, const Tsrc& v)
+    {
+        pCalc->Set(m_pDeviceDataBuffer, v, m_uiTotalSize);
     }
 
     template <class Calc, class Tsrc>
@@ -167,36 +216,84 @@ public:
             byIndexCount);
     }
 
-    __OVER_ALL_ONE_OP(__DeviceTensorOneElementFunc)
+    template <class Calc>
+    void Random(TCNDeviceTensorCommon<Calc>* pCalc, UINT uiRandomType)
+    {
+        pCalc->Random(m_pDeviceDataBuffer, uiRandomType, m_uiTotalSize);
+    }
 
-    __OVER_ALL_TWO_OP(__DeviceTensorTwoElementFunc)
-
-    template <class Calc, class Tsrc>
-    void Add(
-        TCNDeviceTensorCommon<Calc>* pCalc,
-        const Tsrc* __restrict__ v,
+    template <class Calc>
+    void Random(TCNDeviceTensorCommon<Calc>* pCalc, 
+        UINT uiRandomType,
         const UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
-        const UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
-        pCalc->Add(
-            m_pDeviceDataBuffer,
-            v,
-            dstIndexStart,
-            dstStride,
-            srcIndexStart,
-            srcStride,
-            lengths,
-            byIndexCount);
+        pCalc->Random(m_pDeviceDataBuffer, uiRandomType, dstIndexStart, dstStride, byIndexCount);
+    }
+
+    __OVER_ALL_ONE_OP(__DeviceTensorOneElementFunc)
+
+    __OVER_ALL_ONE_OP(__DeviceTensorOneElementFuncTotal)
+
+    __OVER_ALL_TWO_OP(__DeviceTensorTwoElementFuncValue)
+
+    __OVER_ALL_TWO_OP(__DeviceTensorTwoElementFuncTensor)
+
+    __OVER_ALL_TWO_OP(__DeviceTensorTwoElementFuncTotal)
+        
+
+    template <class Calc>
+    void Sum(TCNDeviceTensorContraction<Calc>* pCalc,
+        const T* __restrict__ pSrcBuffer,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount,
+        UINT uiSumLength,
+        UINT uiSumIndexStride)
+    {
+        pCalc->Sum(m_pDeviceDataBuffer, pSrcBuffer, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount, uiSumLength, uiSumIndexStride);
+    }
+
+    template <class Calc>
+    void Prod(TCNDeviceTensorContraction<Calc>* pCalc,
+        const T* __restrict__ pSrcBuffer,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount,
+        UINT uiSumLength,
+        UINT uiSumIndexStride)
+    {
+        pCalc->Prod(m_pDeviceDataBuffer, pSrcBuffer, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount, uiSumLength, uiSumIndexStride);
+    }
+
+    /**
+    * Note that reduce will mass up the tensor
+    */
+    template <class Calc>
+    T ReduceSum(TCNDeviceTensorContraction<Calc>* pCalc)
+    {
+        return pCalc->ReduceSum(m_pDeviceDataBuffer, m_uiTotalSize);
+    }
+
+    template <class Calc>
+    T ReduceProd(TCNDeviceTensorContraction<Calc>* pCalc)
+    {
+        return pCalc->ReduceProd(m_pDeviceDataBuffer, m_uiTotalSize);
     }
 
     T* m_pDeviceDataBuffer;
     UINT* m_pDeviceStrides;
     UINT* m_pDeviceLength;
     UINT m_iDim;
+    UINT m_uiTotalSize;
 
 };
 

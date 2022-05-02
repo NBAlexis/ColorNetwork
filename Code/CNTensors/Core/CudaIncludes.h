@@ -30,7 +30,7 @@
 
 #ifdef __DRIVER_TYPES_H__
 #ifndef DEVICE_RESET
-#define DEVICE_RESET cudaDeviceReset();
+#define DEVICE_RESET appCudaDeviceReset();
 #endif
 #else
 #ifndef DEVICE_RESET
@@ -43,6 +43,13 @@
 appFlushLog(); \
 DEVICE_RESET \
 exit(EXIT_FAILURE);
+
+__BEGIN_NAMESPACE
+
+extern CNAPI void appCudaDeviceReset();
+extern CNAPI const ANSICHAR* appCudaGetErrorName(cudaError_t error);
+
+__END_NAMESPACE
 
 #endif //#ifndef _CUDAINCLUDES_H_
 

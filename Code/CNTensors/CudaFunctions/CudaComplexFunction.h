@@ -48,19 +48,12 @@ mac(Sub) \
 mac(Div) \
 mac(Pow) \
 mac(SubR) \
-mac(DivR) \
-mac(PowR) 
+mac(DivR) 
 
 
 #define __OVER_ALL_TYPE_ONE(mac) \
-mac(BYTE) \
-mac(USHORT) \
-mac(UINT) \
-mac(QWORD) \
 mac(SBYTE) \
-mac(SHORT) \
 mac(INT) \
-mac(SQWORD) \
 mac(FLOAT) \
 mac(DOUBLE) \
 mac(_SComplex) \
@@ -91,19 +84,12 @@ mac(Sub, a) \
 mac(Div, a) \
 mac(Pow, a) \
 mac(SubR, a) \
-mac(DivR, a) \
-mac(PowR, a) 
+mac(DivR, a) 
 
 
 #define __OVER_ALL_TYPE_ONEA(mac, a) \
-mac(BYTE, a) \
-mac(USHORT, a) \
-mac(UINT, a) \
-mac(QWORD, a) \
 mac(SBYTE, a) \
-mac(SHORT, a) \
 mac(INT, a) \
-mac(SQWORD, a) \
 mac(FLOAT, a) \
 mac(DOUBLE, a) \
 mac(_SComplex, a) \
@@ -134,19 +120,12 @@ mac(Sub, a, b) \
 mac(Div, a, b) \
 mac(Pow, a, b) \
 mac(SubR, a, b) \
-mac(DivR, a, b) \
-mac(PowR, a, b) 
+mac(DivR, a, b) 
 
 
 #define __OVER_ALL_TYPE_ONEAB(mac, a, b) \
-mac(BYTE, a, b) \
-mac(USHORT, a, b) \
-mac(UINT, a, b) \
-mac(QWORD, a, b) \
 mac(SBYTE, a, b) \
-mac(SHORT, a, b) \
 mac(INT, a, b) \
-mac(SQWORD, a, b) \
 mac(FLOAT, a, b) \
 mac(DOUBLE, a, b) \
 mac(_SComplex, a, b) \
@@ -177,33 +156,20 @@ mac(Sub, a, b, c) \
 mac(Div, a, b, c) \
 mac(Pow, a, b, c) \
 mac(SubR, a, b, c) \
-mac(DivR, a, b, c) \
-mac(PowR, a, b, c) 
+mac(DivR, a, b, c) 
 
 
 #define __OVER_ALL_TYPE_ONEABC(mac, a, b, c) \
-mac(BYTE, a, b, c) \
-mac(USHORT, a, b, c) \
-mac(UINT, a, b, c) \
-mac(QWORD, a, b, c) \
 mac(SBYTE, a, b, c) \
-mac(SHORT, a, b, c) \
 mac(INT, a, b, c) \
-mac(SQWORD, a, b, c) \
 mac(FLOAT, a, b, c) \
 mac(DOUBLE, a, b, c) \
 mac(_SComplex, a, b, c) \
 mac(_DComplex, a, b, c) 
 
 #define __OVER_ALL_TYPE_TWO_LEVEL1(mac, type2) \
-mac(BYTE, type2) \
-mac(USHORT, type2) \
-mac(UINT, type2) \
-mac(QWORD, type2) \
 mac(SBYTE, type2) \
-mac(SHORT, type2) \
 mac(INT, type2) \
-mac(SQWORD, type2) \
 mac(FLOAT, type2) \
 mac(DOUBLE, type2) \
 mac(_SComplex, type2) \
@@ -211,14 +177,8 @@ mac(_DComplex, type2)
 
 
 #define __OVER_ALL_TYPE_TWO_LEVEL1A(mac, type2, a) \
-mac(BYTE, type2, a) \
-mac(USHORT, type2, a) \
-mac(UINT, type2, a) \
-mac(QWORD, type2, a) \
 mac(SBYTE, type2, a) \
-mac(SHORT, type2, a) \
 mac(INT, type2, a) \
-mac(SQWORD, type2, a) \
 mac(FLOAT, type2, a) \
 mac(DOUBLE, type2, a) \
 mac(_SComplex, type2, a) \
@@ -226,42 +186,24 @@ mac(_DComplex, type2, a)
 
 
 #define __OVER_ALL_TYPE_TWO_LEVEL1AB(mac, type2, a, b) \
-mac(BYTE, type2, a, b) \
-mac(USHORT, type2, a, b) \
-mac(UINT, type2, a, b) \
-mac(QWORD, type2, a, b) \
 mac(SBYTE, type2, a, b) \
-mac(SHORT, type2, a, b) \
 mac(INT, type2, a, b) \
-mac(SQWORD, type2, a, b) \
 mac(FLOAT, type2, a, b) \
 mac(DOUBLE, type2, a, b) \
 mac(_SComplex, type2, a, b) \
 mac(_DComplex, type2, a, b) 
 
 #define __OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, type2, a, b, c) \
-mac(BYTE, type2, a, b, c) \
-mac(USHORT, type2, a, b, c) \
-mac(UINT, type2, a, b, c) \
-mac(QWORD, type2, a, b, c) \
 mac(SBYTE, type2, a, b, c) \
-mac(SHORT, type2, a, b, c) \
 mac(INT, type2, a, b, c) \
-mac(SQWORD, type2, a, b, c) \
 mac(FLOAT, type2, a, b, c) \
 mac(DOUBLE, type2, a, b, c) \
 mac(_SComplex, type2, a, b, c) \
 mac(_DComplex, type2, a, b, c) 
 
 #define __OVER_ALL_TYPE_TWO(mac) \
-__OVER_ALL_TYPE_TWO_LEVEL1(mac, BYTE) \
-__OVER_ALL_TYPE_TWO_LEVEL1(mac, USHORT) \
-__OVER_ALL_TYPE_TWO_LEVEL1(mac, UINT) \
-__OVER_ALL_TYPE_TWO_LEVEL1(mac, QWORD) \
 __OVER_ALL_TYPE_TWO_LEVEL1(mac, SBYTE) \
-__OVER_ALL_TYPE_TWO_LEVEL1(mac, SHORT) \
 __OVER_ALL_TYPE_TWO_LEVEL1(mac, INT) \
-__OVER_ALL_TYPE_TWO_LEVEL1(mac, SQWORD) \
 __OVER_ALL_TYPE_TWO_LEVEL1(mac, FLOAT) \
 __OVER_ALL_TYPE_TWO_LEVEL1(mac, DOUBLE) \
 __OVER_ALL_TYPE_TWO_LEVEL1(mac, _SComplex) \
@@ -269,14 +211,8 @@ __OVER_ALL_TYPE_TWO_LEVEL1(mac, _DComplex)
 
 
 #define __OVER_ALL_TYPE_TWOA(mac, a) \
-__OVER_ALL_TYPE_TWO_LEVEL1A(mac, BYTE, a) \
-__OVER_ALL_TYPE_TWO_LEVEL1A(mac, USHORT, a) \
-__OVER_ALL_TYPE_TWO_LEVEL1A(mac, UINT, a) \
-__OVER_ALL_TYPE_TWO_LEVEL1A(mac, QWORD, a) \
 __OVER_ALL_TYPE_TWO_LEVEL1A(mac, SBYTE, a) \
-__OVER_ALL_TYPE_TWO_LEVEL1A(mac, SHORT, a) \
 __OVER_ALL_TYPE_TWO_LEVEL1A(mac, INT, a) \
-__OVER_ALL_TYPE_TWO_LEVEL1A(mac, SQWORD, a) \
 __OVER_ALL_TYPE_TWO_LEVEL1A(mac, FLOAT, a) \
 __OVER_ALL_TYPE_TWO_LEVEL1A(mac, DOUBLE, a) \
 __OVER_ALL_TYPE_TWO_LEVEL1A(mac, _SComplex, a) \
@@ -284,14 +220,8 @@ __OVER_ALL_TYPE_TWO_LEVEL1A(mac, _DComplex, a)
 
 
 #define __OVER_ALL_TYPE_TWOAB(mac, a, b) \
-__OVER_ALL_TYPE_TWO_LEVEL1AB(mac, BYTE, a, b) \
-__OVER_ALL_TYPE_TWO_LEVEL1AB(mac, USHORT, a, b) \
-__OVER_ALL_TYPE_TWO_LEVEL1AB(mac, UINT, a, b) \
-__OVER_ALL_TYPE_TWO_LEVEL1AB(mac, QWORD, a, b) \
 __OVER_ALL_TYPE_TWO_LEVEL1AB(mac, SBYTE, a, b) \
-__OVER_ALL_TYPE_TWO_LEVEL1AB(mac, SHORT, a, b) \
 __OVER_ALL_TYPE_TWO_LEVEL1AB(mac, INT, a, b) \
-__OVER_ALL_TYPE_TWO_LEVEL1AB(mac, SQWORD, a, b) \
 __OVER_ALL_TYPE_TWO_LEVEL1AB(mac, FLOAT, a, b) \
 __OVER_ALL_TYPE_TWO_LEVEL1AB(mac, DOUBLE, a, b) \
 __OVER_ALL_TYPE_TWO_LEVEL1AB(mac, _SComplex, a, b) \
@@ -299,14 +229,8 @@ __OVER_ALL_TYPE_TWO_LEVEL1AB(mac, _DComplex, a, b)
 
 
 #define __OVER_ALL_TYPE_TWOABC(mac, a, b, c) \
-__OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, BYTE, a, b, c) \
-__OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, USHORT, a, b, c) \
-__OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, UINT, a, b, c) \
-__OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, QWORD, a, b, c) \
 __OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, SBYTE, a, b, c) \
-__OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, SHORT, a, b, c) \
 __OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, INT, a, b, c) \
-__OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, SQWORD, a, b, c) \
 __OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, FLOAT, a, b, c) \
 __OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, DOUBLE, a, b, c) \
 __OVER_ALL_TYPE_TWO_LEVEL1ABC(mac, _SComplex, a, b, c) \

@@ -11,18 +11,9 @@
 
 __BEGIN_NAMESPACE
 
-template class CNHostTensor<BYTE>;
-template class CNHostTensor<USHORT>;
-template class CNHostTensor<UINT>;
-template class CNHostTensor<QWORD>;
-template class CNHostTensor<SBYTE>;
-template class CNHostTensor<SHORT>;
-template class CNHostTensor<INT>;
-template class CNHostTensor<SQWORD>;
-template class CNHostTensor<FLOAT>;
-template class CNHostTensor<DOUBLE>;
-template class CNHostTensor<_SComplex>;
-template class CNHostTensor<_DComplex>;
+__OVER_ALL_TYPE_ONE(__IMPLEMENT_HOST_TENSOR)
+
+
 
 //template<class T>
 //void CNHostTensor<T>::Zero(ECalculator eCalc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount)

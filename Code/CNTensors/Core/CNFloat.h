@@ -70,6 +70,7 @@
 #define SQRT2 (1.4142135623730951)
 // = 1 / _sqrt(2), or _sqrt(2)/2
 #define InvSqrt2 (0.7071067811865475)
+#define InvSqrt2F (0.7071067811865475f)
 // = 2.0f * PI
 #define PI2 (6.283185307179586)
 #define PI2F (6.283185307179586f)
@@ -89,23 +90,19 @@
 
 __BEGIN_NAMESPACE
 
+//NOTE, _Complex is already a keyword in GCC
 typedef cuDoubleComplex _DComplex;
 typedef cuComplex _SComplex;
 
-//NOTE, _Complex is already a keyword in GCC
-/*
-#if _CN_DOUBLEFLOAT
+static __inline__ __device__ __host__ _SComplex _dtos(const _DComplex& c)
+{
+	return make_cuComplex(static_cast<FLOAT>(c.x), static_cast<FLOAT>(c.y));
+}
 
-typedef double Real;
-typedef cuDoubleComplex CNComplex;
-
-#else
-
-typedef float Real;
-typedef cuComplex CNComplex;
-
-#endif
-*/
+static __inline__ __device__ __host__ _DComplex _stod(const _SComplex& c)
+{
+	return make_cuDoubleComplex(static_cast<DOUBLE>(c.x), static_cast<DOUBLE>(c.y));
+}
 
 __END_NAMESPACE
 

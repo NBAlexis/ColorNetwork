@@ -30,6 +30,7 @@
 #include <sstream>
 #include <assert.h>
 #include <time.h>
+#include <unordered_map>
 
 #include <algorithm> //c++14
 #include <atomic> //replace interlock

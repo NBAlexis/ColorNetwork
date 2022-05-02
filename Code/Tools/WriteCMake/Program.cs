@@ -259,7 +259,7 @@ set_target_properties({0} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)", m_sName);
             sContent += "set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/..)\n";
 
             sContent += "# Flags\n";
-            sContent += "set(CMAKE_CUDA_FLAGS \"${CMAKE_CUDA_FLAGS} -O3 --compiler-options=-mbig-obj\")\n";
+            sContent += "set(CMAKE_CUDA_FLAGS \"${CMAKE_CUDA_FLAGS} -O3\")\n";
             sContent += "set(CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -Ofast -Wall -Wno-unknown-pragmas -Wno-strict-overflow -Wno-class-memaccess\")\n";
             sContent += "add_definitions(-D_UBUNTU)\n";
 

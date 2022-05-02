@@ -11,9 +11,31 @@
 
 __BEGIN_NAMESPACE
 
+void appCudaDeviceReset()
+{
+    cudaDeviceReset();
+}
+
+const ANSICHAR* appCudaGetErrorName(cudaError_t error)
+{
+    return cudaGetErrorName(error);
+}
+
+void _appCudaFree(void* ptr)
+{
+    if (NULL == appGetCuda())
+    {
+        checkCudaErrors(cudaFree(ptr));
+    }
+    else
+    {
+        appGetCuda()->Free(ptr);
+    }
+}
+
 __constant__ INT _constIntegers[kContentLength];
 //__constant__ Real _constFloats[kContentLength];
-//__constant__ CRandom* __r;
+__constant__ CRandom* __r;
 
 
 #pragma region Kernels
@@ -78,6 +100,12 @@ CCudaHelper::~CCudaHelper()
 
     ReleaseTemeraryBuffers();
     ReleaseHelpers();
+
+    TArray<PTRINT> keys = m_pMemRecord.GetAllKeys();
+    for (INT i = 0; i < keys.Num(); ++i)
+    {
+        appGeneral(_T("Used: size %llu, location %s\n"), m_pMemRecord[keys[i]].m_uiSize, m_pMemRecord[keys[i]].m_sInfo);
+    }
 }
 
 #pragma region System Info
@@ -342,6 +370,12 @@ void CCudaHelper::MemoryQuery()
     cudaMemGetInfo(&availableMemory, &totalMemory);
     const size_t usedMemory = totalMemory - availableMemory;
     appGeneral(_T("Device Memory: used %llu, available %llu, total %llu\n"), usedMemory, availableMemory, totalMemory);
+
+    TArray<PTRINT> keys = m_pMemRecord.GetAllKeys();
+    for (INT i = 0; i < keys.Num(); ++i)
+    {
+        appGeneral(_T("Used: size %llu, location %s\n"), m_pMemRecord[keys[i]].m_uiSize, m_pMemRecord[keys[i]].m_sInfo);
+    }
 }
 
 void CCudaHelper::DebugFunction()
@@ -414,13 +448,24 @@ void CCudaHelper::ReleaseTemeraryBuffers()
 void CCudaHelper::_Malloc(const TCHAR* sLocation, void** ptr, UINT uiSize, UINT uiReason)
 {
     checkCudaErrors(cudaMalloc(ptr, uiSize));
+
+    CudaMemInfo newInfo;
+    newInfo.m_uiSize = uiSize;
+    newInfo.m_uiReason = uiReason;
+    newInfo.m_pPointer = (PTRINT)(*ptr);
+    appStrcpy(newInfo.m_sInfo, 256, sLocation);
+    assert(!m_pMemRecord.Exist(newInfo.m_pPointer));
+    m_pMemRecord.SetAt(newInfo.m_pPointer, newInfo);
 }
 
 void CCudaHelper::Free(void* ptr)
 {
     if (NULL != ptr)
     {
+        PTRINT byPtr = (PTRINT)ptr;
         checkCudaErrors(cudaFree(ptr));
+        assert(m_pMemRecord.Exist(byPtr));
+        m_pMemRecord.RemoveKey(byPtr);
     }
 }
 
@@ -488,7 +533,7 @@ void CCudaHelper::CopyConstants() const
 
 void CCudaHelper::CopyRandomPointer(const class CRandom* r) const
 {
-    //checkCudaErrors(cudaMemcpyToSymbol(__r, &r, sizeof(CRandom*)));
+    checkCudaErrors(cudaMemcpyToSymbol(__r, &r, sizeof(CRandom*)));
 }
 
 #pragma endregion

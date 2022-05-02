@@ -85,6 +85,11 @@ static UINT* FoldDataMD5(UINT& iBlockCount, const BYTE* pInData, UINT iDataCount
     iFinalCount = iFinalCount < iLength ? iLength - 1 : iFinalCount;
     const UINT iNewLength = ((iFinalCount >> 4) + 1) * 16;
     UINT* pNewsValue = (UINT*)malloc(sizeof(UINT) * iNewLength);
+    assert(pNewsValue);
+    if (NULL == pNewsValue)
+    {
+        return NULL;
+    }
     memset(pNewsValue, 0, sizeof(UINT) * iNewLength);
     memcpy(pNewsValue, retVal, sizeof(UINT) * iLength);
     pNewsValue[iDataCount >> 2] |= 128 << (8 * (iDataCount & 0x00000003)); //Add length of string to end of array

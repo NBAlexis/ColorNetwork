@@ -62,21 +62,24 @@
 
 #include "CudaFunctions/CudaHelperFunctions.h"
 #include "CudaFunctions/CudaComplexFunction.h"
+#include "CudaFunctions/CudaHelper.h"
 #include "CudaFunctions/CNRandom.h"
 #include "CudaFunctions/CNFFT.h"
-#include "CudaFunctions/CudaHelper.h"
 
 //====================== Tensor =======================
 #include "Tensor/Device/CNDeviceTensorElementOperator.h"
 #include "Tensor/Device/CTensorOpWorkingSpace.h"
 #include "Tensor/Device/TensorFunctions.h"
 #include "Tensor/Device/CNDeviceTensorCommon.h"
+#include "Tensor/Device/CNDeviceTensorContraction.h"
 #include "Tensor/Device/CNDeviceTensor.h"
 #include "Tensor/Host/CNHostTensor.h"
 
 //====================== Caclculator =======================
+#include "Tensor/Device/Common/CNDeviceTensorNaiveIndexMapping.h"
+#include "Tensor/Device/Common/CNDeviceTensorRandom.h"
 #include "Tensor/Device/Common/CNDeviceTensorCommonNaive.h"
-#include "Tensor/Device/CNDeviceTensorCalculatorGather.h"
+#include "Tensor/Device/Contraction/CNDeviceTensorContractionNaive.h"
 
 
 

@@ -9,73 +9,48 @@
 //=============================================================================
 #include "CNTensorsPch.h"
 
-#if 0
-
 __BEGIN_NAMESPACE
 
-__global__ void _CLG_LAUNCH_BOUND
-_kernalAllocateSeedTable(UINT* pDevicePtr)
+__global__ void _CN_LAUNCH_BOUND
+_kernalAllocateSeedTable(UINT* pDevicePtr, UINT uiSeed)
 {
-    intokernaldir;
-
-    const UINT uiSeed = _DC_Seed;
-
-    for (UINT idir = 0; idir < uiDir + 1; ++idir)
-    {
-        UINT fatIndex = _deviceGetFatIndex(uiSiteIndex, idir);
-        CRandom::_deviceAsignSeeds(pDevicePtr, uiSeed, fatIndex);
-    }
+    UINT uiThread = threadIdx.x;
+    CRandom::_deviceAsignSeeds(pDevicePtr, uiSeed + uiThread, uiThread);
 }
 
-__global__ void _CLG_LAUNCH_BOUND
-_kernalInitialXORWOW(curandState * states)
+__global__ void _CN_LAUNCH_BOUND
+_kernalInitialXORWOW(curandState * states, UINT uiSeed)
 {
-    UINT uiSiteIndex = ((threadIdx.x + blockIdx.x * blockDim.x) 
-        * blockDim.y * gridDim.y * blockDim.z * gridDim.z 
-        + (threadIdx.y + blockIdx.y * blockDim.y) 
-        * blockDim.z * gridDim.z 
-        + (threadIdx.z + blockIdx.z * blockDim.z));
-    curand_init(_DC_Seed, uiSiteIndex, uiSiteIndex, &states[uiSiteIndex]);
+    UINT uiThread = threadIdx.x;
+    curand_init(uiSeed, uiThread, 0, &states[uiThread]);
 }
 
-__global__ void _CLG_LAUNCH_BOUND
-_kernalInitialPhilox(curandStatePhilox4_32_10_t * states)
+__global__ void _CN_LAUNCH_BOUND
+_kernalInitialPhilox(curandStatePhilox4_32_10_t* states, UINT uiSeed)
 {
-    const UINT uiSiteIndex = ((threadIdx.x + blockIdx.x * blockDim.x) * blockDim.y * gridDim.y * blockDim.z * gridDim.z + (threadIdx.y + blockIdx.y * blockDim.y) * blockDim.z * gridDim.z + (threadIdx.z + blockIdx.z * blockDim.z));
-    const UINT uiSeed = _DC_Seed;
-    const UINT uiDir = _DC_Dir;
-    for (UINT idir = 0; idir < uiDir + 1; ++idir)
-    {
-        UINT fatIndex = _deviceGetFatIndex(uiSiteIndex, idir);
-        curand_init(uiSeed, fatIndex, 0, &states[fatIndex]);
-    }
+    UINT uiThread = threadIdx.x;
+    curand_init(uiSeed, uiThread, 0, &states[uiThread]);
 }
 
-__global__ void _CLG_LAUNCH_BOUND
-_kernalInitialMRG(curandStateMRG32k3a  * states)
+__global__ void _CN_LAUNCH_BOUND
+_kernalInitialMRG(curandStateMRG32k3a* states, UINT uiSeed)
 {
-    const UINT uiSiteIndex = ((threadIdx.x + blockIdx.x * blockDim.x) * blockDim.y * gridDim.y * blockDim.z * gridDim.z + (threadIdx.y + blockIdx.y * blockDim.y) * blockDim.z * gridDim.z + (threadIdx.z + blockIdx.z * blockDim.z));
-    const UINT uiSeed = _DC_Seed;
-    const UINT uiDir = _DC_Dir;
-    for (UINT idir = 0; idir < uiDir + 1; ++idir)
-    {
-        UINT fatIndex = _deviceGetFatIndex(uiSiteIndex, idir);
-        curand_init(uiSeed, fatIndex, 0, &states[fatIndex]);
-    }
+    UINT uiThread = threadIdx.x;
+    curand_init(uiSeed, uiThread, 0, &states[uiThread]);
 }
 
-__global__ void _CLG_LAUNCH_BOUND
-_kernalInitialSobel32(curandStateSobol32* states, curandDirectionVectors32_t* dirs)
+__global__ void _CN_LAUNCH_BOUND
+_kernalInitialSobel32(curandStateSobol32* states, curandDirectionVectors32_t* dirs, UINT uiSeed)
 {
-    intokernal;
-    curand_init(dirs[uiSiteIndex], _DC_Seed % 16, &states[uiSiteIndex]);
+    UINT uiThread = threadIdx.x;
+    curand_init(dirs[uiThread], uiSeed % 16, &states[uiThread]);
 }
 
-__global__ void _CLG_LAUNCH_BOUND
-_kernalInitialScrambledSobel32(curandStateScrambledSobol32* states, UINT* consts, curandDirectionVectors32_t* dirs)
+__global__ void _CN_LAUNCH_BOUND
+_kernalInitialScrambledSobel32(curandStateScrambledSobol32* states, UINT* consts, curandDirectionVectors32_t* dirs, UINT uiSeed)
 {
-    intokernal;
-    curand_init(dirs[uiSiteIndex], consts[uiSiteIndex], _DC_Seed % __SOBEL_OFFSET_MAX, &states[uiSiteIndex]);
+    UINT uiThread = threadIdx.x;
+    curand_init(dirs[uiThread], consts[uiThread], uiSeed % __SOBEL_OFFSET_MAX, &states[uiThread]);
 }
 
 CRandom::~CRandom()
@@ -85,167 +60,112 @@ CRandom::~CRandom()
     {
     case ER_Schrage:
         {
-            checkCudaErrors(__cudaFree(m_pDeviceSeedTable));
+            appCudaFree(m_pDeviceSeedTable);
         }
         break;
     case ER_MRG32K3A:
         {
-            CURAND_CALL(curandDestroyGenerator(m_HGen));
-            checkCudaErrors(__cudaFree(m_deviceBuffer));
-            checkCudaErrors(__cudaFree(m_pDeviceRandStatesMRG));
+            checkCudaErrors(curandDestroyGenerator(m_HGen));
+            checkCudaErrors(cudaFree(m_deviceBuffer));
+            appCudaFree(m_pDeviceRandStatesMRG);
         }
         break;
     case ER_PHILOX4_32_10:
         {
-            CURAND_CALL(curandDestroyGenerator(m_HGen));
-            checkCudaErrors(__cudaFree(m_deviceBuffer));
-            checkCudaErrors(__cudaFree(m_pDeviceRandStatesPhilox));
+            checkCudaErrors(curandDestroyGenerator(m_HGen));
+            checkCudaErrors(cudaFree(m_deviceBuffer));
+            appCudaFree(m_pDeviceRandStatesPhilox);
         }
         break;
     case ER_QUASI_SOBOL32:
         {
-            CURAND_CALL(curandDestroyGenerator(m_HGen));
-            checkCudaErrors(__cudaFree(m_deviceBuffer));
-            checkCudaErrors(__cudaFree(m_pDeviceRandStatesSobol32));
-            checkCudaErrors(__cudaFree(m_pDeviceSobolDirVec));
+            checkCudaErrors(curandDestroyGenerator(m_HGen));
+            checkCudaErrors(cudaFree(m_deviceBuffer));
+            appCudaFree(m_pDeviceRandStatesSobol32);
+            appCudaFree(m_pDeviceSobolDirVec);
         }
         break;
     case ER_SCRAMBLED_SOBOL32:
         {
-            CURAND_CALL(curandDestroyGenerator(m_HGen));
-            checkCudaErrors(__cudaFree(m_deviceBuffer));
-            checkCudaErrors(__cudaFree(m_pDeviceRandStatesScrambledSobol32));
-            checkCudaErrors(__cudaFree(m_pDeviceSobolDirVec));
-            checkCudaErrors(__cudaFree(m_pDeviceSobelConsts));
+            checkCudaErrors(curandDestroyGenerator(m_HGen));
+            checkCudaErrors(cudaFree(m_deviceBuffer));
+            appCudaFree(m_pDeviceRandStatesScrambledSobol32);
+            appCudaFree(m_pDeviceSobolDirVec);
+            appCudaFree(m_pDeviceSobelConsts);
         }
         break;
     case ER_XORWOW:
         default:
         {
-            CURAND_CALL(curandDestroyGenerator(m_HGen));
-            checkCudaErrors(__cudaFree(m_deviceBuffer));
-            checkCudaErrors(__cudaFree(m_pDeviceRandStatesXORWOW));
+            checkCudaErrors(curandDestroyGenerator(m_HGen));
+            checkCudaErrors(cudaFree(m_deviceBuffer));
+            appCudaFree(m_pDeviceRandStatesXORWOW);
         }
         break;
     }
 }
 
 //Initial XORWOW only support 512 threads per block
-void CRandom::InitialStatesXORWOW(UINT )
+void CRandom::InitialStatesXORWOW()
 {
-    m_uiFatIdDivide = _HC_Dir + 1;
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceRandStatesXORWOW, sizeof(curandState) * _HC_Volume));
-    TArray<UINT> deviceConstraints = CCudaHelper::GetMaxThreadCountAndThreadPerblock();
-    deviceConstraints[0] = 512;
-    TArray<UINT> latticeDim;
-    latticeDim.AddItem(_HC_Lx * _HC_Ly);
-    latticeDim.AddItem(_HC_Lz);
-    latticeDim.AddItem(_HC_Lt);
-    TArray <UINT> decomp = _getDecompose(deviceConstraints, latticeDim);
-    dim3 block(decomp[0], decomp[1], decomp[2]);
-    dim3 threads(decomp[3], decomp[4], decomp[5]);
-    _kernalInitialXORWOW << <block, threads >> > (m_pDeviceRandStatesXORWOW);
+    appCudaMalloc((void **)&m_pDeviceRandStatesXORWOW, sizeof(curandState) * m_uiMaxThread);
+    _kernalInitialXORWOW <<<1, m_uiMaxThread >>> (m_pDeviceRandStatesXORWOW, m_uiHostSeed);
 }
 
 //Initial Philox only support 256 threads per block
-void CRandom::InitialStatesPhilox(UINT )
+void CRandom::InitialStatesPhilox()
 {
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceRandStatesPhilox, sizeof(curandStatePhilox4_32_10_t) * _HC_Volume * (_HC_Dir + 1)));
-
-    TArray<UINT> deviceConstraints = CCudaHelper::GetMaxThreadCountAndThreadPerblock();
-    deviceConstraints[0] = 256;
-    TArray<UINT> latticeDim;
-    latticeDim.AddItem(_HC_Lx * _HC_Ly);
-    latticeDim.AddItem(_HC_Lz);
-    latticeDim.AddItem(_HC_Lt);
-    TArray <UINT> decomp = _getDecompose(deviceConstraints, latticeDim);
-    dim3 block(decomp[0], decomp[1], decomp[2]);
-    dim3 threads(decomp[3], decomp[4], decomp[5]);
-
-    _kernalInitialPhilox << <block, threads >> > (m_pDeviceRandStatesPhilox);
+    appCudaMalloc((void **)&m_pDeviceRandStatesPhilox, sizeof(curandStatePhilox4_32_10_t) * m_uiMaxThread);
+    _kernalInitialPhilox << <1, m_uiMaxThread >> > (m_pDeviceRandStatesPhilox, m_uiHostSeed);
 }
 
 //Initial MRG only support 256 threads per block
-void CRandom::InitialStatesMRG(UINT )
+void CRandom::InitialStatesMRG()
 {
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceRandStatesMRG, sizeof(curandStateMRG32k3a) * _HC_Volume * (_HC_Dir + 1)));
-    TArray<UINT> deviceConstraints = CCudaHelper::GetMaxThreadCountAndThreadPerblock();
-    deviceConstraints[0] = 256;
-    TArray<UINT> latticeDim;
-    latticeDim.AddItem(_HC_Lx * _HC_Ly);
-    latticeDim.AddItem(_HC_Lz);
-    latticeDim.AddItem(_HC_Lt);
-    TArray <UINT> decomp = _getDecompose(deviceConstraints, latticeDim);
-    dim3 block(decomp[0], decomp[1], decomp[2]);
-    dim3 threads(decomp[3], decomp[4], decomp[5]);
-    _kernalInitialMRG << <block, threads >> > (m_pDeviceRandStatesMRG);
+    appCudaMalloc((void **)&m_pDeviceRandStatesMRG, sizeof(curandStateMRG32k3a) * m_uiMaxThread);
+    _kernalInitialMRG << <1, m_uiMaxThread >> > (m_pDeviceRandStatesMRG, m_uiHostSeed);
 }
 
-void CRandom::InitialStatesSobol32(UINT )
+void CRandom::InitialStatesSobol32()
 {
     //support only 20000 dimensions, so using _HC_Volumn instead
-    m_uiFatIdDivide = _HC_Dir + 1;
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceRandStatesSobol32,
-        sizeof(curandStateSobol32) * _HC_Volume));
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceSobolDirVec,
-        sizeof(curandDirectionVectors32_t) * _HC_Volume));
+    appCudaMalloc((void **)&m_pDeviceRandStatesSobol32, sizeof(curandStateSobol32) * m_uiMaxThread);
+    appCudaMalloc((void **)&m_pDeviceSobolDirVec, sizeof(curandDirectionVectors32_t) * m_uiMaxThread);
 
     //int[32]
     curandDirectionVectors32_t *hostVectors32;
-    CURAND_CALL(curandGetDirectionVectors32(&hostVectors32, CURAND_DIRECTION_VECTORS_32_JOEKUO6));
-    checkCudaErrors(cudaMemcpy(m_pDeviceSobolDirVec, hostVectors32, 
-        _HC_Volume * sizeof(curandDirectionVectors32_t),
-        cudaMemcpyHostToDevice));
+    checkCudaErrors(curandGetDirectionVectors32(&hostVectors32, CURAND_DIRECTION_VECTORS_32_JOEKUO6));
+    checkCudaErrors(cudaMemcpy(m_pDeviceSobolDirVec, hostVectors32, sizeof(curandDirectionVectors32_t) * m_uiMaxThread, cudaMemcpyHostToDevice));
 
-    preparethread;
-    _kernalInitialSobel32 << <block, threads >> > (m_pDeviceRandStatesSobol32, m_pDeviceSobolDirVec);
+    _kernalInitialSobel32 << <1, m_uiMaxThread >> > (m_pDeviceRandStatesSobol32, m_pDeviceSobolDirVec, m_uiHostSeed);
 }
 
-void CRandom::InitialStatesScrambledSobol32(UINT )
+void CRandom::InitialStatesScrambledSobol32()
 {
-    m_uiFatIdDivide = _HC_Dir + 1;
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceRandStatesScrambledSobol32,
-        sizeof(curandStateScrambledSobol32) * _HC_Volume));
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceSobolDirVec,
-        sizeof(curandDirectionVectors32_t) * _HC_Volume));
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceSobelConsts,
-        sizeof(UINT) * _HC_Volume));
+    appCudaMalloc((void **)&m_pDeviceRandStatesScrambledSobol32, sizeof(curandStateScrambledSobol32) * m_uiMaxThread);
+    appCudaMalloc((void **)&m_pDeviceSobolDirVec, sizeof(curandDirectionVectors32_t) * m_uiMaxThread);
+    appCudaMalloc((void **)&m_pDeviceSobelConsts, sizeof(UINT) * m_uiMaxThread);
 
     curandDirectionVectors32_t *hostVectors32;
-    CURAND_CALL(curandGetDirectionVectors32(&hostVectors32, CURAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6));
-    checkCudaErrors(cudaMemcpy(
-        m_pDeviceSobolDirVec, 
-        hostVectors32, 
-        _HC_Volume * sizeof(curandDirectionVectors32_t),
-        cudaMemcpyHostToDevice));
+    checkCudaErrors(curandGetDirectionVectors32(&hostVectors32, CURAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6));
+    checkCudaErrors(cudaMemcpy(m_pDeviceSobolDirVec, hostVectors32,  sizeof(curandDirectionVectors32_t) * m_uiMaxThread, cudaMemcpyHostToDevice));
 
     UINT * hostScrambleConstants32;
-    CURAND_CALL(curandGetScrambleConstants32(&hostScrambleConstants32));
-    checkCudaErrors(cudaMemcpy(
-        m_pDeviceSobelConsts, 
-        hostScrambleConstants32, 
-        _HC_Volume * sizeof(UINT), 
-        cudaMemcpyHostToDevice));
+    checkCudaErrors(curandGetScrambleConstants32(&hostScrambleConstants32));
+    checkCudaErrors(cudaMemcpy(m_pDeviceSobelConsts, hostScrambleConstants32, sizeof(UINT) * m_uiMaxThread, cudaMemcpyHostToDevice));
 
-    preparethread;
-    _kernalInitialScrambledSobel32 << <block, threads >> > (m_pDeviceRandStatesScrambledSobol32, m_pDeviceSobelConsts, m_pDeviceSobolDirVec);
+    _kernalInitialScrambledSobel32 << <1, m_uiMaxThread >> > (m_pDeviceRandStatesScrambledSobol32, m_pDeviceSobelConsts, m_pDeviceSobolDirVec, m_uiHostSeed);
 }
 
-void CRandom::InitialTableSchrage(UINT )
+void CRandom::InitialTableSchrage()
 {
-    checkCudaErrors(__cudaMalloc((void **)&m_pDeviceSeedTable, sizeof(UINT) * _HC_Volume * (_HC_Dir + 1)));
-    preparethread;
-    _kernalAllocateSeedTable << <block, threads >> > (m_pDeviceSeedTable);
-}
-
-Real GetRandomReal()
-{
-    return appGetLattice()->m_pRandom->GetRandomF();
+    appCudaMalloc((void **)&m_pDeviceSeedTable, sizeof(UINT) * m_uiMaxThread);
+    _kernalAllocateSeedTable << <1, m_uiMaxThread >> > (m_pDeviceSeedTable, m_uiMaxThread);
 }
 
 #pragma region Test
 
-__global__ void _CLG_LAUNCH_BOUND
+__global__ void _CN_LAUNCH_BOUND
 _kernelMCPi(UINT* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithreadCount)
 {
     __shared__ UINT sData1[1024];
@@ -256,9 +176,9 @@ _kernelMCPi(UINT* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithrea
     const UINT fatIndex = threadIdx.x * lengthyz + threadIdx.y * lengthz + threadIdx.z;
     for (UINT i = 0; i < uiLoop; ++i)
     {
-        const Real x = _deviceRandomF(fatIndex) * F(2.0) - F(1.0);
-        const Real y = _deviceRandomF(fatIndex) * F(2.0) - F(1.0);
-        if (x * x + y * y < F(1.0))
+        const FLOAT x = _deviceRandomF(fatIndex) * 2.0f - 1.0f;
+        const FLOAT y = _deviceRandomF(fatIndex) * 2.0f - 1.0f;
+        if (x * x + y * y < 1.0f)
         {
             ++uiToAdd;
         }
@@ -283,17 +203,17 @@ _kernelMCPi(UINT* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithrea
     }
 }
 
-__global__ void _CLG_LAUNCH_BOUND
-_kernelMCE(Real* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithreadCount)
+__global__ void _CN_LAUNCH_BOUND
+_kernelMCE(FLOAT* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithreadCount)
 {
-    __shared__ Real sData1[1024];
-    __shared__ Real sData2[1024];
-    Real fToAdd = 0;
-    Real fToAdd2 = 0;
+    __shared__ FLOAT sData1[1024];
+    __shared__ FLOAT sData2[1024];
+    FLOAT fToAdd = 0;
+    FLOAT fToAdd2 = 0;
     const UINT fatIndex = threadIdx.x * lengthyz + threadIdx.y * lengthz + threadIdx.z;
     for (UINT i = 0; i < uiLoop; ++i)
     {
-        const CNComplex c = _deviceRandomGaussC(fatIndex);
+        const _SComplex c = _deviceRandomGaussC(fatIndex);
         fToAdd += (c.x + c.y);
         fToAdd2 += (c.x * c.x + c.y * c.y);
     }
@@ -303,8 +223,8 @@ _kernelMCE(Real* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithread
     __syncthreads();
     if (threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0)
     {
-        Real all1 = 0;
-        Real all2 = 0;
+        FLOAT all1 = 0;
+        FLOAT all2 = 0;
         for (UINT i = 0; i < uithreadCount; ++i)
         {
             all1 += sData1[i];
@@ -316,7 +236,7 @@ _kernelMCE(Real* output, UINT lengthyz, UINT lengthz, UINT uiLoop, UINT uithread
     }
 }
 
-Real CNAPI CalculatePi(const TArray<UINT> & decompose)
+FLOAT CNAPI CalculatePi(const TArray<UINT> & decompose)
 {
     dim3 blocknumber(decompose[0], decompose[1], decompose[2]);
     dim3 threadnumber(decompose[3], decompose[4], decompose[5]);
@@ -342,10 +262,10 @@ Real CNAPI CalculatePi(const TArray<UINT> & decompose)
 
     appParanoiac(_T("==== results: %d / %d \n"), outPutHost[0], outPutHost[1]);
 
-    return F(4.0) * outPutHost[0] / (Real)(total);
+    return 4.0f * outPutHost[0] / (FLOAT)(total);
 }
 
-Real CNAPI CalculateE(const TArray<UINT> & decompose)
+FLOAT CNAPI CalculateE(const TArray<UINT> & decompose)
 {
     dim3 blocknumber(decompose[0], decompose[1], decompose[2]);
     dim3 threadnumber(decompose[3], decompose[4], decompose[5]);
@@ -355,31 +275,29 @@ Real CNAPI CalculateE(const TArray<UINT> & decompose)
     const UINT total = decompose[0] * decompose[1] * decompose[2] * decompose[3] * decompose[4] * decompose[5] * decompose[6];
     const UINT uiLoop = decompose[6];
 
-    Real outPutHost[2];
+    FLOAT outPutHost[2];
     outPutHost[0] = 0.0F;
     outPutHost[1] = 0.0F;
 
-    Real *outPut;
-    checkCudaErrors(cudaMalloc((void**)&outPut, sizeof(Real) * 2));
-    checkCudaErrors(cudaMemcpy(outPut, outPutHost, sizeof(Real) * 2, cudaMemcpyHostToDevice));
+    FLOAT*outPut;
+    checkCudaErrors(cudaMalloc((void**)&outPut, sizeof(FLOAT) * 2));
+    checkCudaErrors(cudaMemcpy(outPut, outPutHost, sizeof(FLOAT) * 2, cudaMemcpyHostToDevice));
 
     _kernelMCE << <blocknumber, threadnumber >> > (outPut, lengthyz, lengthz, uiLoop, threadCount);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaMemcpy(outPutHost, outPut, sizeof(Real) * 2, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(outPutHost, outPut, sizeof(FLOAT) * 2, cudaMemcpyDeviceToHost));
 
-    const Real fAv = outPutHost[0] / (2.0f * total);
-    const Real fBv = outPutHost[1] / (2.0f * total) - fAv * fAv;
+    const FLOAT fAv = outPutHost[0] / (2.0f * total);
+    const FLOAT fBv = outPutHost[1] / (2.0f * total) - fAv * fAv;
 
-    return _hostsqrt(fBv);
+    return sqrt(fBv);
 }
 
 #pragma endregion
 
 __END_NAMESPACE
-
-#endif
 
 //=============================================================================
 // END OF FILE

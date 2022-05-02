@@ -41,8 +41,8 @@
 
 #if _CN_USE_LAUNCH_BOUND
 constexpr unsigned int MAX_THREAD = 1024;
-constexpr unsigned int BOUND_THREAD = 256;
-constexpr unsigned int BOUND_BLOCK = 4;
+constexpr unsigned int BOUND_THREAD = 1024;
+constexpr unsigned int BOUND_BLOCK = 1;
 #else
 constexpr unsigned int MAX_THREAD = 1024;
 constexpr unsigned int BOUND_THREAD = 1024;

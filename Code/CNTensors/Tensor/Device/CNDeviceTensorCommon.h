@@ -24,6 +24,7 @@ __OVER_ALL_TYPE_ONEA(__IMPLEMENT_COMMON_ONE2, calc)
 #define __IMPLEMENT_COMMON_TWO_SET(type1, type2, name, calc) \
 template class calc<TOperator_##name<type1, type2>, type1, type2>;
 
+
 //==========================================================
 #define __IMPLEMENT_COMMON_TWO1(name, type1, type2, calc) \
 template class calc<TOperator_##name<type1, type2>, type1, type2>;
@@ -42,7 +43,16 @@ void name(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, co
     ((Calc*)this)->name(pBuffer, dstIndexStart, dstStride, lengths, byIndexCount); \
 }
 
-#define __Tensor_Common_Two_Func_NoReturn(name) \
+
+#define __Tensor_Common_One_Total(name) \
+template<class Tdst> \
+void name(Tdst* pBuffer, UINT uiTotalSize) \
+{ \
+    ((Calc*)this)->name(pBuffer, uiTotalSize); \
+}
+
+
+#define __Tensor_Common_Two_Func_Value_NoReturn(name) \
 template<class Tdst, class Tsrc> \
 void name( \
     Tdst* pBuffer, \
@@ -54,6 +64,29 @@ void name( \
 { \
     ((Calc*)this)->name(pBuffer, v, dstIndexStart, dstStride, lengths, byIndexCount); \
 }
+
+#define __Tensor_Common_Two_Func_Tensor_NoReturn(name) \
+template<class Tdst, class Tsrc> \
+void name( \
+    Tdst* pBuffer, \
+    const Tsrc* __restrict__ src, \
+    UINT dstIndexStart, \
+    const UINT* __restrict__ dstStride, \
+    UINT srcIndexStart, \
+    const UINT* __restrict__ srcStride, \
+    const UINT* __restrict__ lengths, \
+    BYTE byIndexCount) \
+{ \
+    ((Calc*)this)->name(pBuffer, src, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount); \
+}
+
+#define __Tensor_Common_Two_Func_Value_Total(name) \
+template<class Tdst, class Tsrc> \
+void name(Tdst* pBuffer, const Tsrc& v, UINT uiTotalSize) \
+{ \
+    ((Calc*)this)->name(pBuffer, v, uiTotalSize); \
+}
+
 
 __BEGIN_NAMESPACE
 
@@ -97,6 +130,12 @@ public:
     }
 
     template<class Tdst, class Tsrc>
+    void Set(Tdst* pBuffer, const Tsrc& v, UINT uiTotalSize)
+    {
+        ((Calc*)this)->Set(pBuffer, v, uiTotalSize);
+    }
+
+    template<class Tdst, class Tsrc>
     void Set(
         Tdst* pBuffer,
         const Tsrc& v,
@@ -122,22 +161,29 @@ public:
         ((Calc*)this)->Set(pBuffer, src, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount);
     }
 
-    __OVER_ALL_ONE_OP(__Tensor_Common_One_Func)
-    __OVER_ALL_TWO_OP(__Tensor_Common_Two_Func_NoReturn)
+    template<class Tdst>
+    void Random(Tdst* pBuffer, UINT uiRandomType, UINT uiTotalSize)
+    {
+        ((Calc*)this)->Random(pBuffer, uiRandomType, uiTotalSize);
+    }
 
-    template<class Tdst, class Tsrc>
-    void Add(
+    template<class Tdst>
+    void Random(
         Tdst* pBuffer,
-        const Tsrc* __restrict__ src,
+        UINT uiRandomType,
         UINT dstIndexStart,
         const UINT* __restrict__ dstStride,
-        UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
         const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
-        ((Calc*)this)->Add(pBuffer, src, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount);
+        ((Calc*)this)->Random(pBuffer, uiRandomType, dstIndexStart, dstStride, lengths, byIndexCount);
     }
+    
+    __OVER_ALL_ONE_OP(__Tensor_Common_One_Func)
+    __OVER_ALL_ONE_OP(__Tensor_Common_One_Total)
+    __OVER_ALL_TWO_OP(__Tensor_Common_Two_Func_Value_NoReturn)
+    __OVER_ALL_TWO_OP(__Tensor_Common_Two_Func_Tensor_NoReturn)
+    __OVER_ALL_TWO_OP(__Tensor_Common_Two_Func_Value_Total)
 
     template<class T>
     static void DebugPrint(const T* __restrict__ src, UINT uiSize)
@@ -184,250 +230,10 @@ public:
         appPopLogDate();
     }
 
-    //T* m_pBuffer;
-
-protected:
-
-    /**
-     * Things like a = sin(a)
-     * Call it like this:
-     * TOperator_Sin<FLOAT> op();
-     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
-     *
-     * Note, dstStride and lengths are on host
-     */
-    //template<class Operator>
-    //void OneOperator(
-    //    const TOperator_D<Operator, T>& op,
-    //    T* dst,
-    //    const UINT dstIndexStart,
-    //    const UINT* __restrict__ dstStride,
-    //    const UINT* __restrict__ lengths,
-    //    BYTE byIndexCount)
-    //{
-    //    ((Calculator*)this)->OneOperator(op, dst, dstIndexStart, dstStride, lengths, byIndexCount);
-    //}
-
-    /**
-     * Things like b = sin(a), where type of b is as same as a
-     * Call it like this:
-     * TOperator_Sin<FLOAT> op();
-     */
-    //template<class Operator>
-    //void OneOperatorD(
-    //    TOperator_D<Operator, T> op,
-    //    CNDeviceTensor<T>* dst,
-    //    const UINT dstIndexStart,
-    //    const UINT* __restrict__ dstStride,
-    //    CNDeviceTensor<T>* src,
-    //    const UINT srcIndexStart,
-    //    const UINT* __restrict__ srcStride,
-    //    const UINT* __restrict__ lengths,
-    //    BYTE byIndexCount)
-    //{
-    //    ((Calculator*)this)->OneOperatorD(op, dst, dstIndexStart, dstStride, 
-    //        src, srcIndexStart, srcStride, lengths, byIndexCount);
-    //}
-
-#if 0
-    /**
-     * Things like b = sin(a), where type of b is different than a
-     * Call it like this:
-     * TOperator_Sin<FLOAT> op();
-     */
-    template<class Operator, class dstT, class srcT>
-    void OneOperatorDS(
-        TOperator_DS<Operator, dstT, srcT> op,
-        CNDeviceTensor<dstT>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        CNDeviceTensor<srcT>* src,
-        const UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        ((Calculator*)this)->OneOperatorDS(op, dst, dstIndexStart, dstStride,
-            src, srcIndexStart, srcStride, lengths, byIndexCount);
-    }
-
-    /**
-     * Things like c = a + b, type of c is as same as a
-     * Call it like this:
-     * TOperator_Sin<FLOAT> op();
-     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
-     */
-    template<class Operator, class srcTL, class srcTR>
-    void TwoOperatorL(
-        TOperator_L<Operator, srcTL, srcTR> op,
-        CNDeviceTensor<srcTL>* left,
-        const UINT leftIndexStart,
-        const UINT* __restrict__ leftStride,
-        CNDeviceTensor<srcTR>* right,
-        const UINT rightIndexStart,
-        const UINT* __restrict__ rightStride,
-        CNDeviceTensor<srcTL>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        ((Calculator*)this)->TwoOperatorL(op,
-            left, leftIndexStart, leftStride,
-            right, rightIndexStart, rightStride,
-            dst, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
-
-    /**
-     * Things like c = a + b, type of c is as same as b
-     * Call it like this:
-     * TOperator_Sin<FLOAT> op();
-     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
-     */
-    template<class Operator, class srcTL, class srcTR>
-    void TwoOperatorR(
-        TOperator_R<Operator, srcTL, srcTR> op,
-        CNDeviceTensor<srcTL>* left,
-        const UINT leftIndexStart,
-        const UINT* __restrict__ leftStride,
-        CNDeviceTensor<srcTR>* right,
-        const UINT rightIndexStart,
-        const UINT* __restrict__ rightStride,
-        CNDeviceTensor<srcTR>* dst,
-        const UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount)
-    {
-        ((Calculator*)this)->TwoOperatorR(op,
-            left, leftIndexStart, leftStride,
-            right, rightIndexStart, rightStride,
-            dst, dstIndexStart, dstStride, lengths, byIndexCount);
-    }
-
-    /**
-     * Things like c = a + b, type of c is as same as b
-     * Call it like this:
-     * TOperator_Sin<FLOAT> op();
-     * tensor_common.OneOperator(op, dst, 0, 1, 10, 3)
-     */
-    template<class Operator, class srcTL, class srcTR>
-    void TwoOperatorLN(
-        TOperator_LN<Operator, srcTL, srcTR> op,
-        CNDeviceTensor<srcTL>* left,
-        const UINT leftIndexStart,
-        const UINT* __restrict__ leftStride,
-        CNDeviceTensor<srcTR>* right,
-        const UINT rightIndexStart,
-        const UINT* __restrict__ rightStride,
-        BYTE byIndexCount)
-    {
-        ((Calculator*)this)->TOperator_LN(op,
-            left, leftIndexStart, leftStride,
-            right, rightIndexStart, rightStride, byIndexCount);
-    }
-#endif
-
-    #pragma region functions already implemented
-
-
-
-    #pragma endregion
 };
 
-class __DLL_EXPORT CNDeviceTensorCommonEmpty : public TCNDeviceTensorCommon<CNDeviceTensorCommonEmpty>
-{
-};
-
-template<class Calculator, class Operator, class T>
-class __DLL_EXPORT TCNDeviceTensorCommonOneOperator
-{
-public:
-    TCNDeviceTensorCommonOneOperator() { }
-    virtual ~TCNDeviceTensorCommonOneOperator() { }
-    virtual void OneOperator(T* pBuffer, UINT dstIndexStart, const UINT* __restrict__ dstStride, const UINT* __restrict__ lengths, BYTE byIndexCount) = 0;
-};
-
-template<class Calculator, class Operator, class Tdst, class Tsrc>
-class __DLL_EXPORT TCNDeviceTensorCommonTwoOperator
-{
-public:
-    TCNDeviceTensorCommonTwoOperator()
-    {
-
-    }
-
-    virtual ~TCNDeviceTensorCommonTwoOperator()
-    {
-
-    }
-
-    virtual void TwoOperatorValue(
-        Tdst* pBuffer,
-        const Tsrc& v,
-        UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount) = 0;
-
-    virtual void TwoOperatorTensor(
-        Tdst* pBuffer,
-        const Tsrc* __restrict__ src,
-        UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        UINT srcIndexStart,
-        const UINT* __restrict__ srcStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount) = 0;
-};
-
-template<class Calculator, class Operator, class Tdst, class Tsrc>
-class __DLL_EXPORT TCNDeviceTensorCommonTwoOperatorDDS
-{
-public:
-    TCNDeviceTensorCommonTwoOperatorDDS()
-    {
-
-    }
-
-    virtual ~TCNDeviceTensorCommonTwoOperatorDDS()
-    {
-
-    }
-
-    virtual void TwoOperator(
-        Tdst* pBuffer,
-        const Tsrc& v,
-        UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount) = 0;
-
-};
-
-template<class Calculator, class Operator, class Tdst, class Tsrc>
-class __DLL_EXPORT TCNDeviceTensorCommonTwoOperatorDSS
-{
-public:
-    TCNDeviceTensorCommonTwoOperatorDSS()
-    {
-
-    }
-
-    virtual ~TCNDeviceTensorCommonTwoOperatorDSS()
-    {
-
-    }
-
-    virtual void TwoOperator(
-        Tdst* pBuffer,
-        const Tsrc& v,
-        UINT dstIndexStart,
-        const UINT* __restrict__ dstStride,
-        const UINT* __restrict__ lengths,
-        BYTE byIndexCount) = 0;
-
-};
+//just for calling static functions of TCNDeviceTensorCommon
+class __DLL_EXPORT CNDeviceTensorCommonEmpty : public TCNDeviceTensorCommon<CNDeviceTensorCommonEmpty> {};
 
 __END_NAMESPACE
 

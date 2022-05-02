@@ -22,7 +22,7 @@ extern __constant__ INT _constIntegers[kContentLength];
 /**
 * Note that, the pointers are copyied here. So the virtual functions should not be used!
 */
-//extern __constant__ class CRandom* __r;
+extern __constant__ class CRandom* __r;
 
 enum EConstIntId
 {
@@ -34,6 +34,14 @@ enum EConstFloatId
 {
     ECF_None,
     ECF_ForceDWORD = 0x7fffffff,
+};
+
+struct CudaMemInfo
+{
+    UINT m_uiReason;
+    UINT m_uiSize;
+    PTRINT m_pPointer;
+    TCHAR m_sInfo[256];
 };
 
 class CNAPI CCudaHelper
@@ -56,7 +64,7 @@ public:
 public:
 
     static void DeviceQuery();
-    static void MemoryQuery();
+    void MemoryQuery();
 
     /**ret[0] = max thread count, ret[1,2,3] = max thread for x,y,z per block*/
     static TArray<UINT> GetMaxThreadCountAndThreadPerblock();
@@ -146,13 +154,18 @@ protected:
      * This is a buffer for one time usage
      */
     BYTE* m_pSmallSizeBuffer;
+    THashMap<PTRINT, CudaMemInfo> m_pMemRecord;
 
     #pragma endregion
 };
 
+inline class CCudaHelper* appGetCuda();
+
+extern CNAPI void _appCudaFree(void* ptr);
+
 __END_NAMESPACE
 
-#define appCudaFree(ptr) appGetCuda()->Free(ptr); ptr=NULL;
+#define appCudaFree(ptr) _appCudaFree(ptr); ptr=NULL
 #define appCudaMalloc(...) {TCHAR ___msg[1024];appSprintf(___msg, 1024, _T("%s(%d)"), _T(__FILE__), __LINE__); appGetCuda()->_Malloc(___msg, __VA_ARGS__);}
 
 #endif //#ifndef _CUDAHELPER_H_

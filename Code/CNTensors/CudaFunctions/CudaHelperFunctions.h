@@ -33,7 +33,7 @@ __BEGIN_NAMESPACE
 #ifdef __DRIVER_TYPES_H__
 static const ANSICHAR* _cudaGetErrorEnum(cudaError_t error)
 {
-    return cudaGetErrorName(error);
+    return appCudaGetErrorName(error);
 }
 #endif
 

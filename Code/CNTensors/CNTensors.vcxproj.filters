@@ -96,11 +96,20 @@
     <ClInclude Include="Tensor\Host\CNHostTensor.h">
       <Filter>Tensor\Host</Filter>
     </ClInclude>
-    <ClInclude Include="Tensor\Device\CNDeviceTensorCalculatorGather.h">
-      <Filter>Tensor\Device</Filter>
-    </ClInclude>
     <ClInclude Include="Tensor\Device\CTensorOpWorkingSpace.h">
       <Filter>Tensor\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\Common\CNDeviceTensorRandom.h">
+      <Filter>Tensor\Device\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\Common\CNDeviceTensorNaiveIndexMapping.h">
+      <Filter>Tensor\Device\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\CNDeviceTensorContraction.h">
+      <Filter>Tensor\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\Contraction\CNDeviceTensorContractionNaive.h">
+      <Filter>Tensor\Device\Contraction</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -178,20 +187,23 @@
     <CudaCompile Include="Tensor\Device\TensorFunctions_Contract.cu">
       <Filter>Tensor\Device</Filter>
     </CudaCompile>
-    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.cu">
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveOneOperator.cu">
       <Filter>Tensor\Device\Common</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Tensor\Device\CNDeviceTensorElementOperator.cu">
-      <Filter>Tensor\Device</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Tensor\Device\CNDeviceTensorCommon.cu">
-      <Filter>Tensor\Device</Filter>
     </CudaCompile>
     <CudaCompile Include="Tensor\Device\CTensorOpWorkingSpace.cu">
       <Filter>Tensor\Device</Filter>
     </CudaCompile>
-    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveAdd.cu">
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorRandom.cu">
       <Filter>Tensor\Device\Common</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveTwoOperator.cu">
+      <Filter>Tensor\Device\Common</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\Contraction\CNDeviceTensorContractionNaiveOneType.cu">
+      <Filter>Tensor\Device\Contraction</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tensor\Device\Contraction\CNDeviceTensorContractionNaiveTwoType.cu">
+      <Filter>Tensor\Device\Contraction</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

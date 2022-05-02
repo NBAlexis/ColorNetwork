@@ -53,7 +53,6 @@ inline BYTE* appGetSmallDeviceBuffer(UINT uiSize)
     return appGetOpWorkingSpace()->GetSmallDeviceBuffer(uiSize);
 }
 
-
 __END_NAMESPACE
 
 #endif //#ifndef _CTENSOROPWORKINGSPACE_H_
