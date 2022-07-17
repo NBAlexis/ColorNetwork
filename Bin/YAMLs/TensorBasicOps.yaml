@@ -1,0 +1,16 @@
+VerboseLevel : PARANOIAC
+VerboseOutput : datetime
+ShowDeviceInformation : 0
+ShowParameterContent : 0
+
+ElementOpsSComp:
+
+    Dim: 6
+    Names: [a, b, c, d, e, f]
+    Lengths: [4, 4, 4, 4, 4, 4]
+
+ElementOpsDComp:
+
+    Dim: 6
+    Names: [a, b, c, d, e, f]
+    Lengths: [4, 4, 4, 4, 4, 4]

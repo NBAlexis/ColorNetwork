@@ -277,6 +277,18 @@ public:
         return pAssoc->m_Value;
     }
 
+    UBOOL GetAt(ARG_KEY key, VALUE& value) const
+    {
+        UINT nHashBucket, nHashValue;
+        TAssoc* pAssoc = GetAssocAt(key, nHashBucket, nHashValue);
+        if (NULL == pAssoc)
+        {
+            return FALSE;
+        }
+        value = pAssoc->m_Value;
+        return TRUE;
+    }
+
     //----------------------------------------
     //Interface for loop
     TArray<KEY> GetAllKeys() const

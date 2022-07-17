@@ -36,6 +36,7 @@
     <ClInclude Include="Tensor\Device\CNDeviceTensor.h" />
     <ClInclude Include="Tensor\Device\CNDeviceTensorCommon.h" />
     <ClInclude Include="Tensor\Device\CNDeviceTensorContraction.h" />
+    <ClInclude Include="Tensor\Device\CNDeviceTensorDecompose.h" />
     <ClInclude Include="Tensor\Device\CNDeviceTensorElementOperator.h" />
     <ClInclude Include="Tensor\Device\Common\CNDeviceTensorCommonNaive.h" />
     <ClInclude Include="Tensor\Device\Common\CNDeviceTensorNaiveIndexMapping.h" />
@@ -44,6 +45,9 @@
     <ClInclude Include="Tensor\Device\CTensorOpWorkingSpace.h" />
     <ClInclude Include="Tensor\Device\TensorFunctions.h" />
     <ClInclude Include="Tensor\Host\CNHostTensor.h" />
+    <ClInclude Include="Tensor\Host\CNIndex.h" />
+    <ClInclude Include="Tensor\Host\CNOneIndex.h" />
+    <ClInclude Include="Tensor\Host\Decompose\CNMatrixSVD.h" />
     <ClInclude Include="Tools\CYAMLParser.h" />
     <ClInclude Include="Tools\Data\CBitFlag.h" />
     <ClInclude Include="Tools\Data\CCString.h" />
@@ -64,6 +68,8 @@
     </ClCompile>
     <ClCompile Include="Core\CNTensorLib.cpp" />
     <ClCompile Include="Tensor\Host\CNHostTensor.cpp" />
+    <ClCompile Include="Tensor\Host\CNIndex.cpp" />
+    <ClCompile Include="Tensor\Host\Decompose\CNMatrixSVD.cpp" />
     <ClCompile Include="Tools\CYAMLParser.cpp" />
     <ClCompile Include="Tools\Data\CCString.cpp" />
     <ClCompile Include="Tools\Tracer.cpp" />

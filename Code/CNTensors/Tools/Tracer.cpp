@@ -14,6 +14,30 @@ __BEGIN_NAMESPACE
 
 CNAPI CTracer GTracer;
 
+void CNSetupLog(CParameters& params)
+{
+    //Setup outputs
+    CCString verboselevel;
+    EVerboseLevel eVerbLevel = CRUCIAL;
+    CCString sVerbFile = _T("stdout");
+    const UBOOL fetchVerbLevel = params.FetchStringValue(_T("VerboseLevel"), verboselevel);
+    const UBOOL fetchVerbFile = params.FetchStringValue(_T("VerboseOutput"), sVerbFile);
+    if (fetchVerbLevel || fetchVerbFile) //do NOT put fetch string in if, it will enter if when the first is TRUE
+    {
+        eVerbLevel = __STRING_TO_ENUM(EVerboseLevel, verboselevel);
+        appSetTracer(eVerbLevel, sVerbFile);
+    }
+
+    //check whether to log parameter file
+    INT iTag = 0;
+    //appGeneral(_T("============================== Parameter =============================\n\n"));
+    __CheckTag(_T("ShowParameterContent"), params.Dump());
+    //appGeneral(_T("============================== GPU =============================\n\n"));
+    __CheckTag(_T("ShowDeviceInformation"), CCudaHelper::DeviceQuery());
+
+    appGeneral(_T("============================== Log Start =============================\n\n"));
+}
+
 /**
 *
 *

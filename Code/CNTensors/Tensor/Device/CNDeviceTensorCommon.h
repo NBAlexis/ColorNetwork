@@ -4,7 +4,7 @@
 // DESCRIPTION:
 // This is an intereface
 //
-// REVISION:
+// REVISION[d-m-y]:
 //  [18/06/2021 nbalexis]
 //=============================================================================
 #ifndef _CNDEVICETENSOR_COMMON_H_
@@ -203,10 +203,23 @@ public:
 
     template<class T>
     static void DebugPrint(
-        const T* __restrict__ src,
+        const T* __restrict__ src, 
+        const UINT uiMaxSize,
         UINT uiXDim, UINT uiYDim)
     {
         appPushLogDate(FALSE);
+        if (uiXDim < 1)
+        {
+            uiXDim = 1;
+        }
+        if (uiXDim > uiMaxSize)
+        {
+            uiXDim = uiMaxSize;
+        }
+        if (uiYDim < 1 || uiYDim * uiXDim > uiMaxSize)
+        {
+            uiYDim = uiMaxSize / uiXDim;
+        }
         const UINT uiSize = uiXDim * uiYDim;
         T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
         appGetCuda()->CopyDH(hostBuffer, src, sizeof(T) * uiSize);

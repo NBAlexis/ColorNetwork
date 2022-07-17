@@ -1,0 +1,150 @@
+\subsection{\label{NRGandDMRG}NRG and DMRG}
+
+Here we will introduce numerical renormalization group and density matrix renormalization group using an example to solve an equation of a single particle.
+
+We will consider solving such an equation in range $x\in [-1, 1]$.
+\begin{equation}
+\begin{split}
+&\frac{\partial ^2 }{\partial x^2}f(x)=af(x),\\
+&f(-1)=f(1)=0,\\
+\end{split}
+\end{equation}
+with 
+\begin{equation}
+\begin{split}
+&\frac{\partial ^2 }{\partial x^2}f(x)\approx \frac{f(x+\Delta x)+f(x-\Delta x)-2f(x)}{\Delta  x ^2},\\
+\end{split}
+\end{equation}
+the discretized version is an eigen-problem
+\begin{equation}
+\begin{split}
+&\frac{1}{\Delta x^2}\begin{pmatrix}
+2 & -1 & 0 & 0 & \ldots & 0 & 0 \\
+-1 & 2 & -1 & 0 & \ldots & 0 & 0 \\
+0 & -1 & 2 & -1 & \ldots & 0 & 0 \\
+0 & 0 & -1 & 2 & \ldots & 0 & 0 \\
+\ldots & \ldots & \ldots & \ldots & \ldots & \ldots & \ldots \\
+0 & 0 & 0 & 0 & \ldots & 2 & -1 \\
+0 & 0 & 0 & 0 & \ldots & -1 & 2 \\
+\end{pmatrix}f=a f,\\
+\end{split}
+\end{equation}
+
+It can be written as
+\begin{equation}
+\begin{split}
+&\frac{1}{\Delta x^2}\begin{pmatrix}
+H_0 & L_0 & 0 & 0 & \ldots & 0 & 0 \\
+L_0 & H_0 & L_0 & 0 & \ldots & 0 & 0 \\
+0 & L_0 & H_0 & L_0 & \ldots & 0 & 0 \\
+0 & 0 & L_0 & H_0 & \ldots & 0 & 0 \\
+\ldots & \ldots & \ldots & \ldots & \ldots & \ldots & \ldots \\
+0 & 0 & 0 & 0 & \ldots & H_0 & L_0 \\
+0 & 0 & 0 & 0 & \ldots & L_0 & H_0 \\
+\end{pmatrix}f\approx 
+\frac{1}{\Delta x^2}\begin{pmatrix}
+H_0 & 0 & 0 & 0 & \ldots & 0 & 0 \\
+0 & H_0 & 0 & 0 & \ldots & 0 & 0 \\
+0 & 0 & H_0 & 0 & \ldots & 0 & 0 \\
+0 & 0 & 0 & H_0 & \ldots & 0 & 0 \\
+\ldots & \ldots & \ldots & \ldots & \ldots & \ldots & \ldots \\
+0 & 0 & 0 & 0 & \ldots & H_0 & 0 \\
+0 & 0 & 0 & 0 & \ldots & 0 & H_0 \\
+\end{pmatrix}
+=a f,\\
+\end{split}
+\end{equation}
+with
+\begin{equation}
+\begin{split}
+&H_0=\begin{pmatrix}
+2 & -1 & 0 & 0 \\
+-1 & 2 & -1 & 0 \\
+0 & -1 & 2 & -1 \\
+0 & 0 & -1 & 2 \\
+\end{pmatrix},\;\;L_0=\begin{pmatrix}
+0 & 0 & 0 & -1 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+\end{pmatrix}
+\end{split}
+\end{equation}    
+
+The first step is to solve eigen system of $H$, the two lowest eigen values and eigen vectors are
+\begin{equation}
+\begin{split}
+&H_0\begin{pmatrix}
+\frac{1}{5+\sqrt{5}} & -\frac{1}{5-\sqrt{5}} \\
+\frac{1}{2\sqrt{5}} & -\frac{1}{2\sqrt{5}} \\
+\frac{1}{2\sqrt{5}} & \frac{1}{2\sqrt{5}} \\
+\frac{1}{5+\sqrt{5}} & \frac{1}{5-\sqrt{5}} \\
+\end{pmatrix}=
+\left(
+\frac{3-\sqrt{5}}{2}\times\begin{array}{c}
+\frac{1}{5+\sqrt{5}}\\
+\frac{1}{2\sqrt{5}}\\
+\frac{1}{2\sqrt{5}}\\
+\frac{1}{5+\sqrt{5}}
+\end{array}
+\frac{5-\sqrt{5}}{2}\times\begin{array}{c}
+-\frac{1}{5-\sqrt{5}}\\
+-\frac{1}{2\sqrt{5}}\\
+\frac{1}{2\sqrt{5}}\\
+\frac{1}{5-\sqrt{5}}\\
+\end{array}
+\right)
+\end{split}
+\end{equation} 
+
+Then, truncate use
+\begin{equation}
+\begin{split}
+&U=\begin{pmatrix}
+\frac{1}{5+\sqrt{5}} & -\frac{1}{5-\sqrt{5}} \\
+\frac{1}{2\sqrt{5}} & -\frac{1}{2\sqrt{5}} \\
+\frac{1}{2\sqrt{5}} & \frac{1}{2\sqrt{5}} \\
+\frac{1}{5+\sqrt{5}} & \frac{1}{5-\sqrt{5}} \\
+\end{pmatrix}\\
+&H'=U^T H_0 U = \begin{pmatrix}\frac{1}{2}-\frac{1}{\sqrt{5}} & 0 \\ 0 & \frac{1}{2}\end{pmatrix},\;\;
+L'=U^T L_0 U = \begin{pmatrix}-\frac{1}{(5+\sqrt{5})^2} & -\frac{1}{20} \\ \frac{1}{20} & \frac{1}{(5-\sqrt{5})^2}\end{pmatrix}.
+\end{split}
+\end{equation}
+Now, we are dealing with a truncated problem
+\begin{equation}
+\begin{split}
+&\frac{1}{\Delta x^2}\begin{pmatrix}
+H_1 & L_1 & 0 & 0 & \ldots & 0 & 0 \\
+L_1 & H_1 & L_1 & 0 & \ldots & 0 & 0 \\
+0 & L_1 & H_1 & L_1 & \ldots & 0 & 0 \\
+0 & 0 & L_1 & H_1 & \ldots & 0 & 0 \\
+\ldots & \ldots & \ldots & \ldots & \ldots & \ldots & \ldots \\
+0 & 0 & 0 & 0 & \ldots & H_1 & L_1 \\
+0 & 0 & 0 & 0 & \ldots & L_1 & H_1 \\
+\end{pmatrix}f
+=a f,\\
+\end{split}
+\end{equation}
+with
+\begin{equation}
+\begin{split}
+&H_1=\begin{pmatrix}
+H' & L' \\
+L' & H' \\
+\end{pmatrix}=\left(
+    \begin{array}{cccc}
+     \frac{1}{2}-\frac{1}{\sqrt{5}} & 0 & -\frac{1}{\left(\sqrt{5}+5\right)^2} & \frac{1}{20} \\
+     0 & \frac{1}{2} & -\frac{1}{20} & \frac{1}{\left(5-\sqrt{5}\right)^2} \\
+     -\frac{1}{\left(\sqrt{5}+5\right)^2} & -\frac{1}{20} & \frac{1}{2}-\frac{1}{\sqrt{5}} & 0 \\
+     \frac{1}{20} & \frac{1}{\left(5-\sqrt{5}\right)^2} & 0 & \frac{1}{2} \\
+    \end{array}
+    \right),\\
+&L_1=\begin{pmatrix}
+0 & L' \\
+0 & 0 \\
+\end{pmatrix}
+\end{split}
+\end{equation}  
+
+Again, we solve $H_1f=af$, the lowest two eigenvalues are $0.067$ and $0.026$. As a compare, the lowest two eigenvalues of a $16\times 16$ original matrix are $0.135$ and $0.034$.
+

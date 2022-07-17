@@ -111,6 +111,18 @@
     <ClInclude Include="Tensor\Device\Contraction\CNDeviceTensorContractionNaive.h">
       <Filter>Tensor\Device\Contraction</Filter>
     </ClInclude>
+    <ClInclude Include="Tensor\Host\CNOneIndex.h">
+      <Filter>Tensor\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Host\CNIndex.h">
+      <Filter>Tensor\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Device\CNDeviceTensorDecompose.h">
+      <Filter>Tensor\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Tensor\Host\Decompose\CNMatrixSVD.h">
+      <Filter>Tensor\Host\Decompose</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -146,11 +158,14 @@
     <Filter Include="Tensor\Device\Contraction">
       <UniqueIdentifier>{8c675008-a43e-4297-b38a-ba8c86690be2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tensor\Device\SVD">
-      <UniqueIdentifier>{94e1ed00-fb68-4782-aef4-8ee18d7f807e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tensor\Device\Common">
       <UniqueIdentifier>{210e1e1e-9e38-42b2-9853-a4ccb03fc628}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor\Device\Decompose">
+      <UniqueIdentifier>{94e1ed00-fb68-4782-aef4-8ee18d7f807e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tensor\Host\Decompose">
+      <UniqueIdentifier>{65f34704-a999-4733-bc7c-5bdd199f1a75}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="Tensor\Host\CNHostTensor.cpp">
       <Filter>Tensor\Host</Filter>
+    </ClCompile>
+    <ClCompile Include="Tensor\Host\CNIndex.cpp">
+      <Filter>Tensor\Host</Filter>
+    </ClCompile>
+    <ClCompile Include="Tensor\Host\Decompose\CNMatrixSVD.cpp">
+      <Filter>Tensor\Host\Decompose</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

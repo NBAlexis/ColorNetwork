@@ -72,7 +72,10 @@
 #include "Tensor/Device/TensorFunctions.h"
 #include "Tensor/Device/CNDeviceTensorCommon.h"
 #include "Tensor/Device/CNDeviceTensorContraction.h"
+#include "Tensor/Device/CNDeviceTensorDecompose.h"
 #include "Tensor/Device/CNDeviceTensor.h"
+#include "Tensor/Host/CNOneIndex.h"
+#include "Tensor/Host/CNIndex.h"
 #include "Tensor/Host/CNHostTensor.h"
 
 //====================== Caclculator =======================
@@ -81,14 +84,22 @@
 #include "Tensor/Device/Common/CNDeviceTensorCommonNaive.h"
 #include "Tensor/Device/Contraction/CNDeviceTensorContractionNaive.h"
 
+//====================== Decompose =======================
+#include "Tensor/Host/Decompose/CNMatrixSVD.h"
 
 
 //#include "Tensor/CNIndex.h"
 
-
-
 #ifndef _CN_PRIVATE
 __USE_NAMESPACE
+
+inline CCString GetCNVersion()
+{
+    CCString sRet;
+    sRet.Format(_T("%d.%d"), __GVERSION, __GVERSION_S);
+    return sRet;
+}
+
 #endif
 
 #endif

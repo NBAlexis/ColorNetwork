@@ -82,8 +82,26 @@ public:
         BYTE byIndexCountLeft,
         UINT uiSumLength,
         UINT uiSumIndexStride1,
-        UINT uiSumIndexStride2) const;
+        UINT uiSumIndexStride2,
+        UBOOL bConjugate) const;
 
+    void Contraction(Tdst* pDstBuffer,
+        const Tdst* __restrict__ pSrc1Buffer,
+        const Tsrc* __restrict__ pSrc2Buffer,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT src1IndexStart,
+        UINT src2IndexStart,
+        const UINT* __restrict__ src1Stride,
+        const UINT* __restrict__ src2Stride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount,
+        BYTE byIndexCountLeft,
+        const UINT* __restrict__ sumLeftStride,
+        const UINT* __restrict__ sumRightStride,
+        const UINT* __restrict__ sumlengths,
+        BYTE bySumIndexCount,
+        UBOOL bConjugate) const;
 };
 
 class __DLL_EXPORT CNDeviceTensorContractionNaive : public TCNDeviceTensorContraction<CNDeviceTensorContractionNaive>
@@ -155,7 +173,8 @@ public:
         BYTE byIndexCountLeft,
         UINT uiSumLength,
         UINT uiSumIndexStride1,
-        UINT uiSumIndexStride2)
+        UINT uiSumIndexStride2,
+        UBOOL bConjugate)
     {
         CNDeviceTensorContractionNaiveTwoType<Tdst, Tsrc>().Contraction(
             pDstBuffer,
@@ -172,7 +191,48 @@ public:
             byIndexCountLeft,
             uiSumLength,
             uiSumIndexStride1,
-            uiSumIndexStride2
+            uiSumIndexStride2,
+            bConjugate
+        );
+    }
+
+    template<class Tdst, class Tsrc>
+    void Contraction(Tdst* pDstBuffer,
+        const Tdst* __restrict__ pSrc1Buffer,
+        const Tsrc* __restrict__ pSrc2Buffer,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT src1IndexStart,
+        UINT src2IndexStart,
+        const UINT* __restrict__ src1Stride,
+        const UINT* __restrict__ src2Stride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount,
+        BYTE byIndexCountLeft,
+        const UINT* __restrict__ sumLeftStride,
+        const UINT* __restrict__ sumRightStride,
+        const UINT* __restrict__ sumlengths,
+        BYTE bySumIndexCount,
+        UBOOL bConjugate)
+    {
+        CNDeviceTensorContractionNaiveTwoType<Tdst, Tsrc>().Contraction(
+            pDstBuffer,
+            pSrc1Buffer,
+            pSrc2Buffer,
+            dstIndexStart,
+            dstStride,
+            src1IndexStart,
+            src2IndexStart,
+            src1Stride,
+            src2Stride,
+            lengths,
+            byIndexCount,
+            byIndexCountLeft,
+            sumLeftStride,
+            sumRightStride,
+            sumlengths,
+            bySumIndexCount,
+            bConjugate
         );
     }
 

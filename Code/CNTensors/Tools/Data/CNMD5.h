@@ -91,6 +91,7 @@ static UINT* FoldDataMD5(UINT& iBlockCount, const BYTE* pInData, UINT iDataCount
         return NULL;
     }
     memset(pNewsValue, 0, sizeof(UINT) * iNewLength);
+    assert(iLength <= iNewLength);
     memcpy(pNewsValue, retVal, sizeof(UINT) * iLength);
     pNewsValue[iDataCount >> 2] |= 128 << (8 * (iDataCount & 0x00000003)); //Add length of string to end of array
     pNewsValue[(((iDataCount + 8) >> 6) << 4) + 14] = iDataCount * 8; //Add length of string to end of array why?

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CNTest.cpp" />
+    <ClCompile Include="Src\TestOneTwoElementOps.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CNTest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="YAMLs">
+      <UniqueIdentifier>{323b993f-042c-4a4c-9c7e-de6a0f1ed552}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src">
+      <UniqueIdentifier>{25a7adae-36dd-4a89-8e06-7855f48b85a3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Bin\YAMLs\TensorBasicOps.yaml">
+      <Filter>YAMLs</Filter>
+    </None>
+  </ItemGroup>
+</Project>

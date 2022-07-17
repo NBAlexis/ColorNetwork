@@ -4,8 +4,8 @@
 // DESCRIPTION:
 // This is the class read YAML paramters
 //
-// REVISION:
-//  [01/06/2020 nbale]
+// REVISION[d-m-y]:
+//  [13/05/2022 nbale]
 //=============================================================================
 
 #ifndef _YAMLPARSER_H_
@@ -18,7 +18,7 @@
     { \
         return FALSE; \
     } \
-    value = appStrTo##typen(v.c_str()); \
+    value = appStrTo##typen(v); \
     return TRUE; \
 }
 
@@ -33,28 +33,49 @@
     } \
     for (INT i = 0; i < vs.Num(); ++i) \
     { \
-        value.AddItem(appStrTo##typen(vs[i].c_str())); \
+        value.AddItem(appStrTo##typen(vs[i])); \
     } \
     return TRUE; \
 }
 
 
+#define __CheckTag(tagname,...) iTag = 0; if (params.FetchValueINT(tagname, iTag) && (0 != iTag)) {__VA_ARGS__;}
+
+#define __FetchIntWithDefaultSub(paramname, tagname, defaultv) if (!paramname.FetchValueINT(tagname, iVaules)) { iVaules = defaultv; }
+
+#define __FetchIntWithDefault(tagname, defaultv) __FetchIntWithDefaultSub(params, tagname, defaultv)
+
+#define __FetchStringWithDefaultSub(paramname, tagname, defaultv) if (!paramname.FetchStringValue(tagname, sValues)) { sValues = defaultv; }
+
+#define __FetchStringWithDefault(tagname, defaultv) __FetchStringWithDefaultSub(params, tagname, defaultv)
+
 
 __BEGIN_NAMESPACE
+
+//! Parameter manager with YAML parser.
+
+/*!
+This is a simple parser to read parameters from a file
+prepared with YAML format.
+Only simple cases were checked.
+[17 Jul 2012 H.Matsufuru]
+*/
+
+//TODO(YAML only support strings now...)
 
 class CNAPI CParameters
 {
 public:
 
-    CParameters() {}
-    CParameters(const CParameters& other) 
-    { 
+    CParameters() { ; }
+    CParameters(const CParameters& other)
+    {
         m_pStrings = other.m_pStrings;
         m_pStringVector = other.m_pStringVector;
         m_pParameters = other.m_pParameters;
     }
 
-    ~CParameters() {}
+    ~CParameters() { ; }
 
     void SetStringVaule(const CCString& key, const CCString& value)
     {
@@ -84,6 +105,10 @@ public:
 
     _FetchFunction(INT)
 
+    _FetchFunction(UINT)
+
+    _FetchFunction(FLOAT)
+
     _FetchFunction(DOUBLE)
 
     UBOOL FetchStringValue(const CCString& key, CCString& value) const
@@ -99,6 +124,8 @@ public:
     _FetchFunctionArray(INT)
 
     _FetchFunctionArray(UINT)
+
+    _FetchFunctionArray(FLOAT)
 
     _FetchFunctionArray(DOUBLE)
 
@@ -138,7 +165,7 @@ public:
         return FALSE;
     }
 
-    void Print(const CCString& indent = "") const;
+    void Dump(const CCString& indent = "") const;
 
     inline void Copy(const CParameters& other)
     {
@@ -176,16 +203,16 @@ public:
     {
         const INT result = ParseStream(iss, params);
 
-        if (result != EXIT_SUCCESS) 
+        if (result != EXIT_SUCCESS)
         {
             appCrucial(_T("YAML: parse failed.\n"));
-            _FAIL_EXIT;
+            exit(EXIT_FAILURE);
         }
     }
 
     static INT ParseStream(ISTREAM& iss, CParameters& params);
-    static INT ParseLine(TCHAR *buf, CCString& key, CCString& value);
-    static INT ParseVector(TCHAR *buf, TArray<CCString>& vec);
+    static INT ParseLine(TCHAR* buf, CCString& key, CCString& value);
+    static INT ParseVector(TCHAR* buf, TArray<CCString>& vec);
 };
 
 __END_NAMESPACE

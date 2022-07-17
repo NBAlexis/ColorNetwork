@@ -1,16 +1,15 @@
 //=============================================================================
-// FILENAME : CLGTest.cpp
+// FILENAME : CNTest.cpp
 // 
 // DESCRIPTION:
 //
-// REVISION:
-//  [12/2/2018 nbale]
+// REVISION[d-m-y]:
+//  [13/05/2022 nbale]
 //=============================================================================
 
 #include "CNTest.h"
 
 TestList* _testSuits;
-#if Notyet
 
 UINT RunTest(CParameters&params, TestList* pTest)
 {
@@ -19,7 +18,7 @@ UINT RunTest(CParameters&params, TestList* pTest)
     appGeneral(_T("============= Parameters =============\n"));
     paramForTheTest.Dump(_T(""));
     //Initial
-    if (!appInitialCLG(paramForTheTest))
+    if (!appInitialCNLib(paramForTheTest))
     {
         return 1;
     }
@@ -32,7 +31,7 @@ UINT RunTest(CParameters&params, TestList* pTest)
     appGeneral(_T("=========== Finished, errors: %d, cost: %f(ms)\n ------------- End --------------\n\n"), uiErrors, timer.Elapsed());
 
     //Final
-    appQuitCLG();
+    appExitCNLib();
 
     return uiErrors;
 }
@@ -70,78 +69,157 @@ void DeleteAllLists(THashMap<CCString, TArray<TestList*>*>& category)
         appSafeDelete(category[sKeys[i]]);
     }
 }
-#endif
 
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
-    appInitialTracer(PARANOIAC);
+    //Load settings
+    CParameters params;
+    CYAMLParser::ParseFile(_T("../YAMLs/TensorBasicOps.yaml"), params);
+    CNSetupLog(params);
 
-    appInitialCNLib(_T(""));
-    CNHostTensor<_SComplex> tensor1;
-    CNHostTensor<FLOAT> tensor2;
-    UINT lengths[] = { 4, 4, 4, 4 };
-    tensor1.CreateEmpty(lengths, 4);
-    tensor2.CreateEmpty(lengths, 4);
+    TArray<TestList*> allTests;
+    THashMap<CCString, TArray<TestList*>*> category;
+    UINT uiIndex = 0;
+    for (TestList* pTest = _testSuits; NULL != pTest; pTest = pTest->m_pNext)
+    {
+        if (params.Exist(pTest->m_sParamName))
+        {
+            pTest->m_uiIndex = uiIndex;
+            ++uiIndex;
+            allTests.AddItem(pTest);
+            CCString sCategory = pTest->m_sCatogary;
+            if (category.Exist(sCategory))
+            {
+                category[sCategory]->AddItem(pTest);
+            }
+            else
+            {
+                TArray<TestList*>* newList = new TArray<TestList*>();
+                newList->AddItem(pTest);
+                category.SetAt(sCategory, newList);
+            }
+        }
+    }
 
-    //tensor1.DebugPrint(16, 16);
+    //INT inputNumber = -1;
+    ListAllTests(category);
+    while (TRUE)
+    {
+        COUT << _T("============== CLG v") << GetCNVersion().c_str() << _T("==============\nq - Quit,  l - List all,  r - Run all,  p - Print Device info\n");
+        //ListAllTests(category);
+        //inputNumber = -1;
+        std::string name;
+        std::getline(std::cin, name);
+        CCString sRes(name.c_str());
+        INT number = appStrToINT(sRes);
+        UBOOL bExcuted = FALSE;
+        sRes.MakeLower();
+        if (sRes == _T("q"))
+        {
+            break;
+        }
 
-    UINT strides[] = { 64, 16, 4, 1 };
-    CNDeviceTensorCommonNaive calc;
-    tensor1.Zero(calc, 0, strides, lengths, 4);
+        if (sRes == _T("l"))
+        {
+            ListAllTests(category);
+            bExcuted = TRUE;
+        }
+        else if (sRes == _T("p"))
+        {
+            CCudaHelper::DeviceQuery();
+            bExcuted = TRUE;
+        }
+        else if (appIntToString(number) == sRes)
+        {
+            if (number >= 0 && number < allTests.Num())
+            {
+                RunTest(params, allTests[number]);
+                bExcuted = TRUE;
+            }
+        }
+        else if (sRes == _T("r"))
+        {
+            CTimer timer;
+            timer.Start();
+            UINT uiError = 0;
+            UINT uiPassed = 0;
+            TArray<CCString> problemTest;
+            for (INT i = 0; i < allTests.Num(); ++i)
+            {
+                UINT uiThisError = RunTest(params, allTests[i]);
+                if (0 == uiThisError)
+                {
+                    ++uiPassed;
+                }
+                else
+                {
+                    uiError += uiThisError;
+                    problemTest.AddItem(allTests[i]->m_sParamName);
+                }
+            }
+            timer.Stop();
+            appGeneral(_T("\nRun all test with %d(success) / %d(total) (with %d errors) and %f secs\n\n\n================\n"), uiPassed, allTests.Num(), uiError, timer.Elapsed() * 0.001f);
+            for (INT i = 0; i < problemTest.Num(); ++i)
+            {
+                appGeneral(_T("problem test suits: %s\n"), problemTest[i].c_str());
+            }
+            bExcuted = TRUE;
+        }
+        else if (sRes == _T("class"))
+        {
+            //not yet nessesary
+            //GClassGather.TraceAllClass();
+            appGeneral(_T("\n================================\n"));
+        }
+        else
+        {
+            TArray<CCString> keys = category.GetAllKeys();
+            for (INT i = 0; i < keys.Num(); ++i)
+            {
+                CCString sInput = sRes;
+                CCString sKey = keys[i];
+                sKey.MakeLower();
+                if (sInput == sKey)
+                {
+                    CTimer timer;
+                    timer.Start();
+                    UINT uiError = 0;
+                    UINT uiPassed = 0;
+                    TArray<CCString> unpassed;
+                    for (INT j = 0; j < category[keys[i]]->Num(); ++j)
+                    {
+                        UINT uiThisError = RunTest(params, category[keys[i]]->GetAt(j));
+                        if (0 == uiThisError)
+                        {
+                            ++uiPassed;
+                        }
+                        else
+                        {
+                            uiError += uiThisError;
+                            unpassed.AddItem(category[keys[i]]->GetAt(j)->m_sParamName);
+                        }
+                    }
+                    timer.Stop();
+                    appGeneral(_T("Run all %s test with %d(success) / %d(total) (with %d errors) and %f secs\n\n\n================\n"),
+                        keys[i].c_str(), uiPassed, category[keys[i]]->Num(),
+                        uiError, timer.Elapsed() * 0.001f);
+                    for (INT unpassidx = 0; unpassidx < unpassed.Num(); ++unpassidx)
+                    {
+                        appGeneral(_T("Faield:%s\n"), unpassed[unpassidx].c_str());
+                    }
+                    break;
+                    //bExcuted = TRUE;
+                }
+            }
+        }
 
-    tensor1.DebugPrint(16, 16);
-
-    tensor1.One(calc, 0, strides, lengths, 4);
-
-    tensor1.DebugPrint(16, 16);
-
-    tensor1.Set(calc, 0.1f, 0, strides, lengths, 4);
-
-    tensor1.DebugPrint(16, 16);
-
-    tensor1.Sin(calc, 0, strides, lengths, 4);
-
-    tensor1.DebugPrint(16, 16);
-
-    tensor1.Add(calc, 1.0f, 0, strides, lengths, 4);
-
-    tensor1.DebugPrint(16, 16);
-
-    tensor2.Set(calc, tensor1, 0, strides, 0, strides, lengths, 4);
-
-    tensor2.DebugPrint(16, 16);
-
-    tensor2.Add(calc, tensor1, 0, strides, 0, strides, lengths, 4);
-
-    tensor2.DebugPrint(16, 16);
-
-    CNHostTensor<_DComplex> tensor3;
-    UINT lengths2[] = { 256, 256, 256 };
-    tensor3.CreateEmpty(lengths2, 3);
-    tensor3.Random(calc, 1);
-
-    //tensor3.DebugPrint(16, 1048576);
-    CNDeviceTensorContractionNaive calc2;
-    CNHostTensor<_DComplex>* tensor4 = tensor3.Sum(calc2, 1);
-    CNHostTensor<_DComplex>* tensor5 = tensor4->Sum(calc2, 1);
-    tensor5->DebugPrint(16, 16);
-
-    _DComplex sum = tensor5->ReduceSum(calc2);
-    LogValue(sum);
-
-    _DComplex sum2 = tensor3.ReduceSum(calc2);
-    LogValue(sum2);
-
-    delete tensor5;
-    delete tensor4;
-
-    CCudaHelper::DebugFunction();
-    CCudaHelper::DebugFunction();
-    CCudaHelper::DebugFunction();
-
-    appExitCNLib();
-
+        if (!bExcuted)
+        {
+            COUT << _T("Input commond:") << name << _T(" not kown") << std::endl;
+        }
+    }
+    DeleteAllLists(category);
     return 0;
 }
 

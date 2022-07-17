@@ -27,17 +27,29 @@ CNTensorLib::~CNTensorLib()
     
 }
 
-void CNTensorLib::Initial(const TCHAR* sConfigFile)
+UBOOL CNTensorLib::Initial(const TCHAR* sConfigFile)
+{
+    CParameters params;
+    CYAMLParser::ParseFile(sConfigFile, params);
+    return Initial(params);
+}
+
+UBOOL CNTensorLib::Initial(CParameters& sConfig)
 {
     m_pCuda = new CCudaHelper();
     m_pOpWorkingSpace = new CTensorOpWorkingSpace();
-
-    InitialRandom();
+    CParameters paramRandom;
+    if (sConfig.FetchParameterValue(_T("Random"), paramRandom))
+    {
+        InitialRandom(paramRandom);
+    }
+    
+    return TRUE;
 }
 
 #pragma region Initial
 
-void CNTensorLib::InitialRandom()
+void CNTensorLib::InitialRandom(CParameters& sConfig)
 {
     m_pRandom = new CRandom(0, MAX_THREAD, ER_Schrage);
     appCudaMalloc((void**)&m_pDeviceRandom, sizeof(CRandom));

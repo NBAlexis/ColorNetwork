@@ -260,6 +260,8 @@ extern CNAPI void appParanoiac(const TCHAR *format, ...);
 
 extern CNAPI CTracer GTracer;
 
+extern CNAPI void CNSetupLog(class CParameters& param);
+
 inline void appSetTracer(EVerboseLevel eLevel, const CCString& filename)
 {
     GTracer.SetVerboseLevel(eLevel);

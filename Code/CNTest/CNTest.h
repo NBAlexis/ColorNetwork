@@ -3,7 +3,7 @@
 // 
 // DESCRIPTION:
 //
-// REVISION:
+// REVISION[d-m-y]:
 //  [12/2/2018 nbale]
 //=============================================================================
 
@@ -24,12 +24,12 @@ struct STestSuits##paramName : public TestList \
 static STestSuits##paramName registTest##paramName(functionname); 
 
 
-//typedef UINT (*testfunction)(CParameters& sParamName);
+typedef UINT (*testfunction)(CParameters& sParamName);
 
 struct STestSuits
 {
     UINT m_uiIndex;
-    //testfunction m_pfTest;
+    testfunction m_pfTest;
     const TCHAR* m_sCatogary;
     const TCHAR* m_sParamName;
 };

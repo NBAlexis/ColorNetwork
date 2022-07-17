@@ -4,7 +4,7 @@
 // DESCRIPTION:
 // 
 //
-// REVISION:
+// REVISION[d-m-y]:
 //  [18/06/2021 nbalexis]
 //=============================================================================
 #ifndef _CNDEVICETENSOR_H_
@@ -29,8 +29,8 @@ void name( \
 
 
 #define __DeviceTensorOneElementFuncTotal(name) \
-template <class Calc, class Tsrc> \
-void name(TCNDeviceTensorCommon<Calc>* pCalc, const Tsrc& v) \
+template <class Calc> \
+void name(TCNDeviceTensorCommon<Calc>* pCalc) \
 { \
     pCalc->name(m_pDeviceDataBuffer, m_uiTotalSize); \
 }
@@ -116,15 +116,12 @@ public:
 *
 */
 template<class T>
-class __DLL_EXPORT CNDeviceTensor //: public CNDeviceTensorPlaceHolder
+class __DLL_EXPORT CNDeviceTensor
 {
 public:
 
     CNDeviceTensor()
         : m_pDeviceDataBuffer(NULL)
-        , m_pDeviceStrides(NULL)
-        , m_pDeviceLength(NULL)
-        , m_iDim(0)
         , m_uiTotalSize(0)
     {
         
@@ -137,37 +134,25 @@ public:
 
     void Release()
     {
+        m_uiTotalSize = 0;
         appCudaFree(m_pDeviceDataBuffer);
-        appCudaFree(m_pDeviceStrides);
-        appCudaFree(m_pDeviceLength);
     }
 
-    void CreateEmpty(const UINT* lengths, UINT dim)
+    UBOOL CreateEmpty(UINT uiVolumn)
     {
-        Release();
-        m_iDim = dim;
-        UINT* strides = (UINT*)appAlloca(sizeof(UINT) * dim);
-        strides[dim - 1] = 1;
-        UINT v = 1;
-        for (UINT i = 1; i < dim; ++i)
+        if (uiVolumn != m_uiTotalSize)
         {
-            v = v * lengths[dim - i];
-            strides[dim - i - 1] = v;
+            Release();
+            m_uiTotalSize = uiVolumn;
+            appCudaMalloc((void**)&m_pDeviceDataBuffer, sizeof(T) * uiVolumn);
+            return TRUE;
         }
-        v = v * lengths[0];
-        m_uiTotalSize = v;
-
-        appCudaMalloc((void**)&m_pDeviceDataBuffer, sizeof(T) * v);
-        appCudaMalloc((void**)&m_pDeviceStrides, sizeof(UINT) * dim);
-        appCudaMalloc((void**)&m_pDeviceLength, sizeof(UINT) * dim);
-
-        _memcpy_hd(m_pDeviceStrides, strides, sizeof(UINT) * dim);
-        _memcpy_hd(m_pDeviceLength, lengths, sizeof(UINT) * dim);
+        return FALSE;
     }
 
     void DebugPrint(UINT uiXDim, UINT uiYDim) const
     {
-        CNDeviceTensorCommonEmpty::DebugPrint(m_pDeviceDataBuffer, uiXDim, uiYDim);
+        CNDeviceTensorCommonEmpty::DebugPrint(m_pDeviceDataBuffer, m_uiTotalSize, uiXDim, uiYDim);
     }
 
     template <class Calc, class Tsrc>
@@ -230,7 +215,7 @@ public:
         const UINT* __restrict__ lengths,
         BYTE byIndexCount)
     {
-        pCalc->Random(m_pDeviceDataBuffer, uiRandomType, dstIndexStart, dstStride, byIndexCount);
+        pCalc->Random(m_pDeviceDataBuffer, uiRandomType, dstIndexStart, dstStride, lengths, byIndexCount);
     }
 
     __OVER_ALL_ONE_OP(__DeviceTensorOneElementFunc)
@@ -289,10 +274,30 @@ public:
         return pCalc->ReduceProd(m_pDeviceDataBuffer, m_uiTotalSize);
     }
 
+    template <class Calc, class srcT>
+    void Contraction(TCNDeviceTensorContraction<Calc>* pCalc, const T* src1, const srcT* src2,
+        UINT uiDstIndexStart, UINT* dstStrides, UINT uiSrc1IndexStart, UINT uiSrc2IndexStart, UINT* src1Strides, UINT* src2Strides,
+        UINT* lengths, BYTE byIdxCount, BYTE byLeftIdxCount,
+        UINT uiSumLength, UINT uiSumStrideLeft, UINT uiSumStrideRight)
+    {
+        pCalc->Contraction(m_pDeviceDataBuffer, src1, src2, uiDstIndexStart, dstStrides,
+            uiSrc1IndexStart, uiSrc2IndexStart, src1Strides, src2Strides, 
+            lengths, byIdxCount, byLeftIdxCount, uiSumLength, uiSumStrideLeft, uiSumStrideRight);
+    }
+
+    template <class Calc, class srcT>
+    void Contraction(TCNDeviceTensorContraction<Calc>* pCalc, const T* src1, const srcT* src2,
+        UINT uiDstIndexStart, UINT* dstStrides, UINT uiSrc1IndexStart, UINT uiSrc2IndexStart, UINT* src1Strides, UINT* src2Strides,
+        UINT* lengths, BYTE byIdxCount, BYTE byLeftIdxCount,
+        UINT* uiSumStrideLeft, UINT* uiSumStrideRight, UINT* uiSumLength, BYTE bySumIndexCount)
+    {
+        pCalc->Contraction(m_pDeviceDataBuffer, src1, src2, uiDstIndexStart, dstStrides,
+            uiSrc1IndexStart, uiSrc2IndexStart, src1Strides, src2Strides,
+            lengths, byIdxCount, byLeftIdxCount, 
+            uiSumStrideLeft, uiSumStrideRight, uiSumLength, bySumIndexCount);
+    }
+
     T* m_pDeviceDataBuffer;
-    UINT* m_pDeviceStrides;
-    UINT* m_pDeviceLength;
-    UINT m_iDim;
     UINT m_uiTotalSize;
 
 };
