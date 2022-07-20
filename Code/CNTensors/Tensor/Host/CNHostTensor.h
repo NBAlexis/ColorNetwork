@@ -13,45 +13,15 @@
 #define __IMPLEMENT_HOST_TENSOR(type) \
 template class CNHostTensor<type>;
 
-#define __TEST_HOST_DEVECE_ONE_ELEMENT_INTERFACE(name) \
-template<class Calc> \
-void name(TCNDeviceTensorCommon<Calc>& calc, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount) \
-{ \
-    m_cDeviceTensor.name(&calc, uiIndexStart, strides, lengths, uiIndexCount); \
-}
-
-#define __TEST_HOST_DEVECE_TWO_ELEMENT_INTERFACE_VALUE(name) \
-template<class Calc, class Tsrc> \
-void name(TCNDeviceTensorCommon<Calc>& calc, const Tsrc& v, UINT uiIndexStart, const UINT* strides, const UINT* lengths, BYTE uiIndexCount) \
-{ \
-    m_cDeviceTensor.name(&calc, v, uiIndexStart, strides, lengths, uiIndexCount); \
-}
-
-#define __TEST_HOST_DEVECE_TWO_ELEMENT_INTERFACE_TENSOR(name) \
-template<class Calc, class Tsrc> \
-void name(TCNDeviceTensorCommon<Calc>& calc, const CNHostTensor<Tsrc>& v, \
-    UINT uiIndexStart, \
-    const UINT* strides, \
-    UINT uiSrcIndexStart, \
-    const UINT* srcStrides, \
-    const UINT* lengths, \
-    BYTE uiIndexCount) \
-{ \
-    m_cDeviceTensor.name(&calc, v.m_cDeviceTensor.m_pDeviceDataBuffer, \
-        uiIndexStart, strides, \
-        uiSrcIndexStart, srcStrides, \
-        lengths, uiIndexCount); \
-}
-
-
 #define __HOST_ONE_ELEMENT_INTERFACE_BLOCK(name) \
 template<class Calc> \
 UBOOL name(TCNDeviceTensorCommon<Calc>& calc, const CNIndexBlock& block) \
 { \
+    UINT volume = 1; \
     UINT indexStart = 0; \
     TArray<UINT> strides; \
     TArray<UINT> lengths; \
-    if (!m_Idx.GetBlock(block, strides, lengths, indexStart)) \
+    if (!m_Idx.GetBlock(block, strides, lengths, indexStart, volume)) \
     { \
         return FALSE; \
     } \
@@ -69,9 +39,10 @@ template<class Calc, class Tsrc> \
 UBOOL name(TCNDeviceTensorCommon<Calc>& calc, const CNIndexBlock& block, const Tsrc& v) \
 { \
     UINT indexStart = 0; \
+    UINT volume = 1; \
     TArray<UINT> strides; \
     TArray<UINT> lengths; \
-    if (!m_Idx.GetBlock(block, strides, lengths, indexStart)) \
+    if (!m_Idx.GetBlock(block, strides, lengths, indexStart, volume)) \
     { \
         return FALSE; \
     } \
@@ -223,13 +194,41 @@ public:
     UBOOL Set(TCNDeviceTensorCommon<Calc>& calc, const CNIndexBlock& block, const Tsrc& v)
     {
         UINT indexStart = 0;
+        UINT volume = 1;
         TArray<UINT> strides;
         TArray<UINT> lengths;
-        if (!m_Idx.GetBlock(block, strides, lengths, indexStart))
+        if (!m_Idx.GetBlock(block, strides, lengths, indexStart, volume))
         {
             return FALSE;
         }
         m_cDeviceTensor.Set(&calc, v, indexStart, strides.GetData(), lengths.GetData(), static_cast<BYTE>(lengths.Num()));
+        return TRUE;
+    }
+
+    template<class Calc, class Tsrc>
+    UBOOL SetColumn(TCNDeviceTensorCommon<Calc>& calc, BYTE indexCount, UINT uiIndexStart, const UINT* strides, const UINT* lengths, const Tsrc& v)
+    {
+        m_cDeviceTensor.Set(&calc, v, uiIndexStart, strides, lengths, indexCount);
+        return TRUE;
+    }
+
+    template<class Calc, class Tsrc>
+    UBOOL SetColumn(TCNDeviceTensorCommon<Calc>& calc, 
+        BYTE indexCount, 
+        UINT uiIndexStart1, 
+        const UINT* strides1, 
+        UINT uiIndexStart2,
+        const UINT* strides2,
+        const UINT* lengths,
+        const UINT hostBufferVolume,
+        const Tsrc* hostBuffer)
+    {
+        Tsrc* devicceBuffer = (Tsrc*)appGetSmallDeviceBuffer(hostBufferVolume * sizeof(Tsrc));
+        _memcpy_hd(devicceBuffer, hostBuffer, hostBufferVolume * sizeof(Tsrc));
+        m_cDeviceTensor.Set(&calc, devicceBuffer,
+            uiIndexStart1, strides1,
+            uiIndexStart2, strides2,
+            lengths, indexCount);
         return TRUE;
     }
 
@@ -240,16 +239,17 @@ public:
     }
 
     template<class Calc>
-    UBOOL Random(TCNDeviceTensorCommon<Calc>& calc, const CNIndexBlock& block)
+    UBOOL Random(TCNDeviceTensorCommon<Calc>& calc, UINT uiRandomType, const CNIndexBlock& block)
     {
         UINT indexStart = 0;
+        UINT volume = 1;
         TArray<UINT> strides;
         TArray<UINT> lengths;
-        if (!m_Idx.GetBlock(block, strides, lengths, indexStart))
+        if (!m_Idx.GetBlock(block, strides, lengths, indexStart, volume))
         {
             return FALSE;
         }
-        m_cDeviceTensor.Random(&calc, indexStart, strides.GetData(), lengths.GetData(), static_cast<BYTE>(lengths.Num()));
+        m_cDeviceTensor.Random(&calc, uiRandomType, indexStart, strides.GetData(), lengths.GetData(), static_cast<BYTE>(lengths.Num()));
         return TRUE;
     }
 
@@ -276,11 +276,12 @@ protected:
         const CNIndexBlock& block, const CNIndex& idx, UINT& idxstart1, TArray<UINT>& stride1, TArray<UINT>& length1,
         const CNIndexBlock& srcblock, const CNIndex& srcidx, UINT& idxstart2, TArray<UINT>& stride2, TArray<UINT>& length2)
     {
-        if (!idx.GetBlock(block, stride1, length1, idxstart1))
+        UINT volume = 1;
+        if (!idx.GetBlock(block, stride1, length1, idxstart1, volume))
         {
             return FALSE;
         }
-        if (!srcidx.GetBlock(srcblock, stride2, length2, idxstart2))
+        if (!srcidx.GetBlock(srcblock, stride2, length2, idxstart2, volume))
         {
             return FALSE;
         }
@@ -326,6 +327,32 @@ public:
             indexStart1, strides1.GetData(),
             indexStart2, strides2.GetData(),
             lengths1.GetData(), static_cast<BYTE>(lengths1.Num()));
+    }
+
+    template <class Calc, class Tsrc>
+    UBOOL Axpy(
+        TCNDeviceTensorCommon<Calc>& calc,
+        const CNIndexBlock& block,
+        const T& v,
+        const CNHostTensor<Tsrc>& src,
+        const CNIndexBlock& srcblock)
+    {
+
+        UINT indexStart1 = 0;
+        TArray<UINT> strides1;
+        TArray<UINT> lengths1;
+        UINT indexStart2 = 0;
+        TArray<UINT> strides2;
+        TArray<UINT> lengths2;
+        if (!FixTwoTensorOperators(block, m_Idx, indexStart1, strides1, lengths1, srcblock, src.m_Idx, indexStart2, strides2, lengths2))
+        {
+            return FALSE;
+        }
+        m_cDeviceTensor.Axpy(&calc, v, src.m_cDeviceTensor.m_pDeviceDataBuffer,
+            indexStart1, strides1.GetData(),
+            indexStart2, strides2.GetData(),
+            lengths1.GetData(), static_cast<BYTE>(lengths1.Num()));
+        return TRUE;
     }
 
     __OVER_ALL_TWO_OP(__HOST_TWO_ELEMENT_INTERFACE_TENSOR_BLOCK)
@@ -440,19 +467,21 @@ public:
     UBOOL Contraction(TCNDeviceTensorContraction<Calc>& calc,
         const CNHostTensor<T>& left, const CNHostTensor<T>& right, const CNIndexBlock& block,
         const CNIndexBlock& lblock, const CNIndexBlock& rblock, 
-        const CNOneIndexRange& lcontractblock, const CNOneIndexRange& rcontractblock)
+        const CNOneIndexRange& lcontractblock, const CNOneIndexRange& rcontractblock,
+        UBOOL bConjugate)
     {
+        UINT volume = 1;
         UINT indexStart1 = 0;
         TArray<UINT> strides1;
         TArray<UINT> lengths1;
         UINT indexStart2 = 0;
         TArray<UINT> strides2;
         TArray<UINT> lengths2;
-        if (!left.m_Idx.GetBlock(lblock, indexStart1, strides1, lengths1))
+        if (!left.m_Idx.GetBlock(lblock, strides1, lengths1, indexStart1, volume))
         {
             return FALSE;
         }
-        if (!right.m_Idx.GetBlock(rblock indexStart2, strides2, lengths2))
+        if (!right.m_Idx.GetBlock(rblock, strides2, lengths2, indexStart2, volume))
         {
             return FALSE;
         }
@@ -472,7 +501,7 @@ public:
         UINT indexStartme = 0;
         TArray<UINT> stridesme;
         TArray<UINT> lengthsme;
-        if (!m_Idx.GetBlock(block, stridesme, lengthsme, indexStartme))
+        if (!m_Idx.GetBlock(block, stridesme, lengthsme, indexStartme, volume))
         {
             return FALSE;
         }
@@ -512,7 +541,8 @@ public:
             strides1.GetData(), strides2.GetData(), lengthsme.GetData(),
             static_cast<BYTE>(lengthsme.Num()), 
             static_cast<BYTE>(lengthsme.Num() - lengths1.Num()),
-            sumlength1, sumstride1, sumstride2);
+            sumlength1, sumstride1, sumstride2,
+            bConjugate);
 
         return TRUE;
     }
@@ -526,8 +556,10 @@ public:
     UBOOL Contraction(TCNDeviceTensorContraction<Calc>& calc,
         const CNHostTensor<T>& left, const CNHostTensor<T>& right, const CNIndexBlock& block,
         const CNIndexBlock& lblock, const CNIndexBlock& rblock,
-        const CNIndexBlock& lcontractblock, const CNIndexBlock& rcontractblock)
+        const CNIndexBlock& lcontractblock, const CNIndexBlock& rcontractblock,
+        UBOOL bConjugate)
     {
+        UINT volume = 1;
         UINT indexStart1 = 0;
         UINT indexStart2 = 0;
         UINT sumIndexStart1 = 0;
@@ -541,11 +573,11 @@ public:
         TArray<UINT> sumlengths1;
         TArray<UINT> sumlengths2;
 
-        if (!left.m_Idx.GetBlock(lblock, indexStart1, strides1, lengths1))
+        if (!left.m_Idx.GetBlock(lblock, strides1, lengths1, indexStart1, volume))
         {
             return FALSE;
         }
-        if (!right.m_Idx.GetBlock(rblock indexStart2, strides2, lengths2))
+        if (!right.m_Idx.GetBlock(rblock, strides2, lengths2, indexStart2, volume))
         {
             return FALSE;
         }
@@ -557,13 +589,18 @@ public:
             return FALSE;
         }
 
-        indexStart1 += sumstrideleft;
-        indexStart2 += sumstrideright;
+        if (sumlengths1.Num() > _CN_CONTRACTION_INDEX_COUNT_ONE_TIME)
+        {
+            return FALSE;
+        }
+
+        indexStart1 += sumIndexStart1;
+        indexStart2 += sumIndexStart2;
 
         UINT indexStartme = 0;
         TArray<UINT> stridesme;
         TArray<UINT> lengthsme;
-        if (!m_Idx.GetBlock(block, stridesme, lengthsme, indexStartme))
+        if (!m_Idx.GetBlock(block, stridesme, lengthsme, indexStartme, volume))
         {
             return FALSE;
         }
@@ -601,7 +638,8 @@ public:
             static_cast<BYTE>(lengthsme.Num()),
             static_cast<BYTE>(lengthsme.Num() - lengths1.Num()),
             sumstrideleft.GetData(), sumstrideright.GetData(), sumlengths1.GetData(),
-            static_cast<BYTE>(sumlengths1.Num()));
+            static_cast<BYTE>(sumlengths1.Num()),
+            bConjugate);
 
         return TRUE;
     }

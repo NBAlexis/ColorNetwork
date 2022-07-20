@@ -44,6 +44,7 @@ mac(Inv)
 #define __OVER_ALL_TWO_OP(mac) \
 mac(Add) \
 mac(Mul) \
+mac(ConjMul) \
 mac(Sub) \
 mac(Div) \
 mac(Pow) \
@@ -80,6 +81,7 @@ mac(Inv, a)
 #define __OVER_ALL_TWO_OPA(mac, a) \
 mac(Add, a) \
 mac(Mul, a) \
+mac(ConjMul, a) \
 mac(Sub, a) \
 mac(Div, a) \
 mac(Pow, a) \
@@ -116,6 +118,7 @@ mac(Inv, a, b)
 #define __OVER_ALL_TWO_OPAB(mac, a, b) \
 mac(Add, a, b) \
 mac(Mul, a, b) \
+mac(ConjMul, a, b) \
 mac(Sub, a, b) \
 mac(Div, a, b) \
 mac(Pow, a, b) \
@@ -152,6 +155,7 @@ mac(Inv, a, b, c)
 #define __OVER_ALL_TWO_OPABC(mac, a, b, c) \
 mac(Add, a, b, c) \
 mac(Mul, a, b, c) \
+mac(ConjMul, a, b, c) \
 mac(Sub, a, b, c) \
 mac(Div, a, b, c) \
 mac(Pow, a, b, c) \
@@ -591,6 +595,46 @@ _DComplex _Mul(const _DComplex& a, const _SComplex& b)
     return make_cuDoubleComplex(
         a.x * static_cast<DOUBLE>(b.x) - a.y * static_cast<DOUBLE>(b.y),
         a.x * static_cast<DOUBLE>(b.y) + a.y * static_cast<DOUBLE>(b.x)
+    );
+}
+
+//========== ConjMul =============
+template<class T1, class T2> __inline__ __host__ __device__
+T1 _ConjMul(const T1& a, const T2& b) { return a * static_cast<T1>(b); }
+
+template<class T2> __inline__ __host__ __device__
+_SComplex _ConjMul(const _SComplex& a, const T2& b) { return make_cuComplex(a.x * static_cast<FLOAT>(b), -a.y * static_cast<FLOAT>(b)); }
+
+template<class T2> __inline__ __host__ __device__
+_DComplex _ConjMul(const _DComplex& a, const T2& b) { return make_cuDoubleComplex(a.x * static_cast<DOUBLE>(b), -a.y * static_cast<DOUBLE>(b)); }
+
+template<class T1> __inline__ __host__ __device__
+T1 _ConjMul(const T1& a, const _SComplex b) { return a * static_cast<T1>(cuCabsf(b)); }
+
+template<class T1> __inline__ __host__ __device__
+T1 _ConjMul(const T1& a, const _DComplex& b) { return a * static_cast<T1>(cuCabs(b)); }
+
+__inline__ __host__ __device__
+_SComplex _ConjMul(const _SComplex& a, const _SComplex& b) { return cuCmulf(cuConjf(a), b); }
+
+__inline__ __host__ __device__
+_SComplex _ConjMul(const _SComplex& a, const _DComplex& b)
+{
+    return make_cuComplex(
+        a.x * static_cast<FLOAT>(b.x) + a.y * static_cast<FLOAT>(b.y),
+        a.x * static_cast<FLOAT>(b.y) - a.y * static_cast<FLOAT>(b.x)
+    );
+}
+
+__inline__ __host__ __device__
+_DComplex _ConjMul(const _DComplex& a, const _DComplex& b) { return cuCmul(cuConj(a), b); }
+
+__inline__ __host__ __device__
+_DComplex _ConjMul(const _DComplex& a, const _SComplex& b)
+{
+    return make_cuDoubleComplex(
+        a.x * static_cast<DOUBLE>(b.x) + a.y * static_cast<DOUBLE>(b.y),
+        a.x * static_cast<DOUBLE>(b.y) - a.y * static_cast<DOUBLE>(b.x)
     );
 }
 

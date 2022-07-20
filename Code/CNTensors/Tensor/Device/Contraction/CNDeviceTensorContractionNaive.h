@@ -12,6 +12,8 @@
 #ifndef _CNDEVICETENSOR_CONTRACTION_NAIVE_H_
 #define _CNDEVICETENSOR_CONTRACTION_NAIVE_H_
 
+#define _CN_CONTRACTION_INDEX_COUNT_ONE_TIME 16
+
 #define __IMPLEMENT_ContractionNaiveOneType(type, op) \
 template class CNDeviceTensorContractionNaiveOneType<TOperator_##op<type, type>, type>;
 

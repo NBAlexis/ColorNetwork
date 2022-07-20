@@ -11,12 +11,15 @@
 
 __BEGIN_NAMESPACE
 
-template<class T>
-UBOOL CNMatrixSVD::DecomposeLanzcos(const CNHostTensor<T>& t1, const CNIndexBlock& left, const CNIndexBlock& right, CNHostTensor<T>** v, CNHostTensor<T>** s, CNHostTensor<T>** u, UINT uiTruncate)
-{
-
-	return FALSE;
-}
+/**
+*
+*/
+//template<class T>
+//UBOOL CNMatrixSVD::DecomposeLanczos(const CNHostTensor<T>& t1, const CNIndexBlock& left, const CNIndexBlock& right, CNHostTensor<T>** v, CNHostTensor<T>** s, CNHostTensor<T>** u, UINT uiTruncate)
+//{
+//
+//	return FALSE;
+//}
 
 __END_NAMESPACE
 

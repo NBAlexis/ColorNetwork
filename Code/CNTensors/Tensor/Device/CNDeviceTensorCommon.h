@@ -87,6 +87,12 @@ void name(Tdst* pBuffer, const Tsrc& v, UINT uiTotalSize) \
     ((Calc*)this)->name(pBuffer, v, uiTotalSize); \
 }
 
+#define __IMPLEMENT_COMMON_THREE1(op1, op2, type1, type2, calc) \
+template class calc<TOperator_##op1<type1, type1>, TOperator_##op2<type1, type2>, type1, type2>;
+
+#define __IMPLEMENT_COMMON_THREEAPXY(type1, type2, calc) \
+__IMPLEMENT_COMMON_THREE1(Add, Mul, type1, type2, calc)
+
 
 __BEGIN_NAMESPACE
 
@@ -185,6 +191,25 @@ public:
     __OVER_ALL_TWO_OP(__Tensor_Common_Two_Func_Tensor_NoReturn)
     __OVER_ALL_TWO_OP(__Tensor_Common_Two_Func_Value_Total)
 
+    /**
+    * dst = dst + v * src
+    * type of dst and v should be the same
+    */
+    template<class Tdst, class Tsrc>
+    void Axpy(
+        Tdst* pBuffer,
+        const Tdst& v,
+        const Tsrc* __restrict__ src,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        ((Calc*)this)->Axpy(pBuffer, v, src, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount);
+    }
+
     template<class T>
     static void DebugPrint(const T* __restrict__ src, UINT uiSize)
     {
@@ -222,6 +247,11 @@ public:
         }
         const UINT uiSize = uiXDim * uiYDim;
         T* hostBuffer = (T*)malloc(sizeof(T) * uiSize);
+        if (NULL == hostBuffer)
+        {
+            appCrucial(_T("malloc failed!\n"));
+            return;
+        }
         appGetCuda()->CopyDH(hostBuffer, src, sizeof(T) * uiSize);
 
         appGeneral(_T("{\n"));

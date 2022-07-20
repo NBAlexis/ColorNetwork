@@ -30,9 +30,9 @@ public:
 		
 	}
 
-	CNIndex(const class CNIndexBlock& block);
-	CNIndex(const class CNIndexBlock& block1, const class CNIndexBlock& block2);
-	CNIndex(const TArray<class CNIndexBlock>& blocks);
+	CNIndex(const class CNIndexBlockDetail& block);
+	CNIndex(const class CNIndexBlockDetail& block1, const class CNIndexBlockDetail& block2);
+	CNIndex(const TArray<class CNIndexBlockDetail>& blocks);
 
 	CNIndex(const TArray<CCString>& names, const TArray<UINT>& lengths);
 
@@ -45,7 +45,8 @@ public:
 	const UINT* GetLengthes() const { return m_lstDim.GetData(); }
 	const UINT* GetStrides() const { return m_lstStride.GetData(); }
 
-	UBOOL GetBlock(const CNIndexBlock& ranges, TArray<UINT>& strides, TArray<UINT>& length, UINT& indexstart) const;
+	UBOOL GetBlock(const CNIndexBlock& ranges, TArray<UINT>& strides, TArray<UINT>& length, UINT& indexstart, UINT& volume) const;
+	UBOOL GetBlock(const CNIndexBlock& ranges, CNIndexBlockDetail& outblock) const;
 	UBOOL GetOneIndex(const CNOneIndexRange& range, UINT& addstartidx, UINT& stride, UINT& length) const;
 
 	UBOOL Combine(const CNIndexName& combinedTo);
@@ -59,7 +60,7 @@ public:
 	UINT GetVolume() const { return m_uiVolume; }
 	UINT GetDimOfOneOrder(UINT uiOrder) const 
 	{
-		if (uiOrder < m_lstDim.Num())
+		if (uiOrder < static_cast<UINT>(m_lstDim.Num()))
 		{
 			return m_lstDim[uiOrder];
 		}

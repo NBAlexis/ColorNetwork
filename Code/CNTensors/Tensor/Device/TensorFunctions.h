@@ -17,6 +17,7 @@ __BEGIN_NAMESPACE
 
 
 
+#if 0
 
 #pragma region Common
 
@@ -170,7 +171,7 @@ void MM(Tresult* dest, const TLeft* __restrict__ left, const TRight* __restrict_
 
 #pragma endregion
 
-#if 0
+
 
 template <class T> CNAPI T Dot(T* self, T* src);
 

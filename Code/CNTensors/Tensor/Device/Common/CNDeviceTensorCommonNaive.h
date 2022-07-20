@@ -162,6 +162,34 @@ protected:
     TOperator_S<Operator, Tdst, Tsrc> m_op;
 };
 
+template<class Operator1, class Operator2, class Tdst, class Tsrc>
+class __DLL_EXPORT CNDeviceTensorCommonThreeOperatorNaive
+{
+public:
+    CNDeviceTensorCommonThreeOperatorNaive()
+        : m_op1()
+        , m_op2()
+    {
+
+    }
+
+    void ThreeOperatorTensor(
+        Tdst* pBuffer,
+        const Tdst& v,
+        const Tsrc* __restrict__ src,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount);
+
+protected:
+
+    TOperator_S<Operator1, Tdst, Tdst> m_op1;
+    TOperator_S<Operator2, Tdst, Tsrc> m_op2;
+};
+
 class __DLL_EXPORT CNDeviceTensorCommonNaive : public TCNDeviceTensorCommon<CNDeviceTensorCommonNaive>
 {
 public:
@@ -227,7 +255,26 @@ public:
     __OVER_ALL_TWO_OP(__NAIVECALC_TWOELEMENT_TENSOR)
 
     __OVER_ALL_TWO_OP(__NAIVECALC_TWOELEMENT_TOTAL)
-        
+
+    /**
+    * dst = dst + v * src
+    * type of dst and v should be the same
+    */
+    template<class Tdst, class Tsrc>
+    void Axpy(
+        Tdst* pBuffer,
+        const Tdst& v,
+        const Tsrc* __restrict__ src,
+        UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        CNDeviceTensorCommonThreeOperatorNaive<TOperator_Add<Tdst, Tdst>, TOperator_Mul<Tdst, Tsrc>, Tdst, Tsrc>()
+            .ThreeOperatorTensor(pBuffer, v, src, dstIndexStart, dstStride, srcIndexStart, srcStride, lengths, byIndexCount);
+    }
 };
 
 __END_NAMESPACE

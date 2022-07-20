@@ -228,6 +228,29 @@ public:
 
     __OVER_ALL_TWO_OP(__DeviceTensorTwoElementFuncTotal)
         
+    template <class Calc, class Tsrc>
+    void Axpy(
+        TCNDeviceTensorCommon<Calc>* pCalc,
+        const T& v,
+        const Tsrc* __restrict__ src,
+        const UINT dstIndexStart,
+        const UINT* __restrict__ dstStride,
+        const UINT srcIndexStart,
+        const UINT* __restrict__ srcStride,
+        const UINT* __restrict__ lengths,
+        BYTE byIndexCount)
+    {
+        pCalc->Axpy(
+            m_pDeviceDataBuffer,
+            v,
+            src,
+            dstIndexStart,
+            dstStride,
+            srcIndexStart,
+            srcStride,
+            lengths,
+            byIndexCount);
+    }
 
     template <class Calc>
     void Sum(TCNDeviceTensorContraction<Calc>* pCalc,

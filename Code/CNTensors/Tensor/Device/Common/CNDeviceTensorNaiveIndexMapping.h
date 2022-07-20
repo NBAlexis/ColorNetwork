@@ -333,37 +333,39 @@ __device__ static __inline__ void _deviceWorkIndexToTensorIndexNaiveLR(
 * ret = sum _k0 _deviceNestedSum(uiLeftStart + k0 * leftStrides[0], uiRightStart + k0 * rightStrides[0], 1)
 *     = sum _k0k1 _deviceNestedSum(uiLeftStart + k0 * leftStrides[0] + k1 * leftStrides[1], uiRightStart + k0 * rightStrides[0] + k1 * rightStrides[1], 2)
 *     = sum _k0k1k3 ...
+* 
+* recursion should not be used, because stack size cannot be statically determined
 */
-template<class Tsrc, class Tdst>
-__device__ static __inline__ Tsrc _deviceNestedSum(
-    const Tsrc* __restrict__ left,
-    const Tdst* __restrict__ right,
-    UINT uiLeftStart,
-    UINT uiRightStart,
-    const UINT* __restrict__ leftStrides,
-    const UINT* __restrict__ rightStrides,
-    const UINT* __restrict__ lengths,
-    UINT uiIdxDepth,
-    UINT uiIdxCount,
-    UBOOL bConjugate)
-{
-    if (uiIdxDepth == uiIdxCount - 1)
-    {
-        TSrc ret = _Mul(bConjugate ? _Conj(left[uiLeftStart]) : left[uiLeftStart], right[uiRightStart]);
-        for (UINT k = 1; k < lengths[uiIdxDepth]; ++k)
-        {
-            ret = _Add(ret, _Mul(bConjugate ? _Conj(left[uiLeftStart + k * leftStrides[uiIdxDepth]]) : left[uiLeftStart + k * leftStrides[uiIdxDepth]], right[uiRightStart + k * rightStrides[uiIdxDepth]]));
-        }
-        return ret;
-    }
-
-    TSrc ret = _deviceNestedSum(left, right, uiLeftStart, uiRightStart, leftStrides, rightStrides, lengths, uiIdxDepth + 1, uiIdxCount);
-    for (UINT k = 1; k < lengths[uiIdxDepth]; ++k)
-    {
-        ret = _Add(ret, _deviceNestedSum(left, right, uiLeftStart + k * leftStrides[uiIdxDepth], uiRightStart + rightStrides[uiIdxDepth], leftStrides, rightStrides, lengths, uiIdxDepth + 1, uiIdxCount);
-    }
-    return ret;
-}
+//template<class Tsrc, class Tdst>
+//__device__ static __inline__ Tsrc _deviceNestedSum(
+//    const Tsrc* __restrict__ left,
+//    const Tdst* __restrict__ right,
+//    UINT uiLeftStart,
+//    UINT uiRightStart,
+//    const UINT* __restrict__ leftStrides,
+//    const UINT* __restrict__ rightStrides,
+//    const UINT* __restrict__ lengths,
+//    UINT uiIdxDepth,
+//    UINT uiIdxCount,
+//    UBOOL bConjugate)
+//{
+//    if (uiIdxDepth == uiIdxCount - 1)
+//    {
+//        Tsrc ret = _Mul(bConjugate ? _Conj(left[uiLeftStart]) : left[uiLeftStart], right[uiRightStart]);
+//        for (UINT k = 1; k < lengths[uiIdxDepth]; ++k)
+//        {
+//            ret = _Add(ret, _Mul(bConjugate ? _Conj(left[uiLeftStart + k * leftStrides[uiIdxDepth]]) : left[uiLeftStart + k * leftStrides[uiIdxDepth]], right[uiRightStart + k * rightStrides[uiIdxDepth]]));
+//        }
+//        return ret;
+//    }
+//
+//    Tsrc ret = _deviceNestedSum(left, right, uiLeftStart, uiRightStart, leftStrides, rightStrides, lengths, uiIdxDepth + 1, uiIdxCount, bConjugate);
+//    for (UINT k = 1; k < lengths[uiIdxDepth]; ++k)
+//    {
+//        ret = _Add(ret, _deviceNestedSum(left, right, uiLeftStart + k * leftStrides[uiIdxDepth], uiRightStart + rightStrides[uiIdxDepth], leftStrides, rightStrides, lengths, uiIdxDepth + 1, uiIdxCount, bConjugate));
+//    }
+//    return ret;
+//}
 
 
 __END_NAMESPACE

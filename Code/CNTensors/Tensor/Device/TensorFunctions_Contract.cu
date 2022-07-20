@@ -14,6 +14,8 @@
 
 __BEGIN_NAMESPACE
 
+#if 0
+
 #pragma region kernels
 
 /**
@@ -51,6 +53,8 @@ void MM(Tresult* dest, const TLeft* __restrict__ left, const TRight* __restrict_
 {
     
 }
+
+#endif
 
 __END_NAMESPACE
 

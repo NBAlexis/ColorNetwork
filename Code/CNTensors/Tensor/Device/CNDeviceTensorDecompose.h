@@ -14,6 +14,7 @@
 
 __BEGIN_NAMESPACE
 
+#if 0
 template<class Calc>
 class __DLL_EXPORT TCNDeviceTensorDecompose
 {
@@ -47,6 +48,7 @@ public:
 
 
 };
+#endif
 
 __END_NAMESPACE
 

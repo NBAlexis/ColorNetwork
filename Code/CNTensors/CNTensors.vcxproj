@@ -79,6 +79,7 @@
     <CudaCompile Include="CudaFunctions\CNRandom.cu" />
     <CudaCompile Include="CudaFunctions\CudaHelper.cu" />
     <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveOneOperator.cu" />
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveThreeOperator.cu" />
     <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveTwoOperator.cu" />
     <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorRandom.cu" />
     <CudaCompile Include="Tensor\Device\Contraction\CNDeviceTensorContractionNaiveOneType.cu" />
@@ -230,7 +231,7 @@
     </CudaCompile>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_75,sm_75;</CodeGeneration>
+      <CodeGeneration>compute_86,sm_86;</CodeGeneration>
       <Defines>WIN64</Defines>
       <Runtime>MDd</Runtime>
       <AdditionalCompilerOptions>

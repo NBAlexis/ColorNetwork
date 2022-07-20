@@ -31,6 +31,13 @@ public:
     {
         ((Operator*)this)->Do(d, s);
     }
+
+    __inline__ __host__ __device__ dstT Dor(const dstT& d, const srcT& s) const
+    {
+        dstT r = d;
+        ((Operator*)this)->Do(r, s);
+        return r;
+    }
 };
 
 template<class dstT, class srcT>

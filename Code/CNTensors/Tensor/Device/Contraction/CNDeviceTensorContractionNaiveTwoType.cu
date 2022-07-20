@@ -74,6 +74,7 @@ _kernel_NaiveContract_Small(
     UINT uiIdxSrc2 = src2IndexStart;
     _deviceWorkIndexToTensorIndexNaiveLR(uiIdxSrc1, uiIdxSrc2, byIndexLeft, idx.m_Idx, srcStride, byIndexCount);
     dst[uiIdxDst] = _Mul(bConjugate ? _Conj(src1[uiIdxSrc1]) : src1[uiIdxSrc1], src2[uiIdxSrc2]);
+
     #pragma unroll
     for (UINT i = 1; i < sumLength; ++i)
     {
@@ -106,7 +107,39 @@ _kernel_NaiveContractM(
     UINT uiIdxSrc1 = src1IndexStart;
     UINT uiIdxSrc2 = src2IndexStart;
     _deviceThreadIdxToTensorIdxNaiveLR(uiIdxSrc1, uiIdxSrc2, byIndexLeft, srcStride, mutipliedlengths, uiIdx, byIndexCount);
-    dst[uiIdxDst] = _deviceNestedSum(src1, src2, uiIdxSrc1, uiIdxSrc2, sumStride1, sumStride2, sumLength, 0, bySumIndexCount, bConjugate);
+
+    UINT idxCounter[_CN_CONTRACTION_INDEX_COUNT_ONE_TIME];
+    UINT loop = sumLength[0];
+    idxCounter[0] = 0;
+    for (BYTE i = 1; i < bySumIndexCount; ++i)
+    {
+        loop = loop * sumLength[i];
+        idxCounter[i] = 0;
+    }
+
+    UINT uiLeftIndex = 0;
+    UINT uiRightIndex = 0;
+    dst[uiIdxDst] = _Mul(bConjugate ? _Conj(src1[uiIdxSrc1]) : src1[uiIdxSrc1], src2[uiIdxSrc2]);
+    for (UINT i = 0; i < loop; ++i)
+    {
+        idxCounter[0] = idxCounter[0] + 1;
+        uiLeftIndex = uiLeftIndex + sumStride1[0];
+        uiRightIndex = uiRightIndex + sumStride2[0];
+        for (BYTE i = 0; i < bySumIndexCount; ++i)
+        {
+            if (idxCounter[i] > sumLength[i])
+            {
+                idxCounter[i] = 0;
+                idxCounter[i + 1] = idxCounter[i + 1] + 1;
+
+                uiLeftIndex = uiLeftIndex - sumStride1[i];
+                uiLeftIndex = uiLeftIndex + sumStride1[i + 1];
+                uiRightIndex = uiRightIndex - sumStride2[i];
+                uiRightIndex = uiRightIndex + sumStride2[i + 1];
+            }
+            dst[uiIdxDst] = _Add(dst[uiIdxDst], _Mul(bConjugate ? _Conj(src1[uiIdxSrc1 + uiLeftIndex]) : src1[uiIdxSrc1 + uiLeftIndex], src2[uiIdxSrc2 + uiRightIndex]));
+        }
+    }
 }
 
 template <class dstT, class srcT>
@@ -135,7 +168,39 @@ _kernel_NaiveContractM_Small(
     UINT uiIdxSrc1 = src1IndexStart;
     UINT uiIdxSrc2 = src2IndexStart;
     _deviceWorkIndexToTensorIndexNaiveLR(uiIdxSrc1, uiIdxSrc2, byIndexLeft, idx.m_Idx, srcStride, byIndexCount);
-    dst[uiIdxDst] = _deviceNestedSum(src1, src2, uiIdxSrc1, uiIdxSrc2, sumStride1, sumStride2, sumLength, 0, bySumIndexCount, bConjugate);
+
+    UINT idxCounter[_CN_CONTRACTION_INDEX_COUNT_ONE_TIME];
+    UINT loop = sumLength[0];
+    idxCounter[0] = 0;
+    for (BYTE i = 1; i < bySumIndexCount; ++i)
+    {
+        loop = loop * sumLength[i];
+        idxCounter[i] = 0;
+    }
+    
+    UINT uiLeftIndex = 0;
+    UINT uiRightIndex = 0;
+    dst[uiIdxDst] = _Mul(bConjugate ? _Conj(src1[uiIdxSrc1]) : src1[uiIdxSrc1], src2[uiIdxSrc2]);
+    for (UINT i = 0; i < loop; ++i)
+    {
+        idxCounter[0] = idxCounter[0] + 1;
+        uiLeftIndex = uiLeftIndex + sumStride1[0];
+        uiRightIndex = uiRightIndex + sumStride2[0];
+        for (BYTE i = 0; i < bySumIndexCount; ++i)
+        {
+            if (idxCounter[i] > sumLength[i])
+            {
+                idxCounter[i] = 0;
+                idxCounter[i + 1] = idxCounter[i + 1] + 1;
+
+                uiLeftIndex = uiLeftIndex - sumStride1[i];
+                uiLeftIndex = uiLeftIndex + sumStride1[i + 1];
+                uiRightIndex = uiRightIndex - sumStride2[i];
+                uiRightIndex = uiRightIndex + sumStride2[i + 1];
+            }
+            dst[uiIdxDst] = _Add(dst[uiIdxDst], _Mul(bConjugate ? _Conj(src1[uiIdxSrc1 + uiLeftIndex]) : src1[uiIdxSrc1 + uiLeftIndex], src2[uiIdxSrc2 + uiRightIndex]));
+        }
+    }
 }
 
 #pragma endregion
@@ -220,6 +285,11 @@ void CNDeviceTensorContractionNaiveTwoType<Tdst, Tsrc>::Contraction(Tdst* pDstBu
     BYTE bySumIndexCount,
     UBOOL bConjugate) const
 {
+    if (bySumIndexCount > _CN_CONTRACTION_INDEX_COUNT_ONE_TIME)
+    {
+        appCrucial(_T("Too many contraction index at one time!! %d (max supported: %d)"), bySumIndexCount, _CN_CONTRACTION_INDEX_COUNT_ONE_TIME);
+        return;
+    }
     const UINT dataSize = sizeof(UINT) * byIndexCount;
     const UINT dataSizeSum = sizeof(UINT) * bySumIndexCount;
     const UINT totalBufferSize = dataSize * 3 + dataSizeSum * 3;
@@ -260,9 +330,9 @@ void CNDeviceTensorContractionNaiveTwoType<Tdst, Tsrc>::Contraction(Tdst* pDstBu
         (UINT*)(deviceBuffer + (dataSize << 1)),
         byIndexCount,
         byIndexCountLeft,
-        deviceBuffer + 3 * dataSize,
-        deviceBuffer + 3 * dataSize + dataSizeSum,
-        deviceBuffer + 3 * dataSize + (dataSizeSum << 1),
+        (UINT*)(deviceBuffer + 3 * dataSize),
+        (UINT*)(deviceBuffer + 3 * dataSize + dataSizeSum),
+        (UINT*)(deviceBuffer + 3 * dataSize + (dataSizeSum << 1)),
         bySumIndexCount,
         bConjugate
     );

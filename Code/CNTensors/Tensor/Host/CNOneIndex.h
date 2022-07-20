@@ -129,6 +129,7 @@ public:
 
 	}
 
+	//The whole range of an index
 	CNOneIndexRange(const ANSICHAR* name)
 		: m_iFrom(0)
 		, m_iTo(-1)
@@ -137,6 +138,7 @@ public:
 
 	}
 
+	//The i-th element of an index
 	CNOneIndexRange(const ANSICHAR* name, INT idx)
 		: m_iFrom(idx)
 		, m_iTo(idx + 1)
@@ -159,6 +161,18 @@ public:
 		, m_sName(other.m_sName)
 	{
 
+	}
+
+	void SetAsElementIndex(INT iIdx)
+	{
+		m_iFrom = iIdx;
+		m_iTo = iIdx + 1;
+	}
+
+	void SetAsWholeRange()
+	{
+		m_iFrom = 0;
+		m_iTo = -1;
 	}
 
 	const CNOneIndexRange& operator=(const CNOneIndexRange& other)
@@ -189,14 +203,36 @@ public:
 class CNAPI CNIndexBlock
 {
 public:
+
+	CNIndexBlock()
+	{
+
+	}
+
 	CNIndexBlock(const TArray<CNOneIndexRange>& ranges)
 		: m_lstRange(ranges)
 	{
 
 	}
 
-	CNIndexBlock(const TArray<CNIndexName>& names)
+	CNIndexBlock(UINT count, const CNIndexName* names)
 	{
+		for (UINT i = 0; i < count; ++i)
+		{
+			m_lstRange.AddItem(CNOneIndexRange(names[i]));
+		}
+	}
+
+	CNIndexBlock(const TArray<CNIndexName>& names)
+		: CNIndexBlock(static_cast<UINT>(names.Num()), names.GetData())
+	{
+
+	}
+
+	//refer to a vector
+	CNIndexBlock(const CNIndexName& vectorIndexName, INT vectorIndex, const TArray<CNIndexName>& names)
+	{
+		m_lstRange.AddItem(CNOneIndexRange(vectorIndexName, vectorIndex));
 		for (INT i = 0; i < names.Num(); ++i)
 		{
 			m_lstRange.AddItem(CNOneIndexRange(names[i]));
@@ -217,6 +253,18 @@ public:
 		{
 			m_lstRange.AddItem(CNOneIndexRange(names[i]));
 		}
+	}
+
+	CNIndexBlock(const CNIndexBlock& block)
+		: m_lstRange(block.m_lstRange)
+	{
+
+	}
+
+	CNIndexBlock(const CNIndexBlock& block1, const CNIndexBlock& block2)
+		: m_lstRange(block1.m_lstRange)
+	{
+		m_lstRange.Append(block2.m_lstRange);
 	}
 
 	TArray<CNOneIndexRange> m_lstRange;
@@ -240,8 +288,39 @@ public:
 		}
 		return CNIndexBlock(right);
 	}
+
+	void operator=(const CNIndexBlock& other)
+	{
+		m_lstRange = other.m_lstRange;
+	}
 };
 
+class CNAPI CNIndexBlockDetail
+{
+public:
+
+	CNIndexBlockDetail()
+		: m_uiIndexStart(0)
+		, m_uiVolume(1)
+	{
+
+	}
+
+	CNIndexBlockDetail(const CNIndexName& name, UINT uiLength)
+		: m_uiIndexStart(0)
+		, m_uiVolume(uiLength)
+	{
+		m_lstStrides.AddItem(1);
+		m_lstDims.AddItem(uiLength);
+		m_lstNames.AddItem(name);
+	}
+
+	UINT m_uiIndexStart;
+	UINT m_uiVolume;
+	TArray<UINT> m_lstStrides;
+	TArray<UINT> m_lstDims;
+	TArray< CNIndexName> m_lstNames;
+};
 
 __END_NAMESPACE
 

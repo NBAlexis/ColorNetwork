@@ -226,5 +226,8 @@
     <CudaCompile Include="Tensor\Device\Contraction\CNDeviceTensorContractionNaiveTwoType.cu">
       <Filter>Tensor\Device\Contraction</Filter>
     </CudaCompile>
+    <CudaCompile Include="Tensor\Device\Common\CNDeviceTensorCommonNaiveThreeOperator.cu">
+      <Filter>Tensor\Device\Common</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>
