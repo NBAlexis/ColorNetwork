@@ -51,7 +51,23 @@ UBOOL CNTensorLib::Initial(CParameters& sConfig)
 
 void CNTensorLib::InitialRandom(CParameters& sConfig)
 {
-    m_pRandom = new CRandom(0, MAX_THREAD, ER_Schrage);
+    CCString sRandom = _T("ER_Schrage");
+    sConfig.FetchStringValue(_T("ERandom"), sRandom);
+    ERandom eRandom = __STRING_TO_ENUM(ERandom, sRandom);
+
+    CCString sSeed = _T("Timestamp");
+    sConfig.FetchStringValue(_T("Seed"), sSeed);
+    UINT uiSeed = 0;
+    if (sSeed == _T("Timestamp"))
+    {
+        uiSeed = appGetTimeStamp();
+    }
+    else
+    {
+        uiSeed = appStoUI(sSeed.c_str());
+    }
+
+    m_pRandom = new CRandom(uiSeed, MAX_THREAD, eRandom);
     appCudaMalloc((void**)&m_pDeviceRandom, sizeof(CRandom));
     checkCudaErrors(cudaMemcpy(m_pDeviceRandom, m_pRandom, sizeof(CRandom), cudaMemcpyHostToDevice));
     m_pCuda->CopyRandomPointer(m_pDeviceRandom);

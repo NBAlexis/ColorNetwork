@@ -5,6 +5,9 @@
     <ClCompile Include="Src\TestOneTwoElementOps.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="Src\TestIO.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CNTest.h" />
@@ -19,6 +22,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Bin\YAMLs\TensorBasicOps.yaml">
+      <Filter>YAMLs</Filter>
+    </None>
+    <None Include="..\..\Bin\YAMLs\TensorIOTest.yaml">
       <Filter>YAMLs</Filter>
     </None>
   </ItemGroup>

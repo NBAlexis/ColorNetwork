@@ -90,6 +90,117 @@ void name(TCNDeviceTensorCommon<Calc>* pCalc, const Tsrc& v) \
 
 __BEGIN_NAMESPACE
 
+template<class T> __inline__ __host__ __device__
+BYTE TensorRtti(T* pointer) { return 0; }
+
+template<> __inline__ __host__ __device__
+BYTE TensorRtti(SBYTE* pointer) { return 1; }
+
+template<> __inline__ __host__ __device__
+BYTE TensorRtti(INT* pointer) { return 2; }
+
+template<> __inline__ __host__ __device__
+BYTE TensorRtti(FLOAT* pointer) { return 3; }
+
+template<> __inline__ __host__ __device__
+BYTE TensorRtti(DOUBLE* pointer) { return 4; }
+
+template<> __inline__ __host__ __device__
+BYTE TensorRtti(_SComplex* pointer) { return 5; }
+
+template<> __inline__ __host__ __device__
+BYTE TensorRtti(_DComplex* pointer) { return 6; }
+
+
+UINT __inline__ __host__ __device__ 
+GetTypeSizeOf(BYTE type)
+{
+    switch (type)
+    {
+    case 1:
+        return static_cast<UINT>(sizeof(SBYTE));
+    case 2:
+        return static_cast<UINT>(sizeof(INT));
+    case 3:
+        return static_cast<UINT>(sizeof(FLOAT));
+    case 4:
+        return static_cast<UINT>(sizeof(DOUBLE));
+    case 5:
+        return static_cast<UINT>(sizeof(FLOAT) * 2);
+    case 6:
+        return static_cast<UINT>(sizeof(DOUBLE) * 2);
+    }
+    return 0;
+}
+
+template<class T> __inline__ __host__ __device__
+UBOOL TensorTypeConvert(T& dst, BYTE type, BYTE* valueAddress) 
+{ 
+    switch (type)
+    {
+    case 1:
+        {
+            SBYTE v = 0;
+            memcpy(&v, valueAddress, sizeof(SBYTE));
+            TOperator_Set<T, SBYTE> setop;
+            setop.Do(dst, v);
+            return TRUE;
+        }
+        break;
+    case 2:
+        {
+            INT v = 0;
+            memcpy(&v, valueAddress, sizeof(INT));
+            TOperator_Set<T, INT> setop;
+            setop.Do(dst, v);
+            return TRUE;
+        }
+        break;
+    case 3:
+        {
+            FLOAT v = 0.0f;
+            memcpy(&v, valueAddress, sizeof(FLOAT));
+            TOperator_Set<T, FLOAT> setop;
+            setop.Do(dst, v);
+            return TRUE;
+        }
+        break;
+    case 4:
+        {
+            DOUBLE v = 0.0;
+            memcpy(&v, valueAddress, sizeof(DOUBLE));
+            TOperator_Set<T, DOUBLE> setop;
+            setop.Do(dst, v);
+            return TRUE;
+        }
+        break;
+    case 5:
+        {
+            _SComplex v = _zerocs;
+            //memcpy(&v.x, valueAddress, sizeof(FLOAT));
+            //memcpy(&v.y, valueAddress + sizeof(FLOAT), sizeof(FLOAT));
+            memcpy(&v, valueAddress, sizeof(_SComplex));
+            TOperator_Set<T, _SComplex> setop;
+            setop.Do(dst, v);
+            return TRUE;
+        }
+        break;
+    case 6:
+        {
+            _DComplex v = _zerocd;
+            //memcpy(&v.x, valueAddress, sizeof(DOUBLE));
+            //memcpy(&v.y, valueAddress + sizeof(DOUBLE), sizeof(DOUBLE));
+            memcpy(&v, valueAddress, sizeof(_DComplex));
+            TOperator_Set<T, _DComplex> setop;
+            setop.Do(dst, v);
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE; 
+}
+
+
 __DEFINE_ENUM(ECalculator,
     EC_Naive,
     )
@@ -153,6 +264,16 @@ public:
     void DebugPrint(UINT uiXDim, UINT uiYDim) const
     {
         CNDeviceTensorCommonEmpty::DebugPrint(m_pDeviceDataBuffer, m_uiTotalSize, uiXDim, uiYDim);
+    }
+
+    void CopyOut(BYTE* buffer) const
+    {
+        _memcpy_dh(buffer, m_pDeviceDataBuffer, sizeof(T) * m_uiTotalSize);
+    }
+
+    void CopyIn(BYTE* buffer)
+    {
+        _memcpy_hd(m_pDeviceDataBuffer, buffer, sizeof(T) * m_uiTotalSize);
     }
 
     template <class Calc, class Tsrc>

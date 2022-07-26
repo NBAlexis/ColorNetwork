@@ -48,6 +48,7 @@
     <ClInclude Include="Tensor\Host\CNIndex.h" />
     <ClInclude Include="Tensor\Host\CNOneIndex.h" />
     <ClInclude Include="Tensor\Host\Decompose\CNMatrixSVD.h" />
+    <ClInclude Include="Tools\CFile.h" />
     <ClInclude Include="Tools\CYAMLParser.h" />
     <ClInclude Include="Tools\Data\CBitFlag.h" />
     <ClInclude Include="Tools\Data\CCString.h" />
@@ -70,6 +71,7 @@
     <ClCompile Include="Tensor\Host\CNHostTensor.cpp" />
     <ClCompile Include="Tensor\Host\CNIndex.cpp" />
     <ClCompile Include="Tensor\Host\Decompose\CNMatrixSVD.cpp" />
+    <ClCompile Include="Tools\CFile.cpp" />
     <ClCompile Include="Tools\CYAMLParser.cpp" />
     <ClCompile Include="Tools\Data\CCString.cpp" />
     <ClCompile Include="Tools\Tracer.cpp" />
@@ -213,6 +215,7 @@
       <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_$(Configuration).pdb</ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Libs;$(CudaToolkitLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

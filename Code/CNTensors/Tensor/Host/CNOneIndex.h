@@ -22,6 +22,12 @@ public:
 
 	}
 
+	CNIndexName(const QWORD& other)
+		: m_ulId(other)
+	{
+
+	}
+
 	CNIndexName(const CNIndexName& other)
 		: m_ulId(other.m_ulId)
 	{
@@ -36,6 +42,7 @@ public:
 	void Rename(const ANSICHAR* name)
 	{
 		UINT len = static_cast<UINT>(appStrlen(name));
+		memset(m_byName, 0, sizeof(ANSICHAR) * 8);
 		memcpy(m_byName, name, len > 8 ? sizeof(ANSICHAR) * 8 : sizeof(ANSICHAR) * len);
 		m_byName[7] = 0;
 	}
@@ -77,7 +84,7 @@ class CNAPI CNOneIndex
 public:
 	CNOneIndex()
 		: m_uiLength(0)
-		, m_sName(0)
+		, m_sName()
 	{
 
 	}
@@ -124,7 +131,7 @@ public:
 	CNOneIndexRange()
 		: m_iFrom(0)
 		, m_iTo(0)
-		, m_sName(0)
+		, m_sName()
 	{
 
 	}
@@ -227,6 +234,14 @@ public:
 		: CNIndexBlock(static_cast<UINT>(names.Num()), names.GetData())
 	{
 
+	}
+
+	CNIndexBlock(const TArray<CCString>& names)
+	{
+		for (INT i = 0; i < names.Num(); ++i)
+		{
+			m_lstRange.AddItem(CNOneIndexRange(names[i].c_str()));
+		}
 	}
 
 	//refer to a vector

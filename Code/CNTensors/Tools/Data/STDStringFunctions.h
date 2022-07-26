@@ -12,6 +12,8 @@
 #ifndef _STLSTRINGFUNCTIONS_H_
 #define _STLSTRINGFUNCTIONS_H_
 
+#define tempstringbuffer 4096
+
 #   define appStrpbrk   std::strpbrk
 #   define appStrstr    std::strstr
 #   define appStrcpy    strcpy_s
@@ -70,6 +72,12 @@ inline TCHAR appToLower(TCHAR in)
 
 inline INT appStoI(const TCHAR* str, INT iBase = 10)
 {
+    //static TCHAR tembuffer[tempstringbuffer];
+    //UINT slen = strlen(str);
+    //memcpy(tembuffer, str, (slen > tempstringbuffer ? tempstringbuffer : slen) * sizeof(TCHAR));
+    //tembuffer[tempstringbuffer - 1] = 0;
+    //return atoi(tembuffer);
+
     try { return std::stoi(STDSTRING(str), 0, iBase); }
     catch (...)
     {
@@ -79,6 +87,7 @@ inline INT appStoI(const TCHAR* str, INT iBase = 10)
 
 inline UINT appStoUI(const TCHAR* str, INT iBase = 10)
 {
+    //return static_cast<UINT>(appStoI(str));
     //ulong is uint in MSVC, but not in GCC
     try { return static_cast<UINT>(std::stoul(STDSTRING(str), 0, iBase)); }
     catch (...)
@@ -89,6 +98,11 @@ inline UINT appStoUI(const TCHAR* str, INT iBase = 10)
 
 inline SQWORD appStoLL(const TCHAR* str, INT iBase = 10)
 {
+    //static TCHAR tembuffer[tempstringbuffer];
+    //UINT slen = strlen(str);
+    //memcpy(tembuffer, str, (slen > tempstringbuffer ? tempstringbuffer : slen) * sizeof(TCHAR));
+    //tembuffer[tempstringbuffer - 1] = 0;
+    //return atoll(tembuffer);
     try { return std::stoll(STDSTRING(str), 0, iBase); }
     catch (...)
     {
@@ -98,6 +112,7 @@ inline SQWORD appStoLL(const TCHAR* str, INT iBase = 10)
 
 inline QWORD appStoULL(const TCHAR* str, INT iBase = 10)
 {
+    //return static_cast<QWORD>(appStoLL(str));
     try { return std::stoull(STDSTRING(str), 0, iBase); }
     catch (...)
     {
@@ -107,7 +122,11 @@ inline QWORD appStoULL(const TCHAR* str, INT iBase = 10)
 
 inline FLOAT appStoF(const TCHAR* str)
 {
-    
+    //static TCHAR tembuffer[tempstringbuffer];
+    //UINT slen = strlen(str);
+    //memcpy(tembuffer, str, (slen > tempstringbuffer ? tempstringbuffer : slen) * sizeof(TCHAR));
+    //tembuffer[tempstringbuffer - 1] = 0;
+    //return atof(tembuffer);
     try { return std::stof(STDSTRING(str)); }
     catch (...)
     {
@@ -117,7 +136,6 @@ inline FLOAT appStoF(const TCHAR* str)
 
 inline DOUBLE appStoD(const TCHAR* str)
 {
-    
     try { return std::stod(STDSTRING(str)); }
     catch (...)
     {

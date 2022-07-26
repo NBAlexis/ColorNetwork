@@ -76,6 +76,10 @@ UBOOL name(TCNDeviceTensorCommon<Calc>& calc, const CNIndexBlock& block, const C
     return TRUE; \
 }
 
+#define _HOST_MAKE_FRIENDS(typen) \
+friend class CNHostTensor<typen>; \
+
+
 __BEGIN_NAMESPACE
 
 template<class T>
@@ -127,6 +131,20 @@ public:
             }
             m_Pool[i].m_pPointer->Create(m_Idx);
         }
+    }
+
+    void Release()
+    {
+        m_cDeviceTensor.Release();
+        for (INT i = 0; i < m_Pool.Num(); ++i)
+        {
+            if (m_Pool[i].m_bInUse)
+            {
+                appWarning(_T("Pooled tensor in use when changing mother index!\n"));
+            }
+            appSafeDelete(m_Pool[i].m_pPointer);
+        }
+        m_Pool.RemoveAll();
     }
 
     template<class Calc>
@@ -791,6 +809,124 @@ public:
     }
 
 #pragma endregion
+
+#pragma region IO
+
+    UBOOL CreateWithFile(const CCString& sFileName)
+    {
+        UINT uiTotalSize = 0;
+        BYTE* file = CFile::ReadAllBytes(sFileName.c_str(), uiTotalSize);
+        if (0 == uiTotalSize)
+        {
+            appCrucial(_T("Tensor load failed: %s\n"), sFileName.c_str());
+            return FALSE;
+        }
+
+        UINT uiOrder = 0;
+        memcpy(&uiOrder, file, sizeof(UINT));
+        TArray<UINT> dims;
+        TArray<CNIndexName> names;
+        UINT uiDim = 0;
+        QWORD indexName = 0;
+        for (UINT i = 0; i < uiOrder; ++i)
+        {
+            memcpy(&uiDim, file + sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * i, sizeof(UINT));
+            memcpy(&indexName, file + sizeof(UINT) * 2 + (sizeof(UINT) + sizeof(QWORD)) * i, sizeof(QWORD));
+            dims.AddItem(uiDim);
+            names.AddItem(CNIndexName(indexName));
+        }
+
+        m_Idx = CNIndex(names, dims);
+        Create(m_Idx);
+
+        const BYTE byType = file[sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * m_Idx.GetOrder()];
+        const UINT uiStride = GetTypeSizeOf(byType);
+        const UINT uiStart = sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * m_Idx.GetOrder() + 4;
+
+        if (byType != TensorRtti(m_cDeviceTensor.m_pDeviceDataBuffer))
+        {
+            static const ANSICHAR* namestring[7] =
+            {
+                "Unknown",
+                "SBYTE",
+                "INT",
+                "FLOAT",
+                "DOUBLE",
+                "_SComplex",
+                "_DComplex",
+            };
+            appWarning(_T("Reading a tensor from file %s(%s) with WRONG TYPE(%s), implicity cast is applied.\n"), 
+                sFileName.c_str(), namestring[byType], namestring[TensorRtti(m_cDeviceTensor.m_pDeviceDataBuffer)]);
+        }
+
+        T* writeBuffer = (T*)malloc(sizeof(T) * m_Idx.GetVolume());
+        if (NULL == writeBuffer)
+        {
+            appCrucial(_T("Tensor load failed: %s\n"), sFileName.c_str());
+            return FALSE;
+        }
+        for (UINT i = 0; i < m_Idx.GetVolume(); ++i)
+        {
+            TensorTypeConvert(writeBuffer[i], byType, file + uiStart + uiStride * i);
+            //LogValue(writeBuffer[i]);
+            //appGeneral(_T("\n"));
+        }
+        m_cDeviceTensor.CreateEmpty(m_Idx.GetVolume());
+        m_cDeviceTensor.CopyIn((BYTE*)writeBuffer);
+
+        return TRUE;
+    }
+
+    UBOOL SaveToFile(const CCString& sFileName) const
+    {
+        const UINT totalSize = sizeof(UINT) 
+            + (sizeof(UINT) + sizeof(QWORD)) * m_Idx.GetOrder() 
+            + sizeof(BYTE) * 4
+            + sizeof(T) * m_Idx.GetVolume();
+        BYTE* data = (BYTE*)malloc(totalSize);
+        if (NULL == data)
+        {
+            appCrucial(_T("Tensor save failed: %s\n"), sFileName.c_str());
+            return FALSE;
+        }
+
+        const UINT uiOrder = m_Idx.GetOrder();
+        memcpy(data, &uiOrder, sizeof(UINT));
+        for (UINT i = 0; i < uiOrder; ++i)
+        {
+            UINT uiLength = m_Idx.GetLength(i);
+            QWORD qwName = m_Idx.GetName(i);
+            memcpy(data + sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * i, &uiLength, sizeof(UINT));
+            memcpy(data + sizeof(UINT) * 2 + (sizeof(UINT) + sizeof(QWORD)) * i, &qwName, sizeof(QWORD));
+        }
+
+        BYTE byTensorType = TensorRtti(m_cDeviceTensor.m_pDeviceDataBuffer);
+        memcpy(data + sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * uiOrder, &byTensorType, sizeof(BYTE));
+        byTensorType = 0;
+        memcpy(data + 1 + sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * uiOrder, &byTensorType, sizeof(BYTE));
+        memcpy(data + 2 + sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * uiOrder, &byTensorType, sizeof(BYTE));
+        memcpy(data + 3 + sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * uiOrder, &byTensorType, sizeof(BYTE));
+
+        UINT uiBufferSize = sizeof(T) * m_Idx.GetVolume();
+        m_cDeviceTensor.CopyOut(data + 4 + sizeof(UINT) + (sizeof(UINT) + sizeof(QWORD)) * uiOrder);
+
+        if (!CFile::WriteAllBytes(sFileName.c_str(), data, totalSize))
+        {
+            appCrucial(_T("Tensor save failed: %s\n"), sFileName.c_str());
+            appSafeFree(data);
+            return FALSE;
+        }
+
+        appSafeFree(data);
+
+        return TRUE;
+    }
+
+#pragma endregion
+
+public:
+
+    __OVER_ALL_TYPE_ONE(_HOST_MAKE_FRIENDS)
 
 protected:
 

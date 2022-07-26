@@ -52,6 +52,7 @@
 //using these class to avoid warnings by STL..., see: https://code.i-harness.com/en/q/56642a
 #include "Tools/Data/TArray.h"
 #include "Tools/Data/CCString.h"
+#include "Tools/CFile.h"
 #include "Tools/Data/THashMap.h"
 #include "Tools/Data/CNMD5.h"
 #include "Tools/EnumGather.h"

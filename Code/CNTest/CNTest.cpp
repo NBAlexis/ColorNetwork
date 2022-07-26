@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
     //Load settings
     CParameters params;
     CYAMLParser::ParseFile(_T("../YAMLs/TensorBasicOps.yaml"), params);
+    CYAMLParser::ParseFile(_T("../YAMLs/TensorIOTest.yaml"), params);
     CNSetupLog(params);
 
     TArray<TestList*> allTests;

@@ -52,7 +52,6 @@ inline DOUBLE appStrToDOUBLE(const TCHAR* s)
     return appStoD(s);
 }
 
-
 //=====================================================
 //    CCStringData
 //=====================================================
@@ -901,6 +900,21 @@ inline CCString appGetCutTail(const CCString& orignString, INT seperate, UBOOL b
     TArray <INT> inSep;
     inSep.AddItem(seperate);
     return appGetCutTail(orignString, inSep, bCutSep, bCutHead);
+}
+
+inline CCString appGetHex(FLOAT f)
+{
+    UINT* pV = (UINT*) &f;
+    CCString sRet;
+    for (UINT i = 0; i < 8; ++i)
+    {
+        const BYTE byCurrent = static_cast<BYTE>( ((*pV) & (0xf << (i * 4))) >>  (i * 4) );
+        const TCHAR sThisChar = byCurrent > 9 ? byCurrent - 10 + _T('A') : byCurrent + _T('0');
+        sRet += (TCHAR)sThisChar;
+    }
+    printf("%f %s\n", f, sRet.c_str());
+
+    return sRet;
 }
 
 __END_NAMESPACE

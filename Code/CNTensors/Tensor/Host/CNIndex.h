@@ -36,6 +36,8 @@ public:
 
 	CNIndex(const TArray<CCString>& names, const TArray<UINT>& lengths);
 
+	CNIndex(const TArray<CNIndexName>& names, const TArray<UINT>& lengths);
+
 	CNIndex(UINT uiCount, const CNOneIndex* indexes);
 
 	const CNIndex& operator=(const CNIndex& other);
@@ -44,6 +46,9 @@ public:
 
 	const UINT* GetLengthes() const { return m_lstDim.GetData(); }
 	const UINT* GetStrides() const { return m_lstStride.GetData(); }
+
+	UINT GetLength(UINT uiOrder) const { return m_lstDim[uiOrder]; }
+	QWORD GetName(UINT uiOrder) const { return m_lstIdx[uiOrder].GetId(); }
 
 	UBOOL GetBlock(const CNIndexBlock& ranges, TArray<UINT>& strides, TArray<UINT>& length, UINT& indexstart, UINT& volume) const;
 	UBOOL GetBlock(const CNIndexBlock& ranges, CNIndexBlockDetail& outblock) const;

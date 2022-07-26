@@ -123,6 +123,9 @@
     <ClInclude Include="Tensor\Host\Decompose\CNMatrixSVD.h">
       <Filter>Tensor\Host\Decompose</Filter>
     </ClInclude>
+    <ClInclude Include="Tools\CFile.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -190,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="Tensor\Host\Decompose\CNMatrixSVD.cpp">
       <Filter>Tensor\Host\Decompose</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\CFile.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

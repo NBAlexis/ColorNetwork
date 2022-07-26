@@ -53,6 +53,26 @@ CNIndex::CNIndex(const TArray<CCString>& names, const TArray<UINT>& lengths)
 	m_uiVolume = m_uiVolume * m_lstDim[0];
 }
 
+CNIndex::CNIndex(const TArray<CNIndexName>& names, const TArray<UINT>& lengths)
+{
+	INT len = names.Num() > lengths.Num() ? lengths.Num() : names.Num();
+	m_iOrd = static_cast<UINT>(len);
+	for (INT i = 0; i < len; ++i)
+	{
+		m_lstIdx.AddItem(names[i]);
+		m_lstDim.AddItem(lengths[i]);
+		m_lstStride.AddItem(1);
+		m_indexTable.SetAt(m_lstIdx[i], i);
+	}
+	m_uiVolume = 1;
+	for (UINT i = 1; i < m_iOrd; ++i)
+	{
+		m_uiVolume = m_uiVolume * m_lstDim[m_iOrd - i];
+		m_lstStride[m_iOrd - i - 1] = m_uiVolume;
+	}
+	m_uiVolume = m_uiVolume * m_lstDim[0];
+}
+
 CNIndex::CNIndex(const CNIndexBlockDetail& block)
 {
 	m_iOrd = static_cast<UINT>(block.m_lstNames.Num());
